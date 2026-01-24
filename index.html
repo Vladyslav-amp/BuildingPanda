@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pl">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <title>SolidBud – firma budowlana</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <script>
+  (function () {
+    const KEY = "va_scrollY_v1";
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    document.documentElement.style.scrollBehavior = "auto";
+
+    const raw = sessionStorage.getItem(KEY);
+    const y = raw ? Number(raw) : 0;
+
+    if (Number.isFinite(y) && y > 0) {
+      window.scrollTo(0, y);
+    }
+
+    window.addEventListener("scroll", () => {
+      sessionStorage.setItem(KEY, String(window.scrollY || 0));
+    }, { passive: true });
+
+    window.addEventListener("beforeunload", () => {
+      sessionStorage.setItem(KEY, String(window.scrollY || 0));
+    });
+  })();
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,67 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.main {
+  @include section-padding;
+  background-image: url("../../assets/main_bg.avif");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  height: 100vh;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  &-container {
+    @include max-width-page;
+    @include pageGrid;
+    height: 100%;
+    place-items: center;
+  }
+
+  &-body {
+    grid-column: 1 / -1;
+    justify-items: center;
+    z-index: 10;
+
+    &__logo {
+      font-family: "Playfair Display", serif;
+      font-size: 48px;
+      color: #D4A84F;
+      font-weight: 300;
+    }
+
+    &__slogan {
+      font-family: "Roboto", serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: #fff;
+      text-align: center;
+    }
+
+    &__buttons {
+      display: flex;
+      padding-block-start: 20px;
+      gap: 10px;
+      width: 100%;
+    }
+
+    &__button {
+      background: rgba($color: #676767, $alpha: .4);
+      width: 100%;
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: 1px solid #D4A84F;
+      color: #fff;
+      font-family: "Roboto", serif;
+      font-weight: 300;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  }
+}

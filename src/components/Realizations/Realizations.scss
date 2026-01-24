@@ -1,0 +1,337 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap");
+
+.svc {
+  background: #fff;
+  color: #0f172a;
+  padding: 64px 20px;
+  @include section-padding;
+}
+
+.svc__container {
+  @include max-width-page;
+}
+
+.svc__eyebrow {
+  font-family: $main-title-font;
+  margin: 0 0 10px;
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #d4a84f;
+}
+
+.svc__title {
+  font-family: $main-title-font;
+  margin: 0 0 12px;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.svc__lead {
+  font-family: $main-text-font;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(15, 23, 42, 0.62);
+}
+
+.svc__grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+  margin-top: 22px;
+}
+
+@media (min-width: 720px) {
+  .svc__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .svc__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.svc-card {
+  background: transparent;
+  border-radius: 14px;
+  height: 560px;
+}
+
+.svc-card__flip {
+  height: 100%;
+  perspective: 1200px;
+}
+
+.svc-card__flipInner {
+  position: relative;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 560ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.svc-card__flipInner--flipped {
+  transform: rotateY(180deg);
+}
+
+.svc-card__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  backface-visibility: hidden;
+
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
+}
+
+.svc-card__face--front {
+  transform: rotateY(0deg);
+}
+
+.svc-card__face--back {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.svc-card__media {
+  position: relative;
+  height: 160px;
+  background: #eaf2ff;
+}
+
+.svc-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.svc-card__tag {
+  position: absolute;
+  font-family: $main-title-font;
+  left: 12px;
+  top: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(29, 78, 216, 0.18);
+  color: #d4a84f;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.svc-card__content {
+  padding: 14px;
+  height: calc(100% - 160px);
+  display: grid;
+  grid-template-rows: auto auto auto auto 1fr;
+  gap: 10px;
+}
+
+.svc-card__head {
+  min-height: 46px;
+}
+
+.svc-card__title {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 700;
+  font-family: $main-title-font;
+  color: #475569;
+}
+
+.svc-card__subtitle {
+  margin: 0;
+  font-family: $main-text-font;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.svc-card__summary {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.6;
+  font-family: $main-text-font;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  min-height: calc(1.6em * 3);
+}
+
+.svc-card__highlights {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 68px;
+  align-content: flex-start;
+}
+
+.svc-card__highlight {
+  font-size: 12px;
+  font-family: $main-title-font;
+  color: #0f172a;
+  background: rgba(29, 78, 216, 0.08);
+  border: 1px solid rgba(29, 78, 216, 0.14);
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.svc-card__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  min-height: 62px;
+}
+
+.svc-card__metaItem {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fbfdff;
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+
+.svc-card__metaLabel {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  font-family: $main-title-font;
+}
+
+.svc-card__metaValue {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 2px;
+  font-family: $main-title-font;
+}
+
+.svc-card__actions {
+  align-self: end;
+}
+
+.svc-card__actions--back {
+  margin-top: 10px;
+}
+
+.svc-card__toggle {
+  width: 100%;
+  border: 1px solid rgba(29, 78, 216, 0.25);
+  background: rgba(29, 78, 216, 0.06);
+  color: #d4a84f;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  transition: transform 160ms ease;
+  font-family: $main-text-font;
+}
+
+.svc-card__toggle:hover {
+  transform: translateY(-1px);
+}
+
+.svc-card__toggle:active {
+  transform: translateY(0);
+}
+
+.svc-card__toggle:focus-visible {
+  outline: 3px solid rgba(29, 78, 216, 0.35);
+  outline-offset: 3px;
+}
+
+.svc-card__face--back {
+  padding: 14px;
+  display: grid;
+  
+  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+}
+
+.svc-card__backKicker {
+  color: #d4a84f;
+  font-family: $main-title-font;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.svc-card__backTitle {
+  font-family: $main-title-font;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.svc-card__backLead {
+  margin: 8px 0 0 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.55;
+  font-family: $main-text-font;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  min-height: calc(1.55em * 3);
+}
+
+.svc-card__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.svc-card__step {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.svc-card__stepTitle {
+  font-weight: 600;
+  font-family: $main-title-font;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.svc-card__stepText {
+  font-family: $main-text-font;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-card__flipInner {
+    transition: none;
+  }
+}

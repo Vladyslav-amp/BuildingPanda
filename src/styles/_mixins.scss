@@ -1,0 +1,62 @@
+@use '@/styles/variables' as *;
+
+@mixin section-padding {
+  padding-block: 48px;
+  padding-inline: 240px;
+
+  @media (max-width: 1440px) {
+    padding-block: 48px;
+    padding-inline: 80px;
+  }
+
+  @media (max-width: 768px) {
+    padding-block: 32px;
+    padding-inline: 24px;
+  }
+}
+
+@mixin section-padding-inline {
+  padding-inline: 24px;
+
+  @media (max-width: 1024px) {
+    padding-inline: 80px;
+  }
+
+  @media (max-width: 768px) {
+    padding-inline: 24px;
+  }
+}
+
+@mixin max-width-page {
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@mixin pageGrid {
+  --columns: 3;
+  display: grid;
+  column-gap: 12px;
+  grid-template-columns: repeat(var(--columns), 1fr);
+
+  @include onTablet {
+    --columns: 8;
+    column-gap: 26px;
+  }
+
+  @include onDesktop {
+    --columns: 12;
+  }
+}
+
+@mixin onDesktop {
+  @media (min-width:$desktop-min-width) {
+    @content;
+  }
+}
+
+@mixin onTablet {
+  @media (min-width:$tablet-min-width) {
+    @content;
+  }
+}

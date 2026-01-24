@@ -1,0 +1,208 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.privileges {
+  @include section-padding;
+  background: #eef1f4;
+}
+
+.privileges__inner {
+  @include max-width-page;
+
+}
+
+.privileges__header {
+  max-width: 900px;
+  margin: 0 0 24px;
+}
+
+.privileges__kicker {
+  font-family: $main-title-font;
+  margin: 0 0 10px;
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #d4a84f;
+}
+
+.privileges__heading {
+  font-family: $main-title-font;
+  margin: 0 0 12px;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.privileges__lead {
+  font-family: $main-text-font;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(15, 23, 42, 0.62);
+}
+
+.privileges__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.privileges__card {
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  background: rgba(255, 255, 255, 0.94);
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.88) inset,
+    0 18px 42px rgba(15, 23, 42, 0.08);
+
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  column-gap: 14px;
+  align-items: center;
+
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    transform 600ms cubic-bezier(.2, .8, .2, 1),
+    opacity 600ms cubic-bezier(.2, .8, .2, 1),
+    box-shadow 240ms cubic-bezier(.2, .8, .2, 1),
+    border-color 240ms cubic-bezier(.2, .8, .2, 1),
+    background 240ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.privileges__card--in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .privileges__card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(15, 23, 42, 0.16);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.92) inset,
+      0 30px 70px rgba(15, 23, 42, 0.12);
+  }
+
+  .privileges__card:hover .privileges__badge {
+    border-color: rgba(15, 23, 42, 0.14);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.90) inset,
+      0 16px 34px rgba(15, 23, 42, 0.12);
+  }
+}
+
+.privileges__badge {
+  width: 82px;
+  height: 82px;
+  border-radius: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  background:
+    radial-gradient(150px 110px at 30% 20%, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.95) 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.78));
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.88) inset,
+    0 14px 30px rgba(15, 23, 42, 0.10);
+}
+
+.privileges__icon {
+  width: 36px;
+  height: 36px;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.privileges__body {
+  min-width: 0;
+}
+
+.privileges__label {
+  font-family: $main-title-font;
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(212, 168, 79, 0.75);
+}
+
+.privileges__number {
+  margin: 0 0 10px;
+}
+
+.privileges__value {
+  font-family: $main-text-font;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.privileges__note {
+  font-family: $main-text-font;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(15, 23, 42, 0.62);
+}
+
+@media (max-width: 1100px) {
+  .privileges__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .privileges {
+    padding: 46px 0;
+  }
+
+  .privileges__inner {
+    padding: 0 14px;
+  }
+
+  .privileges__heading {
+    font-size: 24px;
+  }
+
+  .privileges__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .privileges__card {
+    grid-template-columns: 96px 1fr;
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .privileges__badge {
+    width: 80px;
+    height: 80px;
+    border-radius: 22px;
+  }
+
+  .privileges__icon {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .privileges__card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

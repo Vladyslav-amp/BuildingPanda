@@ -1,0 +1,131 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.assistant {
+  position: fixed;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 20;
+  will-change: transform;
+}
+
+.assistant__button {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: radial-gradient(circle at top left, $color-primary, $color-primary-dark);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.assistant__panel {
+  position: absolute;
+  right: 0;
+  bottom: 3.3rem;
+  width: min(320px, 90vw);
+  max-height: 70vh;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background-color: #020617;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.assistant__header {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+.assistant__title {
+  margin: 0 0 0.2rem;
+  font-size: 0.95rem;
+}
+
+.assistant__subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.assistant__messages {
+  flex: 1;
+  padding: 0.7rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+}
+
+.assistant__message {
+  display: flex;
+}
+
+.assistant__message--user {
+  justify-content: flex-end;
+}
+
+.assistant__message--bot {
+  justify-content: flex-start;
+}
+
+.assistant__bubble {
+  max-width: 80%;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.assistant__message--user .assistant__bubble {
+  background-color: $color-primary;
+  color: #451a03;
+  border-bottom-right-radius: 0.2rem;
+}
+
+.assistant__message--bot .assistant__bubble {
+  background-color: #020617;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  color: #e5e7eb;
+  border-bottom-left-radius: 0.2rem;
+}
+
+.assistant__bubble--thinking {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.assistant__form {
+  padding: 0.6rem 0.7rem;
+  display: flex;
+  gap: 0.4rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+.assistant__input {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  background-color: #020617;
+  color: #e5e7eb;
+}
+
+.assistant__send {
+  border-radius: 999px;
+  border: none;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: $color-primary;
+  color: #451a03;
+}
+
+.assistant__send:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
