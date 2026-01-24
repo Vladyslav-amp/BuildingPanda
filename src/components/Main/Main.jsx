@@ -21,7 +21,7 @@ export default function Main() {
     <section id="main" className="main">
       <div className="main-container">
         <div className="main-body">
-          <h1 className="main-body__logo">VAL & ART</h1>
+          <h1 className="main-body__logo">Building Panda</h1>
           <h2 className="main-body__slogan">
             Nowoczesne budowanie — bez kompromisów.
           </h2>

@@ -51,7 +51,7 @@ export default function Footer() {
 
   // ПІДСТАВ СВОЇ РЕАЛЬНІ ДАНІ:
   const company = {
-    name: "VAL&ART Sp. z o.o.",
+    name: "Building Panda Sp. z o.o.",
     tagline: "Budowa • Wykończenia • Remonty • Inwestycje mieszkaniowe",
     addressLine1: "ul. Przykładowa 12, 00-000 Gdańsk, Polska",
     email: "kontakt@twojadomena.pl",
