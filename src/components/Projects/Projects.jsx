@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import "./Projects.scss";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/pagination";
+
+
 import parkowa1 from "../../assets/projects/zakatek-1.webp";
 import parkowa2 from "../../assets/projects/zakatek-1.webp";
 import parkowa3 from "../../assets/projects/zakatek-1.webp";
@@ -177,6 +184,10 @@ export default function Projects() {
 
   const touchStartXRef = useRef(null);
   const filmstripRef = useRef(null);
+  const mobileSwiperRef = useRef(null);
+  const activeMobileItemRef = useRef(null);
+  const scrollBeforeOpenRef = useRef(0);
+
 
   const tiltY = useMotionValue(0);
 
@@ -242,27 +253,63 @@ export default function Projects() {
     };
   }, [activeProject, isMobile]);
 
+  useEffect(() => {
+    const s = mobileSwiperRef.current;
+    if (!s) return;
+
+    const locked = !!activeProjectId;
+
+    s.allowTouchMove = !locked;
+    if (locked) {
+      try { s.slideTo(s.activeIndex, 0); } catch {""}
+    }
+  }, [activeProjectId]);
+
+  useEffect(() => {
+  if (!isMobile) return;
+  if (!activeProjectId) return;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      scrollActiveCardIntoView();
+    });
+  });
+}, [activeProjectId, isMobile]);
+
+
+
   const handleSelectProject = (id) => {
-    if (isMobile && activeProjectId === id) {
-      setActiveProjectId(null);
-      return;
-    }
+  if (isMobile && activeProjectId === id) {
+    setActiveProjectId(null);
 
-    setActiveProjectId(id);
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: scrollBeforeOpenRef.current,
+        behavior: "auto",
+      });
+    });
 
-    if (!isMobile && filmstripRef.current) {
-      const card = filmstripRef.current.querySelector(
-        `[data-project-id="${id}"]`
-      );
-      if (card && typeof card.scrollIntoView === "function") {
-        card.scrollIntoView({
-          behavior: "smooth",
-          inline: "center",
-          block: "nearest"
-        });
-      }
-    }
-  };
+    return;
+  }
+
+  if (isMobile) {
+    scrollBeforeOpenRef.current = window.pageYOffset;
+  }
+
+  setActiveProjectId(id);
+
+  if (!isMobile && filmstripRef.current) {
+    const card = filmstripRef.current.querySelector(
+      `[data-project-id="${id}"]`
+    );
+    card?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }
+};
+
 
   const handlePrevImage = () => {
     if (!activeProject) return;
@@ -325,9 +372,34 @@ export default function Projects() {
       ? activeProject.images[activeImageIndex]
       : null;
 
+      const scrollActiveCardIntoView = () => {
+  const el = activeMobileItemRef.current;
+  if (!el) return;
+
+  const HEADER_OFFSET = 80;
+  const rect = el.getBoundingClientRect();
+  const top = window.pageYOffset + rect.top - HEADER_OFFSET;
+
+  window.scrollTo({ top, behavior: "smooth" });
+};
+
+useEffect(() => {
+  if (!isMobile) return;
+  if (!activeProjectId) return;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      scrollActiveCardIntoView();
+      setTimeout(scrollActiveCardIntoView, 150);
+    });
+  });
+}, [activeProjectId, isMobile]);
+
+
+
   return (
     <section
-      id="executive-projects"
+      id="realizations"
       className="section section--light projects-accordion"
     >
       <div className="section__inner projects-accordion__inner">
@@ -344,127 +416,122 @@ export default function Projects() {
         </header>
 
         {isMobile && (
-          <div className="projects-accordion__cards">
-            {PROJECTS.map((project) => {
-              const cover = project.images[0];
-              const isActive = project.id === activeProjectId;
+          <div
+            className="projects-accordion__slider"
+            style={{ "--projects-progress": "#00E5FF" }}
+          >
+            <Swiper
+              onSwiper={(s) => (mobileSwiperRef.current = s)}
+              nested
+              touchStartPreventDefault={false}
+              modules={[Pagination]}
+              slidesPerView={1}
+              spaceBetween={12}
+              pagination={{ type: "progressbar" }}
+            >
+              {PROJECTS.map((project) => {
+                const cover = project.images[0];
+                const isActive = project.id === activeProjectId;
 
-              if (isActive && activeProject) {
                 return (
-                  <div
-                    key={project.id}
-                    className="projects-accordion__item projects-accordion__item--expanded-mobile"
-                  >
-                    <div
-                      className="projects-accordion__card-mobile-header"
-                      onClick={() => handleSelectProject(project.id)}
-                    >
-                      <span className="projects-accordion__card-type">
-                        {project.type}
-                      </span>
-                      <span className="projects-accordion__card-name">
-                        {project.name}
-                      </span>
-                      <span className="projects-accordion__card-location">
-                        {project.location}
-                      </span>
-                    </div>
-
-                    <div className="projects-accordion__mobile-detail">
-                      <div className="projects-accordion__mobile-text">
-                        <p className="projects-accordion__description">
-                          {project.summary}
-                        </p>
-                        <p className="projects-accordion__description projects-accordion__description--secondary">
-                          {project.description}
-                        </p>
-                        <p className="projects-accordion__photography">
-                          <span className="projects-accordion__photography-label">
-                            Photography by:
-                          </span>{" "}
-                          <span className="projects-accordion__photography-name">
-                            {project.photographyBy}
-                          </span>
-                        </p>
-                      </div>
-
-                      <div className="projects-accordion__gallery">
+                  <SwiperSlide key={project.id}>
+                    {isActive && activeProject ? (
+                      <div ref={isActive ? activeMobileItemRef : null} className="projects-accordion__item projects-accordion__item--expanded-mobile">
                         <div
-                          className="projects-accordion__image-wrapper"
-                          onTouchStart={handleTouchStart}
-                          onTouchEnd={handleTouchEnd}
+                          className="projects-accordion__card-mobile-header"
+                          onClick={() => handleSelectProject(project.id)}
                         >
-                          {currentImage && (
+                          <span className="projects-accordion__card-type">{project.type}</span>
+                          <span className="projects-accordion__card-name">{project.name}</span>
+                          <span className="projects-accordion__card-location">{project.location}</span>
+                        </div>
+
+                        <div className="projects-accordion__mobile-detail">
+                          <div className="projects-accordion__mobile-text">
+                            <p className="projects-accordion__description">{project.summary}</p>
+                            <p className="projects-accordion__description projects-accordion__description--secondary">
+                              {project.description}
+                            </p>
+                            <p className="projects-accordion__photography">
+                              <span className="projects-accordion__photography-label">
+                                Photography by:
+                              </span>{" "}
+                              <span className="projects-accordion__photography-name">
+                                {project.photographyBy}
+                              </span>
+                            </p>
+                          </div>
+
+                          <div className="projects-accordion__gallery">
+                            <div
+                              className="projects-accordion__image-wrapper"
+                              onTouchStart={handleTouchStart}
+                              onTouchEnd={handleTouchEnd}
+                            >
+                              {currentImage && (
+                                <img
+                                  key={`${activeProject.id}-${activeImageIndex}`}
+                                  src={currentImage.src}
+                                  alt={currentImage.alt}
+                                  className="projects-accordion__image"
+                                  loading="lazy"
+                                />
+                              )}
+                            </div>
+
+                            <div className="projects-accordion__thumbs">
+                              {project.images.map((image, index) => (
+                                <button
+                                  key={`${project.id}-thumb-${index}`}
+                                  type="button"
+                                  className={
+                                    "projects-accordion__thumb" +
+                                    (index === activeImageIndex ? " projects-accordion__thumb--active" : "")
+                                  }
+                                  onClick={() => handleThumbClick(index)}
+                                >
+                                  <img
+                                    src={image.src}
+                                    alt={image.alt}
+                                    className="projects-accordion__thumb-image"
+                                    loading="lazy"
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="projects-accordion__item">
+                        <button
+                          type="button"
+                          className="projects-accordion__card"
+                          onClick={() => handleSelectProject(project.id)}
+                        >
+                          <div className="projects-accordion__card-image-wrap">
                             <img
-                              key={`${activeProject.id}-${activeImageIndex}`}
-                              src={currentImage.src}
-                              alt={currentImage.alt}
-                              className="projects-accordion__image"
+                              src={cover.src}
+                              alt={cover.alt}
+                              className="projects-accordion__card-image"
                               loading="lazy"
                             />
-                          )}
-                        </div>
-
-                        <div className="projects-accordion__thumbs">
-                          {project.images.map((image, index) => (
-                            <button
-                              key={`${project.id}-thumb-${index}`}
-                              type="button"
-                              className={
-                                "projects-accordion__thumb" +
-                                (index === activeImageIndex
-                                  ? " projects-accordion__thumb--active"
-                                  : "")
-                              }
-                              onClick={() => handleThumbClick(index)}
-                            >
-                              <img
-                                src={image.src}
-                                alt={image.alt}
-                                className="projects-accordion__thumb-image"
-                                loading="lazy"
-                              />
-                            </button>
-                          ))}
-                        </div>
+                          </div>
+                          <div className="projects-accordion__card-body">
+                            <span className="projects-accordion__card-type">{project.type}</span>
+                            <span className="projects-accordion__card-name">{project.name}</span>
+                            <span className="projects-accordion__card-location">{project.location}</span>
+                          </div>
+                        </button>
                       </div>
-                    </div>
-                  </div>
+                    )}
+                  </SwiperSlide>
                 );
-              }
-
-              return (
-                <div key={project.id} className="projects-accordion__item">
-                  <button
-                    type="button"
-                    className="projects-accordion__card"
-                    onClick={() => handleSelectProject(project.id)}
-                  >
-                    <div className="projects-accordion__card-image-wrap">
-                      <img
-                        src={cover.src}
-                        alt={cover.alt}
-                        className="projects-accordion__card-image"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="projects-accordion__card-body">
-                      <span className="projects-accordion__card-type">
-                        {project.type}
-                      </span>
-                      <span className="projects-accordion__card-name">
-                        {project.name}
-                      </span>
-                      <span className="projects-accordion__card-location">
-                        {project.location}
-                      </span>
-                    </div>
-                  </button>
-                </div>
-              );
-            })}
+              })}
+            </Swiper>
           </div>
         )}
+
 
         {!isMobile && activeProject && (
           <>

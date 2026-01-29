@@ -264,7 +264,7 @@
 .svc-card__face--back {
   padding: 14px;
   display: grid;
-  
+
   grid-template-rows: auto 1fr auto;
   gap: 12px;
 }
@@ -335,3 +335,51 @@
     transition: none;
   }
 }
+
+
+//slider
+.svc__slider {
+  display: block;
+  margin-top: 20px;
+}
+
+.svc__grid {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .svc__slider {
+    display: none;
+  }
+
+  .svc__grid {
+    display: grid;
+  }
+}
+
+@media (max-width: 767px) {
+  .svc__slider .swiper-slide {
+    height: auto;
+    display: flex;
+  }
+
+  .svc__slider .svc-card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+  }
+
+  .svc__slider .svc-card__flip {
+    width: 100%;
+    height: 100%;
+  }
+
+  .svc__slider .svc-card__flipInner {
+    min-height: 560px;
+    height: 100%;
+  }
+}
+
+
+
+

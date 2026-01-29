@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./AboutUs.scss";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/pagination";
+
+
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
 
@@ -213,7 +220,7 @@ export default function About() {
   }, [reduced]);
 
   return (
-    <section className="about" id="about" ref={rootRef} aria-label="O nas">
+    <section className="about" id="about-us" ref={rootRef} aria-label="O nas">
       <div className="about__inner">
         <div className="about__top">
           <header className="about__header" data-reveal>
@@ -324,14 +331,44 @@ export default function About() {
         <div className="about__principlesWrap" ref={principlesRef} data-reveal>
           <p className="about__sectionTitle">Jak budujemy jakość</p>
 
+          {/* MOBILE ONLY */}
+          <div className="about__principlesSlider" style={{ "--about-progress": "#00E5FF" }}>
+            <Swiper
+              modules={[Pagination]}
+              slidesPerView={1.15}
+              spaceBetween={12}
+              onSlideChange={(s) => {
+              }}
+            >
+              {principles.map((p, i) => (
+                <SwiperSlide key={p.title}>
+                  <article
+                    data-index={i}
+                    className={`about__principle ${i === activePrinciple ? "about__principle--active" : ""
+                      }`}
+                  >
+                    <div className="about__badge" aria-hidden="true">
+                      <Icon name={p.icon} />
+                    </div>
+
+                    <div className="about__principleBody">
+                      <h3 className="about__principleTitle">{p.title}</h3>
+                      <p className="about__principleText">{p.text}</p>
+                    </div>
+                  </article>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* DESKTOP */}
           <div className="about__principles">
             {principles.map((p, i) => (
               <article
                 key={p.title}
                 data-index={i}
-                className={`about__principle ${
-                  i === activePrinciple ? "about__principle--active" : ""
-                }`}
+                className={`about__principle ${i === activePrinciple ? "about__principle--active" : ""
+                  }`}
               >
                 <div className="about__badge" aria-hidden="true">
                   <Icon name={p.icon} />
@@ -349,4 +386,3 @@ export default function About() {
     </section>
   );
 }
-// 

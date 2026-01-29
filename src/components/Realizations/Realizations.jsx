@@ -1,6 +1,13 @@
 import React, { useMemo, useState } from "react";
 import "./Realizations.scss";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/pagination";
+
+
 const SERVICES_PL = [
   {
     id: "domy",
@@ -131,7 +138,7 @@ export default function ServicesCards() {
   const toggle = (id) => setOpenId((prev) => (prev === id ? null : id));
 
   return (
-    <section className="svc" aria-label="Usługi budowlane">
+    <section className="svc" aria-label="Usługi budowlane" id="services">
       <div className="svc__container">
         <header className="svc__header">
           <p className="svc__eyebrow">Usługi</p>
@@ -140,7 +147,7 @@ export default function ServicesCards() {
             Realizujemy inwestycje od koncepcji po odbiór końcowy. Zapewniamy pełną koordynację prac, kontrolę kosztów oraz najwyższe standardy wykonania.
           </p>
         </header>
-
+        {/* Desktop version */}
         <div className="svc__grid" role="list">
           {items.map((item) => (
             <ServiceFlipCard
@@ -151,6 +158,29 @@ export default function ServicesCards() {
             />
           ))}
         </div>
+        {/* Mobile version */}
+        <div
+          className="svc__slider"
+          style={{ "--svc-progress": "#00E5FF" }}
+        >
+          <Swiper
+            modules={[Pagination]}
+            slidesPerView={1.1}
+            spaceBetween={12}
+
+          >
+            {items.map((item) => (
+              <SwiperSlide key={item.id}>
+                <ServiceFlipCard
+                  item={item}
+                  open={openId === item.id}
+                  onToggle={() => toggle(item.id)}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+
       </div>
     </section>
   );

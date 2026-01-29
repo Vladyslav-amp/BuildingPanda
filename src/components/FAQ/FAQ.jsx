@@ -110,7 +110,7 @@ export default function Faq() {
   }, [openIndex]);
 
   return (
-    <section className="faq" aria-label="Najczęstsze pytania">
+    <section className="faq" aria-label="Najczęstsze pytania" id="faq">
       <div className="faq__inner">
         <header className="faq__header">
           <p className="faq__kicker">FAQ</p>

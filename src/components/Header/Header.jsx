@@ -128,7 +128,7 @@ export default function Header() {
       { label: "Jak pracujemy", href: "#process" },
       { label: "Kalkulator", href: "#calculator" },
       { label: "FAQ", href: "#faq" },
-      { label: "O nas", href: "#about" },
+      { label: "O nas", href: "#about-us" },
 
     ],
     []
@@ -208,18 +208,18 @@ export default function Header() {
           </a>
 
           <div className="mnav__contact" aria-label="Kontakt">
-            <a className="mnav__contactItem" href="tel:+48000000000" onClick={() => setOpen(false)}>
+            <a className="mnav__contactItem" href="tel:+48576530094" onClick={() => setOpen(false)}>
               <span className="mnav__contactIcon" aria-hidden="true">
                 <Icon name="phone" />
               </span>
-              <span className="mnav__contactText">+48 000 000 000</span>
+              <span className="mnav__contactText">+48 576 530 094</span>
             </a>
 
-            <a className="mnav__contactItem" href="tel:+48000000001" onClick={() => setOpen(false)}>
+            <a className="mnav__contactItem" href="tel:+48798889787" onClick={() => setOpen(false)}>
               <span className="mnav__contactIcon" aria-hidden="true">
                 <Icon name="phone" />
               </span>
-              <span className="mnav__contactText">+48 000 000 001</span>
+              <span className="mnav__contactText">+48 798 889 787</span>
             </a>
 
             <a className="mnav__contactItem" href="mailto:kontakt@twojadomena.pl" onClick={() => setOpen(false)}>
@@ -231,7 +231,7 @@ export default function Header() {
           </div>
 
           <div className="mnav__langWrap" aria-label="Wybór języka">
-            <div className="mnav__langLabel">
+            {/* <div className="mnav__langLabel">
               <Icon name="globe" />
               <span>Język</span>
             </div>
@@ -247,7 +247,7 @@ export default function Header() {
                   {l}
                 </button>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -266,20 +266,30 @@ export default function Header() {
             </div>
 
             <div className="header__center">
-              <a className="header__logo" href="#top" onClick={(e) => onNavClick(e, "#top")} aria-label="Strona główna">
-                <span className="header__logoMark" aria-hidden="true" />
+              <a
+                className="header__logo"
+                href="#top"
+                onClick={(e) => onNavClick(e, "#top")}
+                aria-label="Strona główna"
+              >
+                <img
+                  src="/src/assets/logo.svg"
+                  alt="Nazwa firmy"
+                  className="header__logoImage"
+                />
               </a>
             </div>
 
+
             <div className="header__right">
               <div className="header__contact">
-                <a className="header__contactItem" href="tel:+48000000000">
+                <a className="header__contactItem" href="tel:+48576530094">
                   <Icon name="phone" />
                   <span>+48 576 530 094</span>
                 </a>
-                <a className="header__contactItem" href="tel:+48000000001">
+                <a className="header__contactItem" href="tel:+48798889787">
                   <Icon name="phone" />
-                  <span>+798 889 787</span>
+                  <span>+48 798 889 787</span>
                 </a>
                 <a className="header__contactItem header__contactItem--mail" href="mailto:kontakt@twojadomena.pl">
                   <Icon name="mail" />
@@ -287,7 +297,7 @@ export default function Header() {
                 </a>
               </div>
 
-              <div className="header__lang" ref={langRef} aria-label="Zmiana języka">
+              {/* <div className="header__lang" ref={langRef} aria-label="Zmiana języka">
                 <button
                   type="button"
                   className={`header__langToggle ${langOpen ? "header__langToggle--open" : ""}`}
@@ -311,7 +321,7 @@ export default function Header() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               <button
                 type="button"

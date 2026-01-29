@@ -1,6 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import "./TrustBar.scss";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/pagination";
+
+
 const ITEMS = [
   {
     title: "Umowa i transparentny kosztorys",
@@ -138,7 +145,7 @@ export default function TrustBar() {
             Pracujemy transparentnie, etapowo i w oparciu o kontrolę jakości na każdym kroku.
           </p>
         </header>
-
+        {/* Desktop version */}
         <ul className="trustbar__list" role="list">
           {ITEMS.map((item, idx) => (
             <li className="trustbar__item" key={item.title}>
@@ -158,6 +165,36 @@ export default function TrustBar() {
             </li>
           ))}
         </ul>
+
+        {/* Mobile version */}
+        <div className="trustbar__slider">
+          <Swiper
+            modules={[Pagination]}
+            slidesPerView={1.15}
+            spaceBetween={12}
+            pagination={{ 
+              type: "progressbar" }}
+            style={{ "--trustbar-progress": "#000" }}
+          >
+            {ITEMS.map((item, idx) => (
+              <SwiperSlide key={item.title}>
+                <button
+                  type="button"
+                  className="trustbar__card trustbar__card--in"
+                  onClick={() => goTo(item.targetId)}
+                  aria-label={`Przejdź do sekcji: ${item.title}`}
+                >
+                  <span className="trustbar__badge" aria-hidden="true">
+                    <Icon name={item.icon} />
+                  </span>
+                  <span className="trustbar__title">{item.title}</span>
+                  <span className="trustbar__desc">{item.desc}</span>
+                </button>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+
       </div>
     </section>
   );

@@ -144,11 +144,11 @@ export default function Calculator() {
     voivodeship: "Mazowieckie",
     city: "Warszawa",
 
-    area: 0,
-    rooms: 0,
-    bathrooms: 0,
+    area: "",
+    rooms: "",
+    bathrooms: "",
 
-    apartmentFloor: 0,
+    apartmentFloor: "",
     hasElevator: true,
 
     floors: 1,
@@ -539,7 +539,12 @@ export default function Calculator() {
                         min={0}
                         max={4000}
                         value={data.area}
-                        onChange={(e) => setField("area", Number(e.target.value))}
+                        placeholder="0"
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setField("area", v === "" ? "" : Number(v));
+                        }}
+
                       />
                       <p className="calculator__hint">Minimalnie 10 m².</p>
                     </div>
@@ -568,6 +573,7 @@ export default function Calculator() {
                           min={0}
                           max={120}
                           value={data.apartmentFloor}
+                          placeholder="0"
                           onChange={(e) => setField("apartmentFloor", Number(e.target.value))}
                         />
                         <label className="calculator__toggle">
@@ -604,7 +610,12 @@ export default function Calculator() {
                         min={0}
                         max={50}
                         value={data.rooms}
-                        onChange={(e) => setField("rooms", Number(e.target.value))}
+                        placeholder="0"
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setField("rooms", v === "" ? "" : Number(v));
+                        }}
+
                       />
                       <p className="calculator__hint">&nbsp;</p>
                     </div>
@@ -618,7 +629,12 @@ export default function Calculator() {
                         min={0}
                         max={20}
                         value={data.bathrooms}
-                        onChange={(e) => setField("bathrooms", Number(e.target.value))}
+                        placeholder="0"
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setField("bathrooms", v === "" ? "" : Number(v));
+                        }}
+
                       />
                       <p className="calculator__hint">&nbsp;</p>
                     </div>
@@ -629,6 +645,7 @@ export default function Calculator() {
                         id="condition"
                         className="calculator__select"
                         value={data.condition}
+                        placeholder="0"
                         onChange={(e) => setField("condition", e.target.value)}
                         disabled={data.workType === "Budowa"}
                       >

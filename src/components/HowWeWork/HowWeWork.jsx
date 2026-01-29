@@ -223,7 +223,7 @@ export default function Process() {
   }, [dotYs, lineTop, lineHeight, reduced]);
 
   return (
-    <section className="process" ref={rootRef} aria-label="Jak pracujemy">
+    <section className="process" ref={rootRef} aria-label="Jak pracujemy" id="process">
       <div className="process__inner">
         <header className="process__header">
           <p className="process__kicker">Jak pracujemy</p>

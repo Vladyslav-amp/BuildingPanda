@@ -15,9 +15,23 @@
 }
 
 .header__inner {
-  @include section-padding-inline;
+  padding-inline: 12px;
 
+  @include onTablet {
+  padding-inline: 12px;
+
+  }
+
+  @include onDesktop {
+  padding-inline: 12px;
+
+  }
   box-sizing: border-box;
+}
+
+.header__logoImage {
+  width: 40px;
+  height: 40px;
 }
 
 .header__top {
@@ -614,7 +628,7 @@
 }
 
 @media (max-width: 640px) {
-  .header__inner { padding: 0 14px; }
+  // .header__inner { padding: 0 14px; }
 
   .mnav__top {
     padding-left: 14px;
