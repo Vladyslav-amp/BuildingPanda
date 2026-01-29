@@ -1,5 +1,6 @@
 import React from "react";
 import "./Footer.scss";
+import logo from '@/assets/logo.svg';
 
 function Icon({ name }) {
   const p = {
@@ -112,7 +113,7 @@ export default function Footer() {
         <div className="footer__logoRow">
           <div className="footer__mark" aria-hidden="true">
             <div className="footer__logo">
-              <img src="src/assets/logo.svg" alt="" className="footer__logoImage"/>
+              <img src={logo} alt="" className="footer__logoImage"/>
             </div>
 
             <span className="footer__markInner" />

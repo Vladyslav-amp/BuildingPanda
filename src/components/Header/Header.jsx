@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./Header.scss";
+import logo from '@/assets/logo.svg';
 
 function scrollToHashWithOffset(hash, headerEl) {
   if (!hash || hash[0] !== "#") return;
@@ -185,7 +186,11 @@ export default function Header() {
       <div className="mnav__panel" role="dialog" aria-label="Menu mobilne">
         <div className="mnav__top">
           <a className="mnav__brand" href="#top" onClick={(e) => onNavClick(e, "#top")}>
-            <span className="mnav__mark" aria-hidden="true" />
+            <img
+              src={logo}
+              alt="Nazwa firmy"
+              className="header__logoImage"
+            />
             <span className="mnav__name">Building Panda</span>
           </a>
 
@@ -273,7 +278,7 @@ export default function Header() {
                 aria-label="Strona główna"
               >
                 <img
-                  src="/src/assets/logo.svg"
+                  src={logo}
                   alt="Nazwa firmy"
                   className="header__logoImage"
                 />
