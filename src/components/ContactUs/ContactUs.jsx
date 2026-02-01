@@ -230,13 +230,20 @@ export default function Contact() {
     }
   }
 
+  const didMountRef = useRef(false);
 
   useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+
     const id = requestAnimationFrame(() => {
       scrollToTopOfSection(sectionRef.current);
     });
     return () => cancelAnimationFrame(id);
   }, [step]);
+
 
 
 

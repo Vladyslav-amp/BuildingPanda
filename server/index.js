@@ -11,6 +11,7 @@ dotenv.config();
 const app = express();
 app.use(helmet());
 app.use(express.json({ limit: "100kb" }));
+app.set("trust proxy", 1);
 
 app.use(
   cors({
@@ -98,6 +99,7 @@ Consents:
   }
 });
 
-app.listen(Number(process.env.PORT || 4000), () => {
-  console.log("API running");
+app.listen(port, "127.0.0.1", () => {
+  console.log(`API running on http://127.0.0.1:${port}`);
 });
+
