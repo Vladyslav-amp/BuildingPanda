@@ -22,3 +22,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# SSH deploy keys (never commit)
+github_actions_deploy
+github_actions_deploy.pub
+github_actions_deploy_new
+github_actions_deploy_new.pub
+*.pem
+*.key
+*.p12
+
+
+# env
+.env
+.env.*
+
