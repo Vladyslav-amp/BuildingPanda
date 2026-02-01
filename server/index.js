@@ -66,7 +66,7 @@ app.post("/api/contact", async (req, res) => {
 
     const subject = `Contact form: ${d.fullName} (${d.city})`;
     const text =
-`New request:
+      `New request:
 
 Name: ${d.fullName}
 Email: ${d.email}

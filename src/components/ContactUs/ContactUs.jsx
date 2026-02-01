@@ -104,6 +104,7 @@ export default function Contact() {
   });
 
 
+
   const [touched, setTouched] = useState({});
   const progress = clamp((step + 1) / steps.length, 0, 1);
 
@@ -131,6 +132,7 @@ export default function Contact() {
     if (!form.consent) e.consent = "Wymagana zgoda na kontakt.";
     if (!form.consentContact) e.consentContact = "Wymagana zgoda na kontakt.";
     if (!form.consentPersonalData) e.consentPersonalData = "Wymagana zgoda na przetwarzanie danych.";
+
 
 
     return e;
@@ -191,6 +193,7 @@ export default function Contact() {
       return;
     }
 
+
     setStatus("sending");
 
     try {
@@ -201,9 +204,9 @@ export default function Contact() {
       });
 
       if (!res.ok) throw new Error("request_failed");
-
       const data = await res.json();
       if (!data.ok) throw new Error("api_failed");
+
 
       showStatus("success");
       setStep(0);
@@ -219,6 +222,7 @@ export default function Contact() {
         consentPersonalData: false,
         website: "",
       });
+
       setTouched({});
     } catch (err) {
       console.error(err);
@@ -364,15 +368,6 @@ export default function Contact() {
                         autoComplete="name"
                       />
 
-                      <input
-                        type="text"
-                        value={form.website}
-                        onChange={(e) => setField("website", e.target.value)}
-                        autoComplete="off"
-                        tabIndex={-1}
-                        style={{ position: "absolute", left: "-9999px", height: 0, width: 0, opacity: 0 }}
-                      />
-
                       {touched.fullName && errors.fullName && (
                         <p className="contact__error">{errors.fullName}</p>
                       )}
@@ -501,6 +496,16 @@ export default function Contact() {
                         <p className="contact__error">{errors.message}</p>
                       )}
                     </div>
+
+                    <input
+                      type="text"
+                      value={form.website}
+                      onChange={(e) => setField("website", e.target.value)}
+                      autoComplete="off"
+                      tabIndex={-1}
+                      style={{ position: "absolute", left: "-9999px", height: 0, width: 0, opacity: 0 }}
+                    />
+
 
                     <label className={`contact__consent ${touched.consentContact && errors.consentContact ? "contact__consent--error" : ""}`}>
                       <input
