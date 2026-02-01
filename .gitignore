@@ -32,6 +32,7 @@ github_actions_deploy_new.pub
 *.key
 *.p12
 
+server/.env
 
 # env
 .env

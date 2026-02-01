@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import "./ContactUs.scss";
 
 const HEADER_OFFSET = 80;
@@ -98,8 +98,11 @@ export default function Contact() {
     city: "",
     timeframe: "W ciągu 1–3 miesięcy",
     message: "",
-    consent: false,
+    consentContact: false,
+    consentPersonalData: false,
+    website: "",
   });
+
 
   const [touched, setTouched] = useState({});
   const progress = clamp((step + 1) / steps.length, 0, 1);
@@ -126,6 +129,9 @@ export default function Contact() {
     if (!String(form.city).trim()) e.city = "Podaj miasto / lokalizację.";
     if (!String(form.message).trim()) e.message = "Napisz krótką wiadomość.";
     if (!form.consent) e.consent = "Wymagana zgoda na kontakt.";
+    if (!form.consentContact) e.consentContact = "Wymagana zgoda na kontakt.";
+    if (!form.consentPersonalData) e.consentPersonalData = "Wymagana zgoda na przetwarzanie danych.";
+
 
     return e;
   }, [form]);
@@ -142,30 +148,45 @@ export default function Contact() {
     if (!canGoNext()) return;
 
     setStep((s) => Math.min(s + 1, steps.length - 1));
-    scrollToTopOfSection(sectionRef.current);
   }
 
   function onBack() {
     setStep((s) => Math.max(s - 1, 0));
-    scrollToTopOfSection(sectionRef.current);
   }
 
   const showStatus = (value) => {
-  setStatus(value);
+    setStatus(value);
 
-  if (value === "success" || value === "error") {
-    setTimeout(() => {
-      setStatus("idle");
-    }, 3000);
-  }
-};
+    if (value === "success" || value === "error") {
+      setTimeout(() => {
+        setStatus("idle");
+      }, 3000);
+    }
+  };
 
 
   async function onSubmit(e) {
     e.preventDefault();
 
-    touch(["fullName", "email", "phone", "city", "message", "consent"]);
-    if (errors.fullName || errors.email || errors.phone || errors.city || errors.message || errors.consent) {
+    touch([
+      "fullName",
+      "email",
+      "phone",
+      "city",
+      "message",
+      "consentContact",
+      "consentPersonalData",
+    ]);
+
+    if (
+      errors.fullName ||
+      errors.email ||
+      errors.phone ||
+      errors.city ||
+      errors.message ||
+      errors.consentContact ||
+      errors.consentPersonalData
+    ) {
       setStatus("idle");
       return;
     }
@@ -173,7 +194,16 @@ export default function Contact() {
     setStatus("sending");
 
     try {
-      await new Promise((r) => setTimeout(r, 700));
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error("request_failed");
+
+      const data = await res.json();
+      if (!data.ok) throw new Error("api_failed");
 
       showStatus("success");
       setStep(0);
@@ -185,15 +215,26 @@ export default function Contact() {
         city: "",
         timeframe: "W ciągu 1–3 miesięcy",
         message: "",
-        consent: false,
+        consentContact: false,
+        consentPersonalData: false,
+        website: "",
       });
       setTouched({});
-      scrollToTopOfSection(sectionRef.current);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setStatus("error");
     }
   }
-  
+
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      scrollToTopOfSection(sectionRef.current);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [step]);
+
+
 
   return (
     <section className="contact" id="contact" ref={sectionRef} aria-label="Kontakt">
@@ -322,6 +363,16 @@ export default function Contact() {
                         placeholder="np. Jan Kowalski"
                         autoComplete="name"
                       />
+
+                      <input
+                        type="text"
+                        value={form.website}
+                        onChange={(e) => setField("website", e.target.value)}
+                        autoComplete="off"
+                        tabIndex={-1}
+                        style={{ position: "absolute", left: "-9999px", height: 0, width: 0, opacity: 0 }}
+                      />
+
                       {touched.fullName && errors.fullName && (
                         <p className="contact__error">{errors.fullName}</p>
                       )}
@@ -451,24 +502,33 @@ export default function Contact() {
                       )}
                     </div>
 
-                    <label
-                      className={`contact__consent ${touched.consent && errors.consent ? "contact__consent--error" : ""
-                        }`}
-                    >
+                    <label className={`contact__consent ${touched.consentContact && errors.consentContact ? "contact__consent--error" : ""}`}>
                       <input
                         type="checkbox"
-                        checked={form.consent}
-                        onChange={(e) => setField("consent", e.target.checked)}
-                        onBlur={() => touch(["consent"])}
+                        checked={form.consentContact}
+                        onChange={(e) => setField("consentContact", e.target.checked)}
+                        onBlur={() => touch(["consentContact"])}
                       />
                       <span className="contact__consentText">
-                        Wyrażam zgodę na kontakt w sprawie oferty i realizacji usługi.
+                        Wyrażam zgodę na kontakt w sprawie oferty.
                       </span>
                     </label>
+                    {touched.consentContact && errors.consentContact && <p className="contact__error">{errors.consentContact}</p>}
 
-                    {touched.consent && errors.consent && (
-                      <p className="contact__error">{errors.consent}</p>
-                    )}
+                    <label className={`contact__consent ${touched.consentPersonalData && errors.consentPersonalData ? "contact__consent--error" : ""}`}>
+                      <input
+                        type="checkbox"
+                        checked={form.consentPersonalData}
+                        onChange={(e) => setField("consentPersonalData", e.target.checked)}
+                        onBlur={() => touch(["consentPersonalData"])}
+                      />
+                      <span className="contact__consentText">
+                        Wyrażam zgodę na przetwarzanie danych osobowych zgodnie z{" "}
+                        <a href="/privacy" target="_blank" rel="noreferrer">Polityką prywatności</a>.
+                      </span>
+                    </label>
+                    {touched.consentPersonalData && errors.consentPersonalData && <p className="contact__error">{errors.consentPersonalData}</p>}
+
                   </div>
                 )}
 
