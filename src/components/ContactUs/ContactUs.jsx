@@ -1,7 +1,9 @@
-import React, { useMemo, useRef, useState } from "react";
-import "./Calculator.scss";
+import React, { useMemo, useRef, useState, useEffect } from "react";
+import "./ContactUs.scss";
 
 const HEADER_OFFSET = 80;
+
+
 
 function clamp(n, a, b) {
   return Math.max(a, Math.min(b, n));
@@ -12,11 +14,6 @@ function scrollToTopOfSection(el) {
   const r = el.getBoundingClientRect();
   const y = window.scrollY + r.top - HEADER_OFFSET;
   window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-}
-
-function formatPLN(v) {
-  const x = Math.round(v);
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " zł";
 }
 
 function isEmail(v) {
@@ -39,1126 +36,581 @@ function Icon({ name }) {
   };
 
   switch (name) {
-    case "home":
+    case "phone":
       return (
-        <svg className="calculator__icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path {...p} d="M4 11.2 12 4l8 7.2V20a1.2 1.2 0 0 1-1.2 1.2H5.2A1.2 1.2 0 0 1 4 20v-8.8Z" />
-          <path {...p} d="M9.2 21.2v-6.5h5.6v6.5" />
+        <svg className="contact__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            {...p}
+            d="M7 3h4l1 5-3 1c1 3 3 5 6 6l1-3 5 1v4c0 1-1 2-2 2C10 20 4 14 4 6c0-1 1-3 3-3Z"
+          />
         </svg>
       );
-    case "spark":
+    case "mail":
       return (
-        <svg className="calculator__icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path {...p} d="M12 2.8 14.7 6.2l4.2-.1-1.6 3.9 2.8 3.1-4.1.7-2.1 3.6-2.1-3.6-4.1-.7 2.8-3.1-1.6-3.9 4.2.1L12 2.8Z" />
-          <path {...p} d="M9.4 12.2l1.6 1.6 3.6-3.9" />
+        <svg className="contact__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path {...p} d="M4 6h16v12H4V6Z" />
+          <path {...p} d="m4 7 8 6 8-6" />
         </svg>
       );
     case "pin":
       return (
-        <svg className="calculator__icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path {...p} d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" />
+        <svg className="contact__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            {...p}
+            d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z"
+          />
           <path {...p} d="M12 10.5a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4Z" />
         </svg>
       );
-    case "shield":
+    case "clock":
     default:
       return (
-        <svg className="calculator__icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path {...p} d="M12 3.2 19 6.6V12c0 5.2-3.3 9-7 10.8C8.3 21 5 17.2 5 12V6.6l7-3.4Z" />
-          <path {...p} d="M9.2 12.3l1.9 1.9 3.8-4.3" />
+        <svg className="contact__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path {...p} d="M12 21a9 9 0 1 0-9-9 9 9 0 0 0 9 9Z" />
+          <path {...p} d="M12 7v5l3.2 2" />
         </svg>
       );
   }
 }
 
-function SegButton({ active, onClick, icon, label }) {
-  return (
-    <button
-      type="button"
-      className={`calculator__segBtn ${active ? "calculator__segBtn--on" : ""}`}
-      aria-pressed={active}
-      onClick={onClick}
-    >
-      <span className="calculator__segIcon" aria-hidden="true">
-        <Icon name={icon} />
-      </span>
-      <span className="calculator__segText">{label}</span>
-    </button>
-  );
-}
 
-const VOIVODESHIPS = [
-  "Dolnośląskie",
-  "Kujawsko-pomorskie",
-  "Lubelskie",
-  "Lubuskie",
-  "Łódzkie",
-  "Małopolskie",
-  "Mazowieckie",
-  "Opolskie",
-  "Podkarpackie",
-  "Podlaskie",
-  "Pomorskie",
-  "Śląskie",
-  "Świętokrzyskie",
-  "Warmińsko-mazurskie",
-  "Wielkopolskie",
-  "Zachodniopomorskie",
-];
 
-const CITIES_BY_VOIVODESHIP = {
-  "Dolnośląskie": ["Wrocław", "Wałbrzych", "Legnica", "Jelenia Góra", "Lubin", "Głogów", "Inne (Dolnośląskie)"],
-  "Kujawsko-pomorskie": ["Bydgoszcz", "Toruń", "Włocławek", "Grudziądz", "Inowrocław", "Inne (Kujawsko-pomorskie)"],
-  Lubelskie: ["Lublin", "Zamość", "Chełm", "Biała Podlaska", "Puławy", "Inne (Lubelskie)"],
-  Lubuskie: ["Zielona Góra", "Gorzów Wielkopolski", "Nowa Sól", "Żary", "Inne (Lubuskie)"],
-  "Łódzkie": ["Łódź", "Piotrków Trybunalski", "Pabianice", "Tomaszów Mazowiecki", "Zgierz", "Inne (Łódzkie)"],
-  "Małopolskie": ["Kraków", "Tarnów", "Nowy Sącz", "Oświęcim", "Chrzanów", "Inne (Małopolskie)"],
-  Mazowieckie: ["Warszawa", "Radom", "Płock", "Siedlce", "Pruszków", "Legionowo", "Inne (Mazowieckie)"],
-  Opolskie: ["Opole", "Kędzierzyn-Koźle", "Nysa", "Brzeg", "Inne (Opolskie)"],
-  Podkarpackie: ["Rzeszów", "Przemyśl", "Stalowa Wola", "Mielec", "Krosno", "Inne (Podkarpackie)"],
-  Podlaskie: ["Białystok", "Łomża", "Suwałki", "Inne (Podlaskie)"],
-  Pomorskie: ["Gdańsk", "Gdynia", "Sopot", "Słupsk", "Tczew", "Wejherowo", "Inne (Pomorskie)"],
-  "Śląskie": ["Katowice", "Gliwice", "Zabrze", "Bytom", "Chorzów", "Tychy", "Rybnik", "Częstochowa", "Bielsko-Biała", "Inne (Śląskie)"],
-  "Świętokrzyskie": ["Kielce", "Ostrowiec Świętokrzyski", "Starachowice", "Sandomierz", "Inne (Świętokrzyskie)"],
-  "Warmińsko-mazurskie": ["Olsztyn", "Elbląg", "Ełk", "Iława", "Inne (Warmińsko-mazurskie)"],
-  Wielkopolskie: ["Poznań", "Kalisz", "Konin", "Piła", "Leszno", "Gniezno", "Inne (Wielkopolskie)"],
-  Zachodniopomorskie: ["Szczecin", "Koszalin", "Świnoujście", "Stargard", "Kołobrzeg", "Inne (Zachodniopomorskie)"],
-};
-
-const BIG_CITIES = new Set([
-  "Warszawa", "Kraków", "Wrocław", "Poznań", "Gdańsk", "Gdynia", "Sopot",
-  "Łódź", "Katowice", "Szczecin", "Lublin", "Białystok", "Rzeszów", "Bydgoszcz",
-  "Toruń", "Częstochowa", "Gliwice", "Zabrze", "Bielsko-Biała", "Olsztyn",
-]);
-
-export default function Calculator() {
+export default function Contact() {
   const sectionRef = useRef(null);
-  const leadRef = useRef(null);
-
-  const [step, setStep] = useState(0);
 
   const steps = useMemo(
     () => [
-      { title: "Obiekt i zakres", sub: "Typ obiektu, rodzaj prac, lokalizacja" },
-      { title: "Parametry", sub: "Metraż, układ, logistyka" },
-      { title: "Standard i dodatki", sub: "Opcje oraz budżet" },
+      { title: "Dane kontaktowe", subtitle: "Imię, e-mail i telefon" },
+      { title: "Szczegóły zlecenia", subtitle: "Zakres i termin" },
+      { title: "Wiadomość", subtitle: "Opis + zgoda" },
     ],
     []
   );
 
-  const [data, setData] = useState({
-    objectType: "Mieszkanie",
-    workType: "Remont",
+  const [step, setStep] = useState(0);
+  const [status, setStatus] = useState("idle");
 
-    voivodeship: "Mazowieckie",
-    city: "Warszawa",
-
-    area: "",
-    rooms: "",
-    bathrooms: "",
-
-    apartmentFloor: "",
-    hasElevator: true,
-
-    floors: 1,
-
-    condition: "Do remontu",
-    complexity: "Standard",
-    ceiling: "2.6 m",
-
-    urgency: "Standard",
-    materials: "Wykonawca",
-    standard: "Premium",
-
-    budgetCapOn: false,
-    budgetCap: 120000,
-
-    options: {
-      project: true,
-      supervision: true,
-
-      demolition: false,
-      electrical: false,
-      plumbing: false,
-      floorHeating: false,
-
-      kitchen: false,
-      premiumBathrooms: false,
-
-      airConditioning: false,
-      builtInFurniture: false,
-      premiumLighting: false,
-      smartHome: false,
-      doorsWindows: false,
-    },
-  });
-
-  const [leadOpen, setLeadOpen] = useState(false);
-  const [leadTouched, setLeadTouched] = useState({});
-  const [sendStatus, setSendStatus] = useState("idle"); // idle | sending | success | error
-
-  const [lead, setLead] = useState({
+  const [form, setForm] = useState({
     fullName: "",
     email: "",
     phone: "",
+    service: "Remont mieszkania",
+    city: "",
+    timeframe: "W ciągu 1–3 miesięcy",
+    message: "",
     consentContact: false,
     consentPersonalData: false,
-    website: "", // honeypot
+    website: "",
   });
 
+
+
+  const [touched, setTouched] = useState({});
   const progress = clamp((step + 1) / steps.length, 0, 1);
 
   function setField(name, value) {
-    setData((s) => ({ ...s, [name]: value }));
+    setForm((s) => ({ ...s, [name]: value }));
   }
 
-  function setOption(name, value) {
-    setData((s) => ({ ...s, options: { ...s.options, [name]: value } }));
-  }
-
-  function setLeadField(name, value) {
-    setLead((s) => ({ ...s, [name]: value }));
-  }
-
-  function touchLead(fields) {
-    setLeadTouched((s) => {
+  function touch(fields) {
+    setTouched((s) => {
       const next = { ...s };
       fields.forEach((f) => (next[f] = true));
       return next;
     });
   }
 
-  const leadErrors = useMemo(() => {
+  const errors = useMemo(() => {
     const e = {};
-    if (!String(lead.fullName).trim()) e.fullName = "Podaj imię i nazwisko.";
-    if (!isEmail(lead.email)) e.email = "Podaj poprawny adres e-mail.";
-    if (!isPhone(lead.phone)) e.phone = "Podaj poprawny numer telefonu.";
-    if (!lead.consentContact) e.consentContact = "Wymagana zgoda na kontakt.";
-    if (!lead.consentPersonalData) e.consentPersonalData = "Wymagana zgoda na dane osobowe.";
-    return e;
-  }, [lead]);
 
-  function canNext() {
-    if (step === 0) return true;
-    if (step === 1) {
-      if (!data.area || Number(data.area) < 10) return false;
-      if (!data.rooms || Number(data.rooms) < 1) return false;
-      if (!data.bathrooms || Number(data.bathrooms) < 1) return false;
-      if (data.objectType !== "Mieszkanie" && (!data.floors || Number(data.floors) < 1)) return false;
-      return true;
-    }
+    if (!String(form.fullName).trim()) e.fullName = "Podaj imię i nazwisko.";
+    if (!isEmail(form.email)) e.email = "Podaj poprawny adres e-mail.";
+    if (!isPhone(form.phone)) e.phone = "Podaj poprawny numer telefonu.";
+
+    if (!String(form.city).trim()) e.city = "Podaj miasto / lokalizację.";
+    if (!String(form.message).trim()) e.message = "Napisz krótką wiadomość.";
+    if (!form.consent) e.consent = "Wymagana zgoda na kontakt.";
+    if (!form.consentContact) e.consentContact = "Wymagana zgoda na kontakt.";
+    if (!form.consentPersonalData) e.consentPersonalData = "Wymagana zgoda na przetwarzanie danych.";
+
+
+
+    return e;
+  }, [form]);
+
+  function canGoNext() {
+    if (step === 0) return !errors.fullName && !errors.email && !errors.phone;
+    if (step === 1) return !errors.city;
     return true;
   }
 
-  function next() {
-    if (!canNext()) return;
+  function onNext() {
+    if (step === 0) touch(["fullName", "email", "phone"]);
+    if (step === 1) touch(["city"]);
+    if (!canGoNext()) return;
+
     setStep((s) => Math.min(s + 1, steps.length - 1));
-    scrollToTopOfSection(sectionRef.current);
   }
 
-  function back() {
+  function onBack() {
     setStep((s) => Math.max(s - 1, 0));
-    scrollToTopOfSection(sectionRef.current);
   }
 
-  const cityOptions = useMemo(() => {
-    const list = CITIES_BY_VOIVODESHIP[data.voivodeship] || ["Inne"];
-    if (list.includes(data.city)) return list;
-    return [data.city, ...list];
-  }, [data.voivodeship, data.city]);
+  const showStatus = (value) => {
+    setStatus(value);
 
-  const result = useMemo(() => {
-    const area = Number(data.area) || 0;
-
-    const isPristine =
-      area === 0 ||
-      Number(data.rooms) === 0 ||
-      Number(data.bathrooms) === 0;
-
-    if (isPristine) {
-      return {
-        isPristine: true,
-        totalLow: 0,
-        totalHigh: 0,
-        breakdown: [],
-        timeWeeks: { low: 0, high: 0 },
-        optionsTotal: 0,
-        budgetFit: null,
-        topFactors: [],
-      };
-    }
-
-    const basePerM2 = (() => {
-      if (data.workType === "Budowa") {
-        if (data.objectType === "Dom") return 4200;
-        if (data.objectType === "Lokal") return 3800;
-        return 0;
-      }
-      if (data.workType === "Wykończenie pod klucz") return 1650;
-      return 1450;
-    })();
-
-    const objectMultiplier = (() => {
-      if (data.objectType === "Mieszkanie") return 1.0;
-      if (data.objectType === "Dom") return 1.08;
-      return 1.05;
-    })();
-
-    const standardMultiplier = (() => {
-      if (data.standard === "Basic") return 0.88;
-      if (data.standard === "Luxury") return 1.32;
-      return 1.12;
-    })();
-
-    const cityMultiplier = (() => {
-      if (data.city === "Warszawa") return 1.10;
-      if (BIG_CITIES.has(data.city)) return 1.06;
-      return 1.0;
-    })();
-
-    const urgencyMultiplier = data.urgency === "Szybko" ? 1.10 : 1.0;
-
-    const conditionMultiplier = (() => {
-      if (data.workType === "Budowa") return 1.0;
-      if (data.condition === "Deweloperski") return 0.96;
-      if (data.condition === "Po remoncie") return 0.88;
-      return 1.05;
-    })();
-
-    const complexityMultiplier = (() => {
-      if (data.complexity === "Niska") return 0.95;
-      if (data.complexity === "Wysoka") return 1.10;
-      return 1.0;
-    })();
-
-    const ceilingMultiplier = (() => {
-      if (data.ceiling === "2.4 m") return 0.98;
-      if (data.ceiling === "3.0 m+") return 1.07;
-      return 1.0;
-    })();
-
-    const floorsFactor =
-      data.objectType === "Mieszkanie"
-        ? 1.0
-        : 1.0 + Math.max(0, (Number(data.floors) || 1) - 1) * 0.045;
-
-    const bathFactor = 1.0 + Math.max(0, (Number(data.bathrooms) || 1) - 1) * 0.06;
-    const roomsFactor = 1.0 + Math.max(0, (Number(data.rooms) || 2) - 2) * 0.02;
-
-    const apartmentLogisticsMultiplier = (() => {
-      if (data.objectType !== "Mieszkanie") return 1.0;
-      const floor = Number(data.apartmentFloor) || 0;
-      if (data.hasElevator) return 1.0 + Math.max(0, floor - 4) * 0.008;
-      return 1.0 + Math.max(0, floor - 1) * 0.018;
-    })();
-
-    const materialsMultiplier = (() => {
-      if (data.materials === "Klient") return 0.95;
-      if (data.materials === "Mix") return 0.985;
-      return 1.0;
-    })();
-
-    const adders = [];
-
-    if (data.options.project) adders.push({ label: "Projekt / konsultacje", value: 2800 });
-    if (data.options.supervision) adders.push({ label: "Koordynacja i nadzór", value: area * 35 });
-
-    if (data.options.demolition) adders.push({ label: "Wyburzenia i przygotowanie", value: area * 55 });
-    if (data.options.electrical) adders.push({ label: "Elektryka (modernizacja)", value: area * 95 });
-    if (data.options.plumbing) adders.push({ label: "Wod.-kan. (modernizacja)", value: area * 85 });
-    if (data.options.floorHeating) adders.push({ label: "Ogrzewanie podłogowe", value: area * 140 });
-
-    if (data.options.kitchen) adders.push({ label: "Kuchnia (montaż + dopasowania)", value: 6500 });
-    if (data.options.premiumBathrooms)
-      adders.push({ label: "Łazienka premium (pakiet)", value: 4200 * (Number(data.bathrooms) || 1) });
-
-    if (data.options.airConditioning) adders.push({ label: "Klimatyzacja (pakiet)", value: 5200 });
-    if (data.options.builtInFurniture) adders.push({ label: "Zabudowy stolarskie (pakiet)", value: 7800 });
-    if (data.options.premiumLighting) adders.push({ label: "Oświetlenie premium (pakiet)", value: 3200 });
-    if (data.options.smartHome) adders.push({ label: "Smart home (pakiet)", value: 3800 });
-    if (data.options.doorsWindows) adders.push({ label: "Drzwi/okna (pakiet)", value: 4200 });
-
-    const base = area * basePerM2;
-
-    const multiplier =
-      objectMultiplier *
-      standardMultiplier *
-      cityMultiplier *
-      urgencyMultiplier *
-      conditionMultiplier *
-      complexityMultiplier *
-      ceilingMultiplier *
-      floorsFactor *
-      bathFactor *
-      roomsFactor *
-      apartmentLogisticsMultiplier *
-      materialsMultiplier;
-
-    const subtotal = base * multiplier;
-    const optionsTotal = adders.reduce((s, a) => s + a.value, 0);
-
-    const rangeFactor = (() => {
-      if (data.workType === "Remont") return { low: 0.88, high: 1.18 };
-      if (data.workType === "Budowa") return { low: 0.90, high: 1.15 };
-      return { low: 0.92, high: 1.12 };
-    })();
-
-    let totalLow = (subtotal + optionsTotal) * rangeFactor.low;
-    let totalHigh = (subtotal + optionsTotal) * rangeFactor.high;
-
-    let budgetFit = null;
-    if (data.budgetCapOn) {
-      const cap = Number(data.budgetCap) || 0;
-      if (cap > 0) {
-        if (totalLow <= cap && totalHigh <= cap) budgetFit = "ok";
-        else if (totalLow <= cap && totalHigh > cap) budgetFit = "tight";
-        else budgetFit = "over";
-      }
-    }
-
-    const timeWeeks = (() => {
-      if (data.workType === "Budowa") {
-        const baseW = Math.max(10, Math.round(area / 12));
-        return { low: Math.max(10, baseW - 2), high: baseW + 4 };
-      }
-      const baseW = Math.max(3, Math.round(area / 18));
-      const plusBath = Math.max(0, (Number(data.bathrooms) || 1) - 1);
-      const plusRooms = Math.max(0, (Number(data.rooms) || 2) - 2);
-      const extra =
-        plusBath * 1 +
-        plusRooms * 0.4 +
-        (data.options.demolition ? 0.8 : 0) +
-        (data.options.floorHeating ? 0.6 : 0) +
-        (data.complexity === "Wysoka" ? 0.8 : 0);
-
-      const low = Math.max(2, Math.round((baseW + extra) * 0.9));
-      const high = Math.round((baseW + extra) * (data.urgency === "Szybko" ? 1.0 : 1.15));
-      return { low, high };
-    })();
-
-    const breakdown = [
-      { label: "Bazowa stawka (m²)", value: base },
-      { label: "Złożoność / logistyka / standard", value: subtotal - base },
-      ...adders,
-    ];
-
-    const topFactors = [
-      { label: "Standard", value: Math.abs(standardMultiplier - 1) },
-      { label: "Miasto", value: Math.abs(cityMultiplier - 1) },
-      { label: "Opcje", value: optionsTotal / Math.max(1, subtotal) },
-      { label: "Złożoność", value: Math.abs(complexityMultiplier - 1) },
-    ]
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 3)
-      .map((x) => x.label);
-
-    return {
-      isPristine: false,
-      totalLow,
-      totalHigh,
-      breakdown,
-      timeWeeks,
-      optionsTotal,
-      budgetFit,
-      topFactors,
-    };
-  }, [data]);
-
-  async function onSendOrReveal() {
-    // 1) якщо ще не відкрито — відкриваємо і скролимо
-    if (!leadOpen) {
-      setLeadOpen(true);
-      // дати DOM намалюватися
+    if (value === "success" || value === "error") {
       setTimeout(() => {
-        scrollToTopOfSection(leadRef.current || sectionRef.current);
-      }, 0);
-      return;
+        setStatus("idle");
+      }, 3000);
     }
+  };
 
-    // 2) якщо відкрито — валідуємо і шлемо
-    touchLead(["fullName", "email", "phone", "consentContact", "consentPersonalData"]);
+
+  async function onSubmit(e) {
+    e.preventDefault();
+
+    touch([
+      "fullName",
+      "email",
+      "phone",
+      "city",
+      "message",
+      "consentContact",
+      "consentPersonalData",
+    ]);
 
     if (
-      leadErrors.fullName ||
-      leadErrors.email ||
-      leadErrors.phone ||
-      leadErrors.consentContact ||
-      leadErrors.consentPersonalData
+      errors.fullName ||
+      errors.email ||
+      errors.phone ||
+      errors.city ||
+      errors.message ||
+      errors.consentContact ||
+      errors.consentPersonalData
     ) {
-      // підсвітка помилок + залишаємо форму відкритою
+      setStatus("idle");
       return;
     }
 
-    if (result.isPristine) return;
 
-    setSendStatus("sending");
+    setStatus("sending");
 
     try {
-      const payload = {
-        // калькуляторні дані
-        ...data,
-        area: Number(data.area),
-        rooms: Number(data.rooms),
-        bathrooms: Number(data.bathrooms),
-
-        apartmentFloor: data.objectType === "Mieszkanie" ? Number(data.apartmentFloor || 0) : undefined,
-        hasElevator: data.objectType === "Mieszkanie" ? Boolean(data.hasElevator) : undefined,
-
-        floors: data.objectType !== "Mieszkanie" ? Number(data.floors || 1) : undefined,
-
-        budgetCapOn: Boolean(data.budgetCapOn),
-        budgetCap: Number(data.budgetCap || 0),
-
-        // результат калькулятора
-        totalLow: Number(result.totalLow || 0),
-        totalHigh: Number(result.totalHigh || 0),
-        timeWeeksLow: Number(result.timeWeeks.low || 0),
-        timeWeeksHigh: Number(result.timeWeeks.high || 0),
-
-        // контакти + згоди + honeypot
-        ...lead,
-      };
-
-      const res = await fetch("/api/estimate", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(form),
       });
 
       if (!res.ok) throw new Error("request_failed");
-      const j = await res.json();
-      if (!j.ok) throw new Error("api_failed");
+      const data = await res.json();
+      if (!data.ok) throw new Error("api_failed");
 
-      setSendStatus("success");
-      setTimeout(() => setSendStatus("idle"), 3000);
 
-      // опційно: очистити контакти після успіху
-      setLead({
+      showStatus("success");
+      setStep(0);
+      setForm({
         fullName: "",
         email: "",
         phone: "",
+        service: "Remont mieszkania",
+        city: "",
+        timeframe: "W ciągu 1–3 miesięcy",
+        message: "",
         consentContact: false,
         consentPersonalData: false,
         website: "",
       });
-      setLeadTouched({});
-      setLeadOpen(false);
-    } catch (e) {
-      setSendStatus("error");
-      setTimeout(() => setSendStatus("idle"), 3000);
+
+      setTouched({});
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
     }
   }
 
+  const didMountRef = useRef(false);
+
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+
+    const id = requestAnimationFrame(() => {
+      scrollToTopOfSection(sectionRef.current);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [step]);
+
+
+
+
   return (
-    <section className="calculator" id="calculator" ref={sectionRef} aria-label="Kalkulator wyceny">
-      <div className="calculator__inner">
-        <header className="calculator__header">
-          <p className="calculator__kicker">Kalkulator</p>
-          <h2 className="calculator__heading">Szacunkowa wycena projektu</h2>
-          <p className="calculator__lead">
-            Wybierz parametry — zobacz orientacyjny zakres kosztów i czynniki wpływu. Kalkulator jest poglądowy; finalną
-            wycenę przygotowujemy po rozmowie i doprecyzowaniu zakresu.
+    <section className="contact" id="contact" ref={sectionRef} aria-label="Kontakt">
+      <div className="contact__inner">
+        <header className="contact__header">
+          <p className="contact__kicker">Kontakt</p>
+          <h2 className="contact__heading">Porozmawiajmy o Twoim projekcie</h2>
+          <p className="contact__lead">
+            Zostaw dane — wrócimy z odpowiedzią i propozycją dalszych kroków. Premium to szybka, konkretna komunikacja.
           </p>
         </header>
 
-        <div className="calculator__grid">
-          <div className="calculator__panel">
-            <div className="calculator__panelTop">
-              <div className="calculator__stepMeta">
-                <p className="calculator__stepTitle">{steps[step].title}</p>
-                <p className="calculator__stepSub">{steps[step].sub}</p>
-              </div>
-
-              <div className="calculator__progress" aria-hidden="true">
-                <div className="calculator__progressTrack">
-                  <div className="calculator__progressFill" style={{ transform: `scaleX(${progress})` }} />
+        <div className="contact__grid">
+          <aside className="contact__aside" aria-label="Dane kontaktowe">
+            <div className="contact__infoCard">
+              <div className="contact__infoRow">
+                <div className="contact__infoBadge" aria-hidden="true">
+                  <Icon name="phone" />
                 </div>
-                <div className="calculator__progressDots">
-                  {steps.map((_, i) => (
-                    <span key={i} className={`calculator__dot ${i <= step ? "calculator__dot--on" : ""}`} />
-                  ))}
+                <div className="contact__infoBody">
+                  <p className="contact__infoTitle">Telefon</p>
+                  <p className="contact__infoText">+48 000 000 000</p>
                 </div>
               </div>
-            </div>
 
-            <div className="calculator__body">
-              {step === 0 && (
-                <div className="calculator__fields">
-                  <div className="calculator__choice">
-                    <p className="calculator__label">Typ obiektu</p>
-                    <div className="calculator__seg calculator__seg--three">
-                      <SegButton active={data.objectType === "Mieszkanie"} onClick={() => setField("objectType", "Mieszkanie")} icon="home" label="Mieszkanie" />
-                      <SegButton active={data.objectType === "Dom"} onClick={() => setField("objectType", "Dom")} icon="home" label="Dom" />
-                      <SegButton active={data.objectType === "Lokal"} onClick={() => setField("objectType", "Lokal")} icon="home" label="Lokal" />
-                    </div>
-                  </div>
+              <div className="contact__divider" />
 
-                  <div className="calculator__choice">
-                    <p className="calculator__label">Rodzaj prac</p>
-                    <div className="calculator__seg calculator__seg--three">
-                      <SegButton active={data.workType === "Remont"} onClick={() => setField("workType", "Remont")} icon="spark" label="Remont" />
-                      <SegButton active={data.workType === "Wykończenie pod klucz"} onClick={() => setField("workType", "Wykończenie pod klucz")} icon="spark" label="Pod klucz" />
-                      <SegButton active={data.workType === "Budowa"} onClick={() => setField("workType", "Budowa")} icon="spark" label="Budowa" />
-                    </div>
-                  </div>
-
-                  <div className="calculator__choice">
-                    <p className="calculator__label">Lokalizacja (Polska)</p>
-                    <div className="calculator__locGrid">
-                      <div className="calculator__field">
-                        <label className="calculator__label calculator__label--small" htmlFor="voivodeship">
-                          Województwo
-                        </label>
-                        <select
-                          id="voivodeship"
-                          className="calculator__select"
-                          value={data.voivodeship}
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            setData((s) => ({
-                              ...s,
-                              voivodeship: v,
-                              city: (CITIES_BY_VOIVODESHIP[v] && CITIES_BY_VOIVODESHIP[v][0]) || "Inne",
-                            }));
-                          }}
-                        >
-                          {VOIVODESHIPS.map((v) => (
-                            <option key={v} value={v}>
-                              {v}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="calculator__field">
-                        <label className="calculator__label calculator__label--small" htmlFor="city">
-                          Miasto
-                        </label>
-                        <select
-                          id="city"
-                          className="calculator__select"
-                          value={data.city}
-                          onChange={(e) => setField("city", e.target.value)}
-                        >
-                          {cityOptions.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="calculator__note">
-                    Wskazówka: „Pod klucz” zwykle ma najbardziej przewidywalny koszt w przeliczeniu na m².
-                  </div>
+              <div className="contact__infoRow">
+                <div className="contact__infoBadge" aria-hidden="true">
+                  <Icon name="mail" />
                 </div>
-              )}
-
-              {step === 1 && (
-                <div className="calculator__fields">
-                  <div className="calculator__paramsGrid">
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="area">Metraż (m²)</label>
-                      <input
-                        id="area"
-                        className="calculator__input"
-                        type="number"
-                        min={0}
-                        max={4000}
-                        value={data.area}
-                        placeholder="0"
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setField("area", v === "" ? "" : Number(v));
-                        }}
-                      />
-                      <p className="calculator__hint">Minimalnie 10 m².</p>
-                    </div>
-
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="urgency">Tempo realizacji</label>
-                      <select
-                        id="urgency"
-                        className="calculator__select"
-                        value={data.urgency}
-                        onChange={(e) => setField("urgency", e.target.value)}
-                      >
-                        <option>Standard</option>
-                        <option>Szybko</option>
-                      </select>
-                      <p className="calculator__hint">Tryb „Szybko” = większe zasoby.</p>
-                    </div>
-
-                    {data.objectType === "Mieszkanie" ? (
-                      <div className="calculator__field">
-                        <label className="calculator__label" htmlFor="aptFloor">Piętro</label>
-                        <input
-                          id="aptFloor"
-                          className="calculator__input"
-                          type="number"
-                          min={0}
-                          max={120}
-                          value={data.apartmentFloor}
-                          placeholder="0"
-                          onChange={(e) => setField("apartmentFloor", e.target.value === "" ? "" : Number(e.target.value))}
-                        />
-                        <label className="calculator__toggle">
-                          <input
-                            type="checkbox"
-                            checked={data.hasElevator}
-                            onChange={(e) => setField("hasElevator", e.target.checked)}
-                          />
-                          <span className="calculator__toggleText">Jest winda</span>
-                        </label>
-                      </div>
-                    ) : (
-                      <div className="calculator__field">
-                        <label className="calculator__label" htmlFor="floors">Kondygnacje (dom)</label>
-                        <input
-                          id="floors"
-                          className="calculator__input"
-                          type="number"
-                          min={1}
-                          max={10}
-                          value={data.floors}
-                          onChange={(e) => setField("floors", Number(e.target.value))}
-                        />
-                        <p className="calculator__hint">Wpływa na logistykę i czas.</p>
-                      </div>
-                    )}
-
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="rooms">Liczba pokoi</label>
-                      <input
-                        id="rooms"
-                        className="calculator__input"
-                        type="number"
-                        min={0}
-                        max={50}
-                        value={data.rooms}
-                        placeholder="0"
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setField("rooms", v === "" ? "" : Number(v));
-                        }}
-                      />
-                      <p className="calculator__hint">&nbsp;</p>
-                    </div>
-
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="baths">Łazienki</label>
-                      <input
-                        id="baths"
-                        className="calculator__input"
-                        type="number"
-                        min={0}
-                        max={20}
-                        value={data.bathrooms}
-                        placeholder="0"
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setField("bathrooms", v === "" ? "" : Number(v));
-                        }}
-                      />
-                      <p className="calculator__hint">&nbsp;</p>
-                    </div>
-
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="condition">Stan wyjściowy</label>
-                      <select
-                        id="condition"
-                        className="calculator__select"
-                        value={data.condition}
-                        onChange={(e) => setField("condition", e.target.value)}
-                        disabled={data.workType === "Budowa"}
-                      >
-                        <option>Deweloperski</option>
-                        <option>Do remontu</option>
-                        <option>Po remoncie</option>
-                      </select>
-                      <p className="calculator__hint">Dla budowy parametr nie wpływa.</p>
-                    </div>
-
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="complexity">Złożoność</label>
-                      <select
-                        id="complexity"
-                        className="calculator__select"
-                        value={data.complexity}
-                        onChange={(e) => setField("complexity", e.target.value)}
-                      >
-                        <option>Niska</option>
-                        <option>Standard</option>
-                        <option>Wysoka</option>
-                      </select>
-                      <p className="calculator__hint">Dużo detali = wyższy koszt.</p>
-                    </div>
-
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="ceiling">Wysokość sufitów</label>
-                      <select
-                        id="ceiling"
-                        className="calculator__select"
-                        value={data.ceiling}
-                        onChange={(e) => setField("ceiling", e.target.value)}
-                      >
-                        <option>2.4 m</option>
-                        <option>2.6 m</option>
-                        <option>3.0 m+</option>
-                      </select>
-                      <p className="calculator__hint">&nbsp;</p>
-                    </div>
-
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="materials">Materiały</label>
-                      <select
-                        id="materials"
-                        className="calculator__select"
-                        value={data.materials}
-                        onChange={(e) => setField("materials", e.target.value)}
-                      >
-                        <option>Wykonawca</option>
-                        <option>Mix</option>
-                        <option>Klient</option>
-                      </select>
-                      <p className="calculator__hint">Najbezpieczniej: wykonawca lub mix.</p>
-                    </div>
-                  </div>
+                <div className="contact__infoBody">
+                  <p className="contact__infoTitle">E-mail</p>
+                  <p className="contact__infoText">kontakt@twojafirma.pl</p>
                 </div>
-              )}
-
-              {step === 2 && (
-                <div className="calculator__fields">
-                  <div className="calculator__row2">
-                    <div className="calculator__field">
-                      <label className="calculator__label" htmlFor="standard">Standard</label>
-                      <select
-                        id="standard"
-                        className="calculator__select"
-                        value={data.standard}
-                        onChange={(e) => setField("standard", e.target.value)}
-                      >
-                        <option>Basic</option>
-                        <option>Premium</option>
-                        <option>Luxury</option>
-                      </select>
-                      <p className="calculator__hint">Premium = lepsze materiały + detal.</p>
-                      <br />
-                    </div>
-
-                    <div className="calculator__field">
-                      <label className="calculator__label">Zabezpieczenie jakości</label>
-                      <div className="calculator__checks">
-                        <label className="calculator__check">
-                          <input type="checkbox" checked={data.options.project} onChange={(e) => setOption("project", e.target.checked)} />
-                          <span>Projekt / konsultacje</span>
-                        </label>
-                        <label className="calculator__check">
-                          <input type="checkbox" checked={data.options.supervision} onChange={(e) => setOption("supervision", e.target.checked)} />
-                          <span>Koordynacja i nadzór</span>
-                        </label>
-                      </div>
-                      <p className="calculator__hint">&nbsp;</p>
-                    </div>
-                  </div>
-
-                  <div className="calculator__field">
-                    <label className="calculator__label">Dodatkowe opcje</label>
-                    <div className="calculator__checks calculator__checks--two">
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.demolition} onChange={(e) => setOption("demolition", e.target.checked)} /><span>Wyburzenia</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.electrical} onChange={(e) => setOption("electrical", e.target.checked)} /><span>Elektryka</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.plumbing} onChange={(e) => setOption("plumbing", e.target.checked)} /><span>Wod.-kan.</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.floorHeating} onChange={(e) => setOption("floorHeating", e.target.checked)} /><span>Podłogówka</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.kitchen} onChange={(e) => setOption("kitchen", e.target.checked)} /><span>Kuchnia</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.premiumBathrooms} onChange={(e) => setOption("premiumBathrooms", e.target.checked)} /><span>Łazienka premium</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.airConditioning} onChange={(e) => setOption("airConditioning", e.target.checked)} /><span>Klimatyzacja</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.builtInFurniture} onChange={(e) => setOption("builtInFurniture", e.target.checked)} /><span>Zabudowy</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.premiumLighting} onChange={(e) => setOption("premiumLighting", e.target.checked)} /><span>Oświetlenie premium</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.smartHome} onChange={(e) => setOption("smartHome", e.target.checked)} /><span>Smart home</span></label>
-                      <label className="calculator__check"><input type="checkbox" checked={data.options.doorsWindows} onChange={(e) => setOption("doorsWindows", e.target.checked)} /><span>Drzwi/okna</span></label>
-                    </div>
-                    <p className="calculator__hint">&nbsp;</p>
-                  </div>
-
-                  <div className="calculator__budget">
-                    <div className="calculator__budgetTop">
-                      <label className="calculator__toggle">
-                        <input type="checkbox" checked={data.budgetCapOn} onChange={(e) => setField("budgetCapOn", e.target.checked)} />
-                        <span className="calculator__toggleText">Mam budżet (pokaż dopasowanie)</span>
-                      </label>
-
-                      <div
-                        className={`calculator__budgetBadge ${data.budgetCapOn ? `calculator__budgetBadge--${result.budgetFit || "none"}` : ""}`}
-                      >
-                        {data.budgetCapOn ? (
-                          <>
-                            {result.budgetFit === "ok" && "Mieści się w budżecie"}
-                            {result.budgetFit === "tight" && "Na granicy budżetu"}
-                            {result.budgetFit === "over" && "Powyżej budżetu"}
-                            {!result.budgetFit && "Budżet"}
-                          </>
-                        ) : (
-                          "Budżet"
-                        )}
-                      </div>
-                    </div>
-
-                    <div className={`calculator__budgetControls ${!data.budgetCapOn ? "calculator__budgetControls--disabled" : ""}`}>
-                      <div className="calculator__budgetRow">
-                        <span className="calculator__budgetLabel">Budżet</span>
-                        <span className="calculator__budgetValue">{formatPLN(data.budgetCap)}</span>
-                      </div>
-
-                      <input
-                        className="calculator__range"
-                        type="range"
-                        min={20000}
-                        max={800000}
-                        step={1000}
-                        value={data.budgetCap}
-                        onChange={(e) => setField("budgetCap", Number(e.target.value))}
-                        disabled={!data.budgetCapOn}
-                      />
-
-                      <p className="calculator__hint">To orientacyjne dopasowanie. Finalny budżet ustalamy po rozmowie.</p>
-                    </div>
-                  </div>
-
-                  <div className="calculator__note">
-                    Uwaga: To wycena orientacyjna. Dokładny koszt zależy od technologii, stanu i materiałów.
-                  </div>
-                </div>
-              )}
-
-              <div className="calculator__actions">
-                <button
-                  type="button"
-                  className={`calculator__btn calculator__btn--ghost ${step === 0 ? "calculator__btn--disabled" : ""}`}
-                  onClick={back}
-                  disabled={step === 0}
-                >
-                  Wstecz
-                </button>
-
-                {step < steps.length - 1 ? (
-                  <button
-                    type="button"
-                    className={`calculator__btn calculator__btn--primary ${!canNext() ? "calculator__btn--disabled" : ""}`}
-                    onClick={next}
-                    disabled={!canNext()}
-                  >
-                    Dalej
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="calculator__btn calculator__btn--primary"
-                    onClick={() => {
-                      setStep(0);
-                      scrollToTopOfSection(sectionRef.current);
-                    }}
-                  >
-                    Zakończ
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <aside className="calculator__summary" aria-label="Podsumowanie wyceny">
-            <div className="calculator__summaryCard">
-              <div className="calculator__summaryTop">
-                <p className="calculator__summaryKicker">Szacunek</p>
-                <p className="calculator__summaryTitle">Zakres kosztów</p>
-
-                <p className="calculator__summaryRange">
-                  {result.isPristine ? "0 zł" : `${formatPLN(result.totalLow)} – ${formatPLN(result.totalHigh)}`}
-                </p>
-
-                <p className="calculator__summaryMeta">
-                  Lokalizacja: <span className="calculator__strong">{data.city}, {data.voivodeship}</span>
-                  <span className="calculator__sep">•</span>
-                  Czas: <span className="calculator__strong">{result.isPristine ? "—" : `${result.timeWeeks.low}–${result.timeWeeks.high} tyg.`}</span>
-                </p>
-
-                {!result.isPristine && (
-                  <div className="calculator__chips">
-                    {result.topFactors.map((t) => (
-                      <span key={t} className="calculator__chip">{t}</span>
-                    ))}
-                  </div>
-                )}
               </div>
 
-              <div className="calculator__breakdown">
-                <p className="calculator__breakdownTitle">Co wpływa na cenę</p>
+              <div className="contact__divider" />
 
-                {result.isPristine ? (
-                  <div className="calculator__empty">
-                    Uzupełnij parametry (metraż, pokoje, łazienki), aby zobaczyć wycenę.
-                  </div>
-                ) : (
-                  <>
-                    <div className="calculator__rows">
-                      {result.breakdown.map((b, i) => (
-                        <div className="calculator__row" key={i}>
-                          <span className="calculator__rowLabel">{b.label}</span>
-                          <span className="calculator__rowValue">{formatPLN(b.value)}</span>
-                        </div>
-                      ))}
-                    </div>
+              <div className="contact__infoRow">
+                <div className="contact__infoBadge" aria-hidden="true">
+                  <Icon name="pin" />
+                </div>
+                <div className="contact__infoBody">
+                  <p className="contact__infoTitle">Lokalizacja</p>
+                  <p className="contact__infoText">Cała Polska</p>
+                </div>
+              </div>
 
-                    <div className="calculator__divider" />
+              <div className="contact__divider" />
 
-                    <div className="calculator__mini">
-                      <div className="calculator__miniItem">
-                        <span className="calculator__miniLabel">Metraż</span>
-                        <span className="calculator__miniValue">{data.area} m²</span>
-                      </div>
-                      <div className="calculator__miniItem">
-                        <span className="calculator__miniLabel">Obiekt</span>
-                        <span className="calculator__miniValue">{data.objectType}</span>
-                      </div>
-                      <div className="calculator__miniItem">
-                        <span className="calculator__miniLabel">Zakres</span>
-                        <span className="calculator__miniValue">{data.workType}</span>
-                      </div>
-                      <div className="calculator__miniItem">
-                        <span className="calculator__miniLabel">Standard</span>
-                        <span className="calculator__miniValue">{data.standard}</span>
-                      </div>
-                    </div>
-
-                    {/* CTA + reveal form */}
-                    <div className="calculator__cta" ref={leadRef}>
-                      {/* honeypot */}
-                      <input
-                        type="text"
-                        value={lead.website}
-                        onChange={(e) => setLeadField("website", e.target.value)}
-                        autoComplete="off"
-                        tabIndex={-1}
-                        style={{ position: "absolute", left: "-9999px", height: 0, width: 0, opacity: 0 }}
-                      />
-
-                      {leadOpen && (
-                        <div className="calculator__leadForm">
-                          <div className="calculator__leadGrid">
-                            <div className="calculator__field">
-                              <label className="calculator__label calculator__label--small">Imię i nazwisko</label>
-                              <input
-                                className={`calculator__input ${leadTouched.fullName && leadErrors.fullName ? "calculator__input--error" : ""}`}
-                                value={lead.fullName}
-                                onChange={(e) => setLeadField("fullName", e.target.value)}
-                                onBlur={() => touchLead(["fullName"])}
-                                autoComplete="name"
-                                placeholder="np. Jan Kowalski"
-                              />
-                              {leadTouched.fullName && leadErrors.fullName && (
-                                <p className="calculator__error">{leadErrors.fullName}</p>
-                              )}
-                            </div>
-
-                            <div className="calculator__field">
-                              <label className="calculator__label calculator__label--small">E-mail</label>
-                              <input
-                                className={`calculator__input ${leadTouched.email && leadErrors.email ? "calculator__input--error" : ""}`}
-                                value={lead.email}
-                                onChange={(e) => setLeadField("email", e.target.value)}
-                                onBlur={() => touchLead(["email"])}
-                                autoComplete="email"
-                                placeholder="np. jan@firma.pl"
-                              />
-                              {leadTouched.email && leadErrors.email && (
-                                <p className="calculator__error">{leadErrors.email}</p>
-                              )}
-                            </div>
-
-                            <div className="calculator__field">
-                              <label className="calculator__label calculator__label--small">Telefon</label>
-                              <input
-                                className={`calculator__input ${leadTouched.phone && leadErrors.phone ? "calculator__input--error" : ""}`}
-                                value={lead.phone}
-                                onChange={(e) => setLeadField("phone", e.target.value)}
-                                onBlur={() => touchLead(["phone"])}
-                                autoComplete="tel"
-                                placeholder="np. +48 123 456 789"
-                              />
-                              {leadTouched.phone && leadErrors.phone && (
-                                <p className="calculator__error">{leadErrors.phone}</p>
-                              )}
-                            </div>
-                          </div>
-
-                          <label className={`calculator__consent ${leadTouched.consentContact && leadErrors.consentContact ? "calculator__consent--error" : ""}`}>
-                            <input
-                              type="checkbox"
-                              checked={lead.consentContact}
-                              onChange={(e) => setLeadField("consentContact", e.target.checked)}
-                              onBlur={() => touchLead(["consentContact"])}
-                            />
-                            <span>Zgoda na kontakt w sprawie wyceny.</span>
-                          </label>
-                          {leadTouched.consentContact && leadErrors.consentContact && (
-                            <p className="calculator__error">{leadErrors.consentContact}</p>
-                          )}
-
-                          <label className={`calculator__consent ${leadTouched.consentPersonalData && leadErrors.consentPersonalData ? "calculator__consent--error" : ""}`}>
-                            <input
-                              type="checkbox"
-                              checked={lead.consentPersonalData}
-                              onChange={(e) => setLeadField("consentPersonalData", e.target.checked)}
-                              onBlur={() => touchLead(["consentPersonalData"])}
-                            />
-                            <span>
-                              Zgoda na przetwarzanie danych osobowych (RODO).
-                            </span>
-                          </label>
-                          {leadTouched.consentPersonalData && leadErrors.consentPersonalData && (
-                            <p className="calculator__error">{leadErrors.consentPersonalData}</p>
-                          )}
-                        </div>
-                      )}
-
-                      <button
-                        type="button"
-                        className={`calculator__ctaBtn ${sendStatus === "sending" ? "calculator__ctaBtn--disabled" : ""}`}
-                        onClick={onSendOrReveal}
-                        disabled={sendStatus === "sending" || result.isPristine}
-                      >
-                        {leadOpen ? (sendStatus === "sending" ? "Wysyłanie..." : "Wyślij parametry") : "Wyślij parametry do wyceny"}
-                      </button>
-
-                      {sendStatus === "success" && (
-                        <div className="calculator__status calculator__status--success" role="status">
-                          Wysłane. Skontaktujemy się wkrótce.
-                        </div>
-                      )}
-                      {sendStatus === "error" && (
-                        <div className="calculator__status calculator__status--error" role="status">
-                          Błąd wysyłki. Spróbuj ponownie.
-                        </div>
-                      )}
-
-                      <p className="calculator__ctaNote">
-                        Skontaktujemy się i przygotujemy kosztorys po krótkiej rozmowie.
-                      </p>
-                    </div>
-                  </>
-                )}
+              <div className="contact__infoRow">
+                <div className="contact__infoBadge" aria-hidden="true">
+                  <Icon name="clock" />
+                </div>
+                <div className="contact__infoBody">
+                  <p className="contact__infoTitle">Godziny</p>
+                  <p className="contact__infoText">Pon–Pt: 8:00–18:00</p>
+                </div>
               </div>
             </div>
 
-            <div className="calculator__disclaimer">
-              <p className="calculator__disclaimerTitle">Ważne</p>
-              <p className="calculator__disclaimerText">
-                Kalkulator pokazuje orientacyjny przedział. Finalna wycena zależy m.in. od instalacji, technologii,
-                detali wykończenia, logistyki oraz materiałów.
+            <div className="contact__trustCard">
+              <p className="contact__trustTitle">Co zyskujesz</p>
+              <ul className="contact__trustList">
+                <li className="contact__trustItem">
+                  <span className="contact__trustDot" />
+                  Jasny kosztorys i harmonogram
+                </li>
+                <li className="contact__trustItem">
+                  <span className="contact__trustDot" />
+                  Stały nadzór i raportowanie postępu
+                </li>
+                <li className="contact__trustItem">
+                  <span className="contact__trustDot" />
+                  Odbiór na checklistach + gwarancja
+                </li>
+              </ul>
+              <p className="contact__trustNote">
+                Odpowiadamy zwykle w ciągu <span className="contact__trustStrong">24 godzin</span>.
               </p>
             </div>
           </aside>
+
+          <div className="contact__right" aria-label="Formularz kontaktowy">
+            <div className="contact__formWrap">
+              <div className="contact__formTop">
+                <div className="contact__stepMeta">
+                  <p className="contact__stepTitle">{steps[step].title}</p>
+                  <p className="contact__stepSub">{steps[step].subtitle}</p>
+                </div>
+
+                <div className="contact__progress" aria-hidden="true">
+                  <div className="contact__progressTrack">
+                    <div
+                      className="contact__progressFill"
+                      style={{ transform: `scaleX(${progress})` }}
+                    />
+                  </div>
+                  <div className="contact__progressLabels">
+                    {steps.map((_, i) => (
+                      <span
+                        key={i}
+                        className={`contact__progressDot ${i <= step ? "contact__progressDot--on" : ""
+                          }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <form className="contact__form" onSubmit={onSubmit} noValidate>
+                {step === 0 && (
+                  <div className="contact__fields">
+                    <div className="contact__field">
+                      <label className="contact__label" htmlFor="fullName">
+                        Imię i nazwisko
+                      </label>
+                      <input
+                        id="fullName"
+                        className={`contact__input ${touched.fullName && errors.fullName ? "contact__input--error" : ""
+                          }`}
+                        value={form.fullName}
+                        onChange={(e) => setField("fullName", e.target.value)}
+                        onBlur={() => touch(["fullName"])}
+                        placeholder="np. Jan Kowalski"
+                        autoComplete="name"
+                      />
+
+                      {touched.fullName && errors.fullName && (
+                        <p className="contact__error">{errors.fullName}</p>
+                      )}
+                    </div>
+
+                    <div className="contact__row">
+                      <div className="contact__field">
+                        <label className="contact__label" htmlFor="email">
+                          E-mail
+                        </label>
+                        <input
+                          id="email"
+                          className={`contact__input ${touched.email && errors.email ? "contact__input--error" : ""
+                            }`}
+                          value={form.email}
+                          onChange={(e) => setField("email", e.target.value)}
+                          onBlur={() => touch(["email"])}
+                          placeholder="np. jan@firma.pl"
+                          autoComplete="email"
+                        />
+                        {touched.email && errors.email && (
+                          <p className="contact__error">{errors.email}</p>
+                        )}
+                      </div>
+
+                      <div className="contact__field">
+                        <label className="contact__label" htmlFor="phone">
+                          Telefon
+                        </label>
+                        <input
+                          id="phone"
+                          className={`contact__input ${touched.phone && errors.phone ? "contact__input--error" : ""
+                            }`}
+                          value={form.phone}
+                          onChange={(e) => setField("phone", e.target.value)}
+                          onBlur={() => touch(["phone"])}
+                          placeholder="np. +48 123 456 789"
+                          autoComplete="tel"
+                        />
+                        {touched.phone && errors.phone && (
+                          <p className="contact__error">{errors.phone}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {step === 1 && (
+                  <div className="contact__fields">
+                    <div className="contact__row">
+                      <div className="contact__field">
+                        <label className="contact__label" htmlFor="service">
+                          Rodzaj usługi
+                        </label>
+                        <select
+                          id="service"
+                          className="contact__select"
+                          value={form.service}
+                          onChange={(e) => setField("service", e.target.value)}
+                        >
+                          <option>Remont mieszkania</option>
+                          <option>Wykończenie pod klucz</option>
+                          <option>Remont domu</option>
+                          <option>Budowa domu</option>
+                          <option>Lokal usługowy</option>
+                          <option>Inna usługa</option>
+                        </select>
+                      </div>
+
+                      <div className="contact__field">
+                        <label className="contact__label" htmlFor="timeframe">
+                          Preferowany termin
+                        </label>
+                        <select
+                          id="timeframe"
+                          className="contact__select"
+                          value={form.timeframe}
+                          onChange={(e) => setField("timeframe", e.target.value)}
+                        >
+                          <option>Jak najszybciej</option>
+                          <option>W ciągu 2–4 tygodni</option>
+                          <option>W ciągu 1–3 miesięcy</option>
+                          <option>Powyżej 3 miesięcy</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="contact__field">
+                      <label className="contact__label" htmlFor="city">
+                        Miasto / lokalizacja
+                      </label>
+                      <input
+                        id="city"
+                        className={`contact__input ${touched.city && errors.city ? "contact__input--error" : ""
+                          }`}
+                        value={form.city}
+                        onChange={(e) => setField("city", e.target.value)}
+                        onBlur={() => touch(["city"])}
+                        placeholder="np. Warszawa, Wilanów"
+                        autoComplete="address-level2"
+                      />
+                      {touched.city && errors.city && (
+                        <p className="contact__error">{errors.city}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="contact__fields">
+                    <div className="contact__field">
+                      <label className="contact__label" htmlFor="message">
+                        Wiadomość
+                      </label>
+                      <textarea
+                        id="message"
+                        className={`contact__textarea ${touched.message && errors.message ? "contact__textarea--error" : ""
+                          }`}
+                        value={form.message}
+                        onChange={(e) => setField("message", e.target.value)}
+                        onBlur={() => touch(["message"])}
+                        placeholder="Napisz krótko: metraż, stan (deweloperski / do remontu), zakres prac, oczekiwania..."
+                        rows={6}
+                      />
+                      {touched.message && errors.message && (
+                        <p className="contact__error">{errors.message}</p>
+                      )}
+                    </div>
+
+                    <input
+                      type="text"
+                      value={form.website}
+                      onChange={(e) => setField("website", e.target.value)}
+                      autoComplete="off"
+                      tabIndex={-1}
+                      style={{ position: "absolute", left: "-9999px", height: 0, width: 0, opacity: 0 }}
+                    />
+
+
+                    <label className={`contact__consent ${touched.consentContact && errors.consentContact ? "contact__consent--error" : ""}`}>
+                      <input
+                        type="checkbox"
+                        checked={form.consentContact}
+                        onChange={(e) => setField("consentContact", e.target.checked)}
+                        onBlur={() => touch(["consentContact"])}
+                      />
+                      <span className="contact__consentText">
+                        Wyrażam zgodę na kontakt w sprawie oferty.
+                      </span>
+                    </label>
+                    {touched.consentContact && errors.consentContact && <p className="contact__error">{errors.consentContact}</p>}
+
+                    <label className={`contact__consent ${touched.consentPersonalData && errors.consentPersonalData ? "contact__consent--error" : ""}`}>
+                      <input
+                        type="checkbox"
+                        checked={form.consentPersonalData}
+                        onChange={(e) => setField("consentPersonalData", e.target.checked)}
+                        onBlur={() => touch(["consentPersonalData"])}
+                      />
+                      <span className="contact__consentText">
+                        Wyrażam zgodę na przetwarzanie danych osobowych zgodnie z{" "}
+                        <a href="/privacy" target="_blank" rel="noreferrer">Polityką prywatności</a>.
+                      </span>
+                    </label>
+                    {touched.consentPersonalData && errors.consentPersonalData && <p className="contact__error">{errors.consentPersonalData}</p>}
+
+                  </div>
+                )}
+
+                <div className="contact__actions">
+                  <button
+                    type="button"
+                    className={`contact__btn contact__btn--ghost ${step === 0 ? "contact__btn--disabled" : ""
+                      }`}
+                    onClick={onBack}
+                    disabled={step === 0}
+                  >
+                    Wstecz
+                  </button>
+
+                  {step < steps.length - 1 ? (
+                    <button
+                      type="button"
+                      className={`contact__btn contact__btn--primary ${!canGoNext() ? "contact__btn--disabled" : ""
+                        }`}
+                      onClick={onNext}
+                      disabled={!canGoNext()}
+                    >
+                      Dalej
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      className={`contact__btn contact__btn--primary ${status === "sending" ? "contact__btn--disabled" : ""
+                        }`}
+                      disabled={status === "sending"}
+                    >
+                      {status === "sending" ? "Wysyłanie..." : "Wyślij wiadomość"}
+                    </button>
+                  )}
+                </div>
+
+                {status === "success" && (
+                  <div className="contact__status contact__status--success" role="status">
+                    Dziękujemy. Otrzymaliśmy Twoją wiadomość — skontaktujemy się w ciągu 24 godzin.
+                  </div>
+                )}
+                {status === "error" && (
+                  <div className="contact__status contact__status--error" role="status">
+                    Coś poszło nie tak. Spróbuj ponownie lub napisz bezpośrednio na e-mail.
+                  </div>
+                )}
+              </form>
+            </div>
+
+            <div className="contact__trustCard contact__trustCard--below">
+              <p className="contact__trustTitle">Co dalej?</p>
+              <ul className="contact__trustList">
+                <li className="contact__trustItem">
+                  <span className="contact__trustDot" />
+                  Analizujemy Twoje zgłoszenie i doprecyzowujemy zakres
+                </li>
+                <li className="contact__trustItem">
+                  <span className="contact__trustDot" />
+                  Kontaktujemy się telefonicznie lub mailowo (zwykle do 24h)
+                </li>
+                <li className="contact__trustItem">
+                  <span className="contact__trustDot" />
+                  Proponujemy kolejne kroki: pomiar, kosztorys, harmonogram
+                </li>
+              </ul>
+              <p className="contact__trustNote">
+                Bez zobowiązań. Konkretnie i transparentnie.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -19,6 +19,16 @@ function formatPLN(v) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " zł";
 }
 
+function isEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
+}
+
+function isPhone(v) {
+  const s = String(v || "").trim();
+  const digits = s.replace(/[^\d]/g, "");
+  return digits.length >= 7;
+}
+
 function Icon({ name }) {
   const p = {
     fill: "none",
@@ -46,10 +56,7 @@ function Icon({ name }) {
     case "pin":
       return (
         <svg className="calculator__icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            {...p}
-            d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z"
-          />
+          <path {...p} d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" />
           <path {...p} d="M12 10.5a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4Z" />
         </svg>
       );
@@ -126,6 +133,8 @@ const BIG_CITIES = new Set([
 
 export default function Calculator() {
   const sectionRef = useRef(null);
+  const leadRef = useRef(null);
+
   const [step, setStep] = useState(0);
 
   const steps = useMemo(
@@ -184,6 +193,19 @@ export default function Calculator() {
     },
   });
 
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [leadTouched, setLeadTouched] = useState({});
+  const [sendStatus, setSendStatus] = useState("idle"); // idle | sending | success | error
+
+  const [lead, setLead] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    consentContact: false,
+    consentPersonalData: false,
+    website: "", // honeypot
+  });
+
   const progress = clamp((step + 1) / steps.length, 0, 1);
 
   function setField(name, value) {
@@ -193,6 +215,28 @@ export default function Calculator() {
   function setOption(name, value) {
     setData((s) => ({ ...s, options: { ...s.options, [name]: value } }));
   }
+
+  function setLeadField(name, value) {
+    setLead((s) => ({ ...s, [name]: value }));
+  }
+
+  function touchLead(fields) {
+    setLeadTouched((s) => {
+      const next = { ...s };
+      fields.forEach((f) => (next[f] = true));
+      return next;
+    });
+  }
+
+  const leadErrors = useMemo(() => {
+    const e = {};
+    if (!String(lead.fullName).trim()) e.fullName = "Podaj imię i nazwisko.";
+    if (!isEmail(lead.email)) e.email = "Podaj poprawny adres e-mail.";
+    if (!isPhone(lead.phone)) e.phone = "Podaj poprawny numer telefonu.";
+    if (!lead.consentContact) e.consentContact = "Wymagana zgoda na kontakt.";
+    if (!lead.consentPersonalData) e.consentPersonalData = "Wymagana zgoda na dane osobowe.";
+    return e;
+  }, [lead]);
 
   function canNext() {
     if (step === 0) return true;
@@ -420,6 +464,91 @@ export default function Calculator() {
     };
   }, [data]);
 
+  async function onSendOrReveal() {
+    // 1) якщо ще не відкрито — відкриваємо і скролимо
+    if (!leadOpen) {
+      setLeadOpen(true);
+      // дати DOM намалюватися
+      setTimeout(() => {
+        scrollToTopOfSection(leadRef.current || sectionRef.current);
+      }, 0);
+      return;
+    }
+
+    // 2) якщо відкрито — валідуємо і шлемо
+    touchLead(["fullName", "email", "phone", "consentContact", "consentPersonalData"]);
+
+    if (
+      leadErrors.fullName ||
+      leadErrors.email ||
+      leadErrors.phone ||
+      leadErrors.consentContact ||
+      leadErrors.consentPersonalData
+    ) {
+      // підсвітка помилок + залишаємо форму відкритою
+      return;
+    }
+
+    if (result.isPristine) return;
+
+    setSendStatus("sending");
+
+    try {
+      const payload = {
+        // калькуляторні дані
+        ...data,
+        area: Number(data.area),
+        rooms: Number(data.rooms),
+        bathrooms: Number(data.bathrooms),
+
+        apartmentFloor: data.objectType === "Mieszkanie" ? Number(data.apartmentFloor || 0) : undefined,
+        hasElevator: data.objectType === "Mieszkanie" ? Boolean(data.hasElevator) : undefined,
+
+        floors: data.objectType !== "Mieszkanie" ? Number(data.floors || 1) : undefined,
+
+        budgetCapOn: Boolean(data.budgetCapOn),
+        budgetCap: Number(data.budgetCap || 0),
+
+        // результат калькулятора
+        totalLow: Number(result.totalLow || 0),
+        totalHigh: Number(result.totalHigh || 0),
+        timeWeeksLow: Number(result.timeWeeks.low || 0),
+        timeWeeksHigh: Number(result.timeWeeks.high || 0),
+
+        // контакти + згоди + honeypot
+        ...lead,
+      };
+
+      const res = await fetch("/api/estimate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("request_failed");
+      const j = await res.json();
+      if (!j.ok) throw new Error("api_failed");
+
+      setSendStatus("success");
+      setTimeout(() => setSendStatus("idle"), 3000);
+
+      // опційно: очистити контакти після успіху
+      setLead({
+        fullName: "",
+        email: "",
+        phone: "",
+        consentContact: false,
+        consentPersonalData: false,
+        website: "",
+      });
+      setLeadTouched({});
+      setLeadOpen(false);
+    } catch (e) {
+      setSendStatus("error");
+      setTimeout(() => setSendStatus("idle"), 3000);
+    }
+  }
+
   return (
     <section className="calculator" id="calculator" ref={sectionRef} aria-label="Kalkulator wyceny">
       <div className="calculator__inner">
@@ -544,7 +673,6 @@ export default function Calculator() {
                           const v = e.target.value;
                           setField("area", v === "" ? "" : Number(v));
                         }}
-
                       />
                       <p className="calculator__hint">Minimalnie 10 m².</p>
                     </div>
@@ -574,7 +702,7 @@ export default function Calculator() {
                           max={120}
                           value={data.apartmentFloor}
                           placeholder="0"
-                          onChange={(e) => setField("apartmentFloor", Number(e.target.value))}
+                          onChange={(e) => setField("apartmentFloor", e.target.value === "" ? "" : Number(e.target.value))}
                         />
                         <label className="calculator__toggle">
                           <input
@@ -615,7 +743,6 @@ export default function Calculator() {
                           const v = e.target.value;
                           setField("rooms", v === "" ? "" : Number(v));
                         }}
-
                       />
                       <p className="calculator__hint">&nbsp;</p>
                     </div>
@@ -634,7 +761,6 @@ export default function Calculator() {
                           const v = e.target.value;
                           setField("bathrooms", v === "" ? "" : Number(v));
                         }}
-
                       />
                       <p className="calculator__hint">&nbsp;</p>
                     </div>
@@ -645,7 +771,6 @@ export default function Calculator() {
                         id="condition"
                         className="calculator__select"
                         value={data.condition}
-                        placeholder="0"
                         onChange={(e) => setField("condition", e.target.value)}
                         disabled={data.workType === "Budowa"}
                       >
@@ -765,8 +890,7 @@ export default function Calculator() {
                       </label>
 
                       <div
-                        className={`calculator__budgetBadge ${data.budgetCapOn ? `calculator__budgetBadge--${result.budgetFit || "none"}` : ""
-                          }`}
+                        className={`calculator__budgetBadge ${data.budgetCapOn ? `calculator__budgetBadge--${result.budgetFit || "none"}` : ""}`}
                       >
                         {data.budgetCapOn ? (
                           <>
@@ -839,7 +963,6 @@ export default function Calculator() {
                     Zakończ
                   </button>
                 )}
-
               </div>
             </div>
           </div>
@@ -908,10 +1031,117 @@ export default function Calculator() {
                       </div>
                     </div>
 
-                    <div className="calculator__cta">
-                      <a className="calculator__ctaBtn" href="#contact">
-                        Wyślij parametry do wyceny
-                      </a>
+                    {/* CTA + reveal form */}
+                    <div className="calculator__cta" ref={leadRef}>
+                      {/* honeypot */}
+                      <input
+                        type="text"
+                        value={lead.website}
+                        onChange={(e) => setLeadField("website", e.target.value)}
+                        autoComplete="off"
+                        tabIndex={-1}
+                        style={{ position: "absolute", left: "-9999px", height: 0, width: 0, opacity: 0 }}
+                      />
+
+                      {leadOpen && (
+                        <div className="calculator__leadForm">
+                          <div className="calculator__leadGrid">
+                            <div className="calculator__field">
+                              <label className="calculator__label calculator__label--small">Imię i nazwisko</label>
+                              <input
+                                className={`calculator__input ${leadTouched.fullName && leadErrors.fullName ? "calculator__input--error" : ""}`}
+                                value={lead.fullName}
+                                onChange={(e) => setLeadField("fullName", e.target.value)}
+                                onBlur={() => touchLead(["fullName"])}
+                                autoComplete="name"
+                                placeholder="np. Jan Kowalski"
+                              />
+                              {leadTouched.fullName && leadErrors.fullName && (
+                                <p className="calculator__error">{leadErrors.fullName}</p>
+                              )}
+                            </div>
+
+                            <div className="calculator__field">
+                              <label className="calculator__label calculator__label--small">E-mail</label>
+                              <input
+                                className={`calculator__input ${leadTouched.email && leadErrors.email ? "calculator__input--error" : ""}`}
+                                value={lead.email}
+                                onChange={(e) => setLeadField("email", e.target.value)}
+                                onBlur={() => touchLead(["email"])}
+                                autoComplete="email"
+                                placeholder="np. jan@firma.pl"
+                              />
+                              {leadTouched.email && leadErrors.email && (
+                                <p className="calculator__error">{leadErrors.email}</p>
+                              )}
+                            </div>
+
+                            <div className="calculator__field">
+                              <label className="calculator__label calculator__label--small">Telefon</label>
+                              <input
+                                className={`calculator__input ${leadTouched.phone && leadErrors.phone ? "calculator__input--error" : ""}`}
+                                value={lead.phone}
+                                onChange={(e) => setLeadField("phone", e.target.value)}
+                                onBlur={() => touchLead(["phone"])}
+                                autoComplete="tel"
+                                placeholder="np. +48 123 456 789"
+                              />
+                              {leadTouched.phone && leadErrors.phone && (
+                                <p className="calculator__error">{leadErrors.phone}</p>
+                              )}
+                            </div>
+                          </div>
+
+                          <label className={`calculator__consent ${leadTouched.consentContact && leadErrors.consentContact ? "calculator__consent--error" : ""}`}>
+                            <input
+                              type="checkbox"
+                              checked={lead.consentContact}
+                              onChange={(e) => setLeadField("consentContact", e.target.checked)}
+                              onBlur={() => touchLead(["consentContact"])}
+                            />
+                            <span>Zgoda na kontakt w sprawie wyceny.</span>
+                          </label>
+                          {leadTouched.consentContact && leadErrors.consentContact && (
+                            <p className="calculator__error">{leadErrors.consentContact}</p>
+                          )}
+
+                          <label className={`calculator__consent ${leadTouched.consentPersonalData && leadErrors.consentPersonalData ? "calculator__consent--error" : ""}`}>
+                            <input
+                              type="checkbox"
+                              checked={lead.consentPersonalData}
+                              onChange={(e) => setLeadField("consentPersonalData", e.target.checked)}
+                              onBlur={() => touchLead(["consentPersonalData"])}
+                            />
+                            <span>
+                              Zgoda na przetwarzanie danych osobowych (RODO).
+                            </span>
+                          </label>
+                          {leadTouched.consentPersonalData && leadErrors.consentPersonalData && (
+                            <p className="calculator__error">{leadErrors.consentPersonalData}</p>
+                          )}
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        className={`calculator__ctaBtn ${sendStatus === "sending" ? "calculator__ctaBtn--disabled" : ""}`}
+                        onClick={onSendOrReveal}
+                        disabled={sendStatus === "sending" || result.isPristine}
+                      >
+                        {leadOpen ? (sendStatus === "sending" ? "Wysyłanie..." : "Wyślij parametry") : "Wyślij parametry do wyceny"}
+                      </button>
+
+                      {sendStatus === "success" && (
+                        <div className="calculator__status calculator__status--success" role="status">
+                          Wysłane. Skontaktujemy się wkrótce.
+                        </div>
+                      )}
+                      {sendStatus === "error" && (
+                        <div className="calculator__status calculator__status--error" role="status">
+                          Błąd wysyłki. Spróbuj ponownie.
+                        </div>
+                      )}
+
                       <p className="calculator__ctaNote">
                         Skontaktujemy się i przygotujemy kosztorys po krótkiej rozmowie.
                       </p>
