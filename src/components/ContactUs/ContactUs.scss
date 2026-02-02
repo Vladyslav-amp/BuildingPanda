@@ -3,471 +3,452 @@
 
 .contact {
   @include section-padding;
-  background: #eef1f4;
-}
+  background: $light-section-up;
 
-.contact__inner {
-  @include max-width-page;
-}
+  &__inner {
+    @include max-width-page;
+  }
 
-.contact__header {
-  margin: 0 0 28px;
-}
+  &__header {
+    margin: 0 0 28px;
+  }
 
-.contact__kicker {
+  &__kicker {
+    @include text-kicker;
+  }
+
+  &__heading {
+    @include text-heading;
+  }
+
+  &__lead {
+    @include text-lead;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  &__aside {
+    display: grid;
+    gap: 12px;
+  }
+
+  &__infoCard,
+  &__trustCard {
+    border-radius: 22px;
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    background: rgba(255, 255, 255, 0.96);
+
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.90) inset,
+      0 18px 42px rgba(15, 23, 42, 0.08);
+
+    padding: 18px;
+  }
+
+  &__infoRow {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  &__infoBadge {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    background:
+      radial-gradient(120px 90px at 30% 20%, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.95) 55%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.78));
+
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.88) inset,
+      0 14px 30px rgba(15, 23, 42, 0.10);
+  }
+
+  &__icon {
+    width: 26px;
+    height: 26px;
+    color: rgba($akcent-color, 0.92);
+  }
+
+  &__infoTitle {
+    font-family: $main-text-font;
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $text-on-light-second;
+  }
+
+  &__infoText {
+    font-family: $main-text-font;
+    margin: 0;
+    font-size: 14px;
+    color: $text-on-light;
+  }
+
+  &__divider {
+    height: 1px;
+    background: rgba($akcent-color, 0.2);
+    margin: 14px 0;
+  }
+
+  &__trustTitle {
+    margin: 0 0 10px;
     font-family: $main-title-font;
-  margin: 0 0 10px;
-  font-size: 16px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #d4a84f;
-}
-
-.contact__heading {
-  font-family: $main-title-font;
-  margin: 0 0 12px;
-  font-size: 28px;
-  line-height: 1.15;
-  font-weight: 650;
-  letter-spacing: 0.2px;
-  color: rgba(15, 23, 42, 0.92);
-}
-
-.contact__lead {
-  font-family: $main-text-font;
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.6;
-  color: rgba(15, 23, 42, 0.62);
-}
-
-.contact__grid {
-  display: grid;
-  grid-template-columns: 0.95fr 1.05fr;
-  gap: 18px;
-  align-items: start;
-}
-
-.contact__aside {
-  display: grid;
-  gap: 12px;
-}
-
-.contact__infoCard,
-.contact__trustCard {
-  border-radius: 22px;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255, 255, 255, 0.96);
-
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.90) inset,
-    0 18px 42px rgba(15, 23, 42, 0.08);
-
-  padding: 18px;
-}
-
-.contact__infoRow {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 12px;
-  align-items: center;
-}
-
-.contact__infoBadge {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background:
-    radial-gradient(120px 90px at 30% 20%, rgba(15, 23, 42, 0.08), rgba(255,255,255,0.95) 55%),
-    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.78));
-
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.88) inset,
-    0 14px 30px rgba(15, 23, 42, 0.10);
-}
-
-.contact__icon {
-  width: 26px;
-  height: 26px;
-  color: rgba(212, 168, 79, 0.92);
-}
-
-.contact__infoTitle {
-  font-family: $main-text-font;
-  margin: 0 0 4px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(15, 23, 42, 0.55);
-}
-
-.contact__infoText {
-  font-family: $main-text-font;
-  margin: 0;
-  font-size: 14px;
-  color: rgba(15, 23, 42, 0.88);
-}
-
-.contact__divider {
-  height: 1px;
-  background: rgba(212, 168, 79, 0.2);
-  margin: 14px 0;
-}
-
-.contact__trustTitle {
-  margin: 0 0 10px;
-  font-family: $main-title-font;
-  font-size: 16px;
-  font-weight: 650;
-  color: rgba(15, 23, 42, 0.92);
-}
-
-.contact__trustList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 10px;
-}
-
-.contact__trustItem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: $main-text-font;
-  font-size: 14px;
-  color: rgba(15, 23, 42, 0.70);
-}
-
-.contact__trustDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(212, 168, 79, 0.62);
-  flex-shrink: 0;
-}
-
-.contact__trustNote {
-  margin: 12px 0 0;
-  font-family: $main-text-font;
-  font-size: 14px;
-  color: rgba(15, 23, 42, 0.62);
-}
-
-.contact__trustStrong {
-  color: rgba(15, 23, 42, 0.88);
-  font-weight: 650;
-}
-
-.contact__right {
-  display: grid;
-  gap: 12px;
-}
-
-.contact__trustCard--below {
-  margin-top: 4px;
-}
-
-.contact__formWrap {
-  border-radius: 26px;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255, 255, 255, 0.96);
-
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.90) inset,
-    0 28px 70px rgba(15, 23, 42, 0.10);
-
-  overflow: hidden;
-}
-
-.contact__formTop {
-  padding: 18px 18px 14px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  display: grid;
-  gap: 12px;
-}
-
-.contact__stepTitle {
-  margin: 0 0 4px;
-  font-family: $main-title-font;
-  font-size: 16px;
-  font-weight: 650;
-  color: rgba(15, 23, 42, 0.92);
-}
-
-.contact__stepSub {
-  margin: 0;
-  font-family: $main-text-font;
-  font-size: 14px;
-  color: rgba(15, 23, 42, 0.62);
-}
-
-.contact__progress {
-  position: relative;
-  display: grid;
-  gap: 10px;
-}
-
-.contact__progressTrack {
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.10);
-  overflow: hidden;
-}
-
-.contact__progressFill {
-  height: 100%;
-  width: 100%;
-  background: rgba(212, 168, 79, 0.86);
-  transform-origin: left;
-  transform: scaleX(0.33);
-  transition: transform 520ms cubic-bezier(.2,.8,.2,1);
-}
-
-.contact__progressLabels {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.contact__progressDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.16);
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  transition: transform 220ms ease, background 220ms ease;
-}
-
-.contact__progressDot--on {
-  background: rgba(212, 168, 79, 0.92);
-  transform: scale(1.06);
-}
-
-.contact__form {
-  padding: 18px;
-  display: grid;
-  gap: 14px;
-}
-
-.contact__fields {
-  display: grid;
-  gap: 12px;
-}
-
-.contact__row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.contact__field {
-  display: grid;
-  gap: 8px;
-}
-
-.contact__label {
-  font-family: $main-text-font;
-  font-size: 14px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(15, 23, 42, 0.55);
-}
-
-.contact__input,
-.contact__select,
-.contact__textarea {
-  font-family: $main-text-font;
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  background: rgba(255, 255, 255, 0.96);
-  color: rgba(15, 23, 42, 0.92);
-  padding: 12px 12px;
-  font-size: 14px;
-  outline: none;
-
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.88) inset,
-    0 14px 28px rgba(15, 23, 42, 0.06);
-
-  transition: border-color 200ms ease, box-shadow 200ms ease;
-}
-
-.contact__textarea {
-  font-family: $main-text-font;
-  resize: vertical;
-  min-height: 130px;
-}
-
-.contact__input:focus,
-.contact__select:focus,
-.contact__textarea:focus {
-  border-color: rgba(15, 23, 42, 0.22);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.92) inset,
-    0 22px 44px rgba(15, 23, 42, 0.10);
-}
-
-.contact__input--error,
-.contact__textarea--error {
-  border-color: rgba(180, 38, 38, 0.35);
-}
-
-.contact__error {
-  margin: 0;
-  font-family: $main-text-font;
-  font-size: 12px;
-  color: rgba(180, 38, 38, 0.86);
-}
-
-.contact__consent {
-  display: grid;
-  grid-template-columns: 18px 1fr;
-  gap: 10px;
-  align-items: start;
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255,255,255,0.92);
-}
-
-.contact__consent input {
-  margin-top: 3px;
-}
-
-.contact__consentText {
-  font-family: $main-text-font;
-  font-size: 14px;
-  line-height: 1.55;
-  color: rgba(15, 23, 42, 0.62);
-}
-
-.contact__consent--error {
-  border-color: rgba(180, 38, 38, 0.25);
-}
-
-.contact__actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.contact__btn {
-  height: 44px;
-  border-radius: 14px;
-  padding: 0 16px;
-  font-family: $main-text-font;
-  font-size: 14px;
-  font-weight: 450;
-  letter-spacing: 0.2px;
-  cursor: pointer;
-  border: 0;
-  transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease, border-color 220ms ease;
-}
-
-.contact__btn--primary {
-  background: rgba(212, 168, 79, 0.92);
-  color: rgba(255,255,255,0.95);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.10) inset,
-    0 18px 40px rgba(15, 23, 42, 0.18);
-}
-
-.contact__btn--ghost {
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  color: rgba(15, 23, 42, 0.92);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.88) inset,
-    0 18px 40px rgba(15, 23, 42, 0.08);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .contact__btn:hover {
-    transform: translateY(-2px);
+    font-size: 16px;
+    font-weight: 650;
+    color: $text-on-light;
   }
 
-  .contact__btn--primary:hover {
+  &__trustList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+
+  &__trustItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: $main-text-font;
+    font-size: 14px;
+    color: $text-on-light-second;
+  }
+
+  &__trustDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba($akcent-color, 0.62);
+    flex-shrink: 0;
+  }
+
+  &__trustNote {
+    margin: 12px 0 0;
+    font-family: $main-text-font;
+    font-size: 14px;
+    color: $text-on-light-second;
+  }
+
+  &__trustStrong {
+    color: $text-on-light;
+    font-weight: 650;
+  }
+
+  &__right {
+    display: grid;
+    gap: 12px;
+  }
+
+  &__trustCard--below {
+    margin-top: 4px;
+  }
+
+  &__formWrap {
+    border-radius: 26px;
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    background: rgba(255, 255, 255, 0.96);
+
     box-shadow:
-      0 1px 0 rgba(255,255,255,0.12) inset,
-      0 28px 62px rgba(15, 23, 42, 0.22);
+      0 1px 0 rgba(255, 255, 255, 0.90) inset,
+      0 28px 70px rgba(15, 23, 42, 0.10);
+
+    overflow: hidden;
   }
 
-  .contact__btn--ghost:hover {
-    border-color: rgba(15, 23, 42, 0.14);
+  &__formTop {
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    display: grid;
+    gap: 12px;
+  }
+
+  &__stepTitle {
+    margin: 0 0 4px;
+    font-family: $main-title-font;
+    font-size: 16px;
+    font-weight: 650;
+    color: $text-on-light;
+  }
+
+  &__stepSub {
+    margin: 0;
+    font-family: $main-text-font;
+    font-size: 14px;
+    color: $text-on-light-second;
+  }
+
+  &__progress {
+    position: relative;
+    display: grid;
+    gap: 10px;
+  }
+
+  &__progressTrack {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.10);
+    overflow: hidden;
+  }
+
+  &__progressFill {
+    height: 100%;
+    width: 100%;
+    background: rgba($akcent-color, 0.86);
+    transform-origin: left;
+    transform: scaleX(0.33);
+    transition: transform 520ms cubic-bezier(.2, .8, .2, 1);
+  }
+
+  &__progressLabels {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__progressDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.16);
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    transition: transform 220ms ease, background 220ms ease;
+
+    &--on {
+      background: rgba($akcent-color, 0.92);
+      transform: scale(1.06);
+    }
+  }
+
+  &__form {
+    padding: 18px;
+    display: grid;
+    gap: 14px;
+  }
+
+  &__fields {
+    display: grid;
+    gap: 12px;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  &__field {
+    display: grid;
+    gap: 8px;
+  }
+
+  &__label {
+    font-family: $main-text-font;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $text-on-light-second;
+  }
+
+  &__input,
+  &__select,
+  &__textarea {
+    font-family: $main-text-font;
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+    color: $text-on-light;
+    padding: 12px 12px;
+    font-size: 14px;
+    outline: none;
+
     box-shadow:
-      0 1px 0 rgba(255,255,255,0.92) inset,
-      0 26px 56px rgba(15, 23, 42, 0.10);
+      0 1px 0 rgba(255, 255, 255, 0.88) inset,
+      0 14px 28px rgba(15, 23, 42, 0.06);
+
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+
+    &:focus {
+      border-color: rgba(15, 23, 42, 0.22);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.92) inset,
+        0 22px 44px rgba(15, 23, 42, 0.10);
+    }
   }
-}
 
-.contact__btn--disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.contact__status {
-  border-radius: 16px;
-  padding: 12px 12px;
-  font-family: $main-text-font;
-  font-size: 14px;
-  line-height: 1.55;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255,255,255,0.96);
-}
-
-.contact__status--success {
-  border-color: rgba(15, 130, 70, 0.20);
-  color: rgba(15, 130, 70, 0.92);
-}
-
-.contact__status--error {
-  border-color: rgba(180, 38, 38, 0.25);
-  color: rgba(180, 38, 38, 0.86);
-}
-
-@media (max-width: 1024px) {
-  .contact__grid {
-    grid-template-columns: 1fr;
+  &__textarea {
+    font-family: $main-text-font;
+    resize: vertical;
+    min-height: 130px;
   }
-}
 
-@media (max-width: 820px) {
-  .contact__heading {
-    font-size: 26px;
+  &__input--error,
+  &__textarea--error {
+    border-color: rgba(180, 38, 38, 0.35);
   }
-}
 
-@media (max-width: 640px) {
-  .contact {
+  &__error {
+    margin: 0;
+    font-family: $main-text-font;
+    font-size: 12px;
+    color: rgba(180, 38, 38, 0.86);
+  }
+
+  &__consent {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 10px;
+    align-items: start;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    background: rgba(255, 255, 255, 0.92);
+
+    input {
+      margin-top: 3px;
+    }
+
+    &--error {
+      border-color: rgba(180, 38, 38, 0.25);
+    }
+  }
+
+  &__consentText {
+    font-family: $main-text-font;
+    font-size: 14px;
+    line-height: 1.55;
+    color: $text-on-light-second;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  &__btn {
+    height: 44px;
+    border-radius: 14px;
+    padding: 0 16px;
+    font-family: $main-text-font;
+    font-size: 14px;
+    font-weight: 450;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    border: 0;
+    transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease, border-color 220ms ease;
+
+    &--primary {
+      background: rgba($akcent-color, 0.92);
+      color: rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.10) inset,
+        0 18px 40px rgba(15, 23, 42, 0.18);
+    }
+
+    &--ghost {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      color: $text-on-light;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.88) inset,
+        0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    &--disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &__btn:hover {
+      transform: translateY(-2px);
+    }
+
+    &__btn--primary:hover {
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.12) inset,
+        0 28px 62px rgba(15, 23, 42, 0.22);
+    }
+
+    &__btn--ghost:hover {
+      border-color: rgba(15, 23, 42, 0.14);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.92) inset,
+        0 26px 56px rgba(15, 23, 42, 0.10);
+    }
+  }
+
+  &__status {
+    border-radius: 16px;
+    padding: 12px 12px;
+    font-family: $main-text-font;
+    font-size: 14px;
+    line-height: 1.55;
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    background: rgba(255, 255, 255, 0.96);
+
+    &--success {
+      border-color: rgba(15, 130, 70, 0.20);
+      color: rgba(15, 130, 70, 0.92);
+    }
+
+    &--error {
+      border-color: rgba(180, 38, 38, 0.25);
+      color: rgba(180, 38, 38, 0.86);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 820px) {
+    &__heading {
+      font-size: 26px;
+    }
+  }
+
+  @media (max-width: 640px) {
     padding: 64px 0;
+
+    &__inner {
+      padding: 0 14px;
+    }
+
+    &__row {
+      grid-template-columns: 1fr;
+    }
   }
 
-  .contact__inner {
-    padding: 0 14px;
-  }
+  @media (prefers-reduced-motion: reduce) {
 
-  .contact__row {
-    grid-template-columns: 1fr;
+    &__progressFill,
+    &__input,
+    &__select,
+    &__textarea,
+    &__btn {
+      transition: none;
+    }
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .contact__progressFill,
-  .contact__input,
-  .contact__select,
-  .contact__textarea,
-  .contact__btn {
-    transition: none;
-  }
-}
-

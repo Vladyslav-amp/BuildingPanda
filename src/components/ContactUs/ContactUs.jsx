@@ -267,7 +267,7 @@ export default function Contact() {
                 </div>
                 <div className="contact__infoBody">
                   <p className="contact__infoTitle">Telefon</p>
-                  <p className="contact__infoText">+48 000 000 000</p>
+                  <p className="contact__infoText">+48 576 530 094</p>
                 </div>
               </div>
 
@@ -291,7 +291,7 @@ export default function Contact() {
                 </div>
                 <div className="contact__infoBody">
                   <p className="contact__infoTitle">Lokalizacja</p>
-                  <p className="contact__infoText">Cała Polska</p>
+                  <p className="contact__infoText">Niedźwiednik 36E, 80-292 Gdańsk</p>
                 </div>
               </div>
 
@@ -303,7 +303,7 @@ export default function Contact() {
                 </div>
                 <div className="contact__infoBody">
                   <p className="contact__infoTitle">Godziny</p>
-                  <p className="contact__infoText">Pon–Pt: 8:00–18:00</p>
+                  <p className="contact__infoText">Pon–Pt: 8:00–16:00</p>
                 </div>
               </div>
             </div>

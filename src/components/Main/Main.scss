@@ -3,7 +3,10 @@
 
 .main {
   @include section-padding;
-  background-image: url("../../assets/main_bg.avif");
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.25),
+      rgba(15, 23, 42, 0.35)),
+    url("../../assets/main_bg.avif");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -30,17 +33,18 @@
     z-index: 10;
 
     &__logo {
-      font-family: "Playfair Display", serif;
+      font-family: $main-title-font;
+      text-align: center;
       font-size: 48px;
-      color: #D4A84F;
+      color: $akcent-color;
       font-weight: 300;
     }
 
     &__slogan {
-      font-family: "Roboto", serif;
+      font-family: $main-text-font;
       font-size: 20px;
-      font-weight: 400;
-      color: #fff;
+      font-weight: 300;
+      color: $text-on-dark;
       text-align: center;
     }
 
@@ -56,9 +60,9 @@
       width: 100%;
       padding: 10px 20px;
       border-radius: 12px;
-      border: 1px solid #D4A84F;
-      color: #fff;
-      font-family: "Roboto", serif;
+      border: 1px solid $akcent-color;
+      color: $text-on-dark;
+      font-family: $main-text-font;
       font-weight: 300;
       font-size: 16px;
       cursor: pointer;

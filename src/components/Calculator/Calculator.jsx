@@ -465,17 +465,14 @@ export default function Calculator() {
   }, [data]);
 
   async function onSendOrReveal() {
-    // 1) якщо ще не відкрито — відкриваємо і скролимо
     if (!leadOpen) {
       setLeadOpen(true);
-      // дати DOM намалюватися
       setTimeout(() => {
         scrollToTopOfSection(leadRef.current || sectionRef.current);
       }, 0);
       return;
     }
 
-    // 2) якщо відкрито — валідуємо і шлемо
     touchLead(["fullName", "email", "phone", "consentContact", "consentPersonalData"]);
 
     if (
@@ -485,7 +482,6 @@ export default function Calculator() {
       leadErrors.consentContact ||
       leadErrors.consentPersonalData
     ) {
-      // підсвітка помилок + залишаємо форму відкритою
       return;
     }
 
@@ -539,8 +535,6 @@ export default function Calculator() {
         website: String(lead.website || ""),
       };
 
-      // важливо: прибрати undefined, бо інколи JSON.stringify їх відкидає,
-      // але ми хочемо чистий об’єкт без “дір”
       Object.keys(payload).forEach((k) => {
         if (payload[k] === undefined) delete payload[k];
       });
@@ -559,7 +553,6 @@ export default function Calculator() {
       setSendStatus("success");
       setTimeout(() => setSendStatus("idle"), 3000);
 
-      // опційно: очистити контакти після успіху
       setLead({
         fullName: "",
         email: "",
