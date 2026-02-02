@@ -495,8 +495,11 @@ export default function Calculator() {
 
     try {
       const payload = {
-        // калькуляторні дані
-        ...data,
+        objectType: String(data.objectType),
+        workType: String(data.workType),
+        voivodeship: String(data.voivodeship),
+        city: String(data.city),
+
         area: Number(data.area),
         rooms: Number(data.rooms),
         bathrooms: Number(data.bathrooms),
@@ -506,18 +509,42 @@ export default function Calculator() {
 
         floors: data.objectType !== "Mieszkanie" ? Number(data.floors || 1) : undefined,
 
+        condition: String(data.condition),
+        complexity: String(data.complexity),
+        ceiling: String(data.ceiling),
+
+        urgency: String(data.urgency),
+        materials: String(data.materials),
+        standard: String(data.standard),
+
         budgetCapOn: Boolean(data.budgetCapOn),
         budgetCap: Number(data.budgetCap || 0),
 
-        // результат калькулятора
+        options: Object.fromEntries(
+          Object.entries(data.options || {}).map(([k, v]) => [k, Boolean(v)])
+        ),
+
         totalLow: Number(result.totalLow || 0),
         totalHigh: Number(result.totalHigh || 0),
         timeWeeksLow: Number(result.timeWeeks.low || 0),
         timeWeeksHigh: Number(result.timeWeeks.high || 0),
 
-        // контакти + згоди + honeypot
-        ...lead,
+        fullName: String(lead.fullName || ""),
+        email: String(lead.email || ""),
+        phone: String(lead.phone || ""),
+
+        consentContact: Boolean(lead.consentContact),
+        consentPersonalData: Boolean(lead.consentPersonalData),
+
+        website: String(lead.website || ""),
       };
+
+      // важливо: прибрати undefined, бо інколи JSON.stringify їх відкидає,
+      // але ми хочемо чистий об’єкт без “дір”
+      Object.keys(payload).forEach((k) => {
+        if (payload[k] === undefined) delete payload[k];
+      });
+
 
       const res = await fetch("/api/estimate", {
         method: "POST",
