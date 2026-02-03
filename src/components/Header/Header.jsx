@@ -227,11 +227,11 @@ export default function Header() {
               <span className="mnav__contactText">+48 798 889 787</span>
             </a>
 
-            <a className="mnav__contactItem" href="mailto:kontakt@twojadomena.pl" onClick={() => setOpen(false)}>
+            <a className="mnav__contactItem" href="mailto:buildingpanda.pl@gmail.com" onClick={() => setOpen(false)}>
               <span className="mnav__contactIcon" aria-hidden="true">
                 <Icon name="mail" />
               </span>
-              <span className="mnav__contactText">kontakt@twojadomena.pl</span>
+              <span className="mnav__contactText">buildingpanda.pl@gmail.com</span>
             </a>
           </div>
 
@@ -296,9 +296,9 @@ export default function Header() {
                   <Icon name="phone" />
                   <span>+48 798 889 787</span>
                 </a>
-                <a className="header__contactItem header__contactItem--mail" href="mailto:kontakt@twojadomena.pl">
+                <a className="header__contactItem header__contactItem--mail" href="mailto:buildingpanda.pl@gmail.com">
                   <Icon name="mail" />
-                  <span>kontakt@gmail.com</span>
+                  <span>buildingpanda.pl@gmail.com</span>
                 </a>
               </div>
 

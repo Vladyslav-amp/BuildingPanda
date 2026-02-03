@@ -279,7 +279,7 @@ export default function Contact() {
                 </div>
                 <div className="contact__infoBody">
                   <p className="contact__infoTitle">E-mail</p>
-                  <p className="contact__infoText">kontakt@twojafirma.pl</p>
+                  <p className="contact__infoText">buildingpanda.pl@gmail.com</p>
                 </div>
               </div>
 
