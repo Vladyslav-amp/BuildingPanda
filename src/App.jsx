@@ -5,7 +5,7 @@ import Realizations from "./components/Realizations/Realizations.jsx";
 import AboutUs from "./components/AboutUs/AboutUs.jsx";
 import ContactUs from "./components/ContactUs/ContactUs.jsx";
 import Footer from "./components/Footer/Footer.jsx";
-import AiAssistant from "./components/AiAssistant/AiAssistant.jsx";
+// import AiAssistant from "./components/AiAssistant/AiAssistant.jsx";
 import Main from "./components/Main/Main.jsx";
 import TrustBar from "./components/TrustBar/TrustBar.jsx";
 import HowWeWork from "./components/HowWeWork/HowWeWork.jsx";
@@ -37,7 +37,7 @@ function App() {
         <ContactUs />
       </main>
       <Footer />
-      <AiAssistant />
+      {/* <AiAssistant /> */}
     </div>
   );
 }

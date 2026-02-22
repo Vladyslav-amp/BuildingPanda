@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./AiAssistant.scss";
-
 import botAvatar from "../../assets/ai-panda.png";
 
+/* -------------------- Content -------------------- */
 const COMPANY = {
   name: "Building Panda",
   intro:
-    "Dzień dobry. Jestem asystentem firmy budowlanej. Mogę opisać usługi, etapy współpracy, realizacje oraz pomóc w kontakcie.",
+    "Cześć 👋\nJestem wirtualnym asystentem Building Panda. W czym mogę pomóc?",
   contacts: {
     phone: "+48 576 530 094",
     email: "buildingpanda.pl@gmail.com",
@@ -27,7 +27,6 @@ const COMPANY = {
         "instalacje (elektryka/hydraulika)",
         "wykończenie (opcjonalnie)",
       ],
-      nextQuestions: ["Jaki metraż domu planujesz?", "Jaka lokalizacja inwestycji?", "Czy masz projekt?"],
     },
     {
       id: "remont",
@@ -42,189 +41,125 @@ const COMPANY = {
         "łazienki/kuchnie (opcjonalnie)",
         "odbiór i checklisty jakości",
       ],
-      nextQuestions: ["Jaki metraż i miasto?", "Jaki stan lokalu (po deweloperze / do remontu)?", "Jaki zakres prac?"],
     },
     {
       id: "gen",
       name: "Generalne wykonawstwo / koordynacja",
       keywords: ["generalne wykonawstwo", "gen wykonawca", "koordynacja", "nadzór", "ekipy"],
       description:
-        "Koordynacja inwestycji: plan etapów, dobór ekip, kontrola jakości i zgodności z ustaleniami, komunikacja oraz raportowanie postępu.",
+        "Koordynacja inwestycji: plan etapów, dobór ekip, kontrola jakości, komunikacja oraz raportowanie postępu.",
       includes: ["harmonogram", "koordynacja ekip", "kontrola jakości", "raporty postępu"],
-      nextQuestions: ["Jaki typ obiektu i zakres inwestycji?", "Czy jest projekt / specyfikacja?", "Jaki termin startu?"],
     },
     {
       id: "fasada",
       name: "Elewacje i docieplenia",
       keywords: ["elewacja", "docieplenie", "ocieplenie", "styropian", "wełna", "tynk"],
       description:
-        "Docieplenia i elewacje: przygotowanie podłoża, system ociepleń, warstwa zbrojąca, tynk/okładziny i detale. Stawiamy na trwałość i estetykę.",
+        "Docieplenia i elewacje: przygotowanie podłoża, system ociepleń, warstwa zbrojąca, tynk/okładziny i detale.",
       includes: ["przygotowanie podłoża", "system dociepleń", "tynk/wykończenie", "detale i obróbki"],
-      nextQuestions: ["Jaka powierzchnia elewacji?", "Jaka lokalizacja?", "Jakie ocieplenie (styropian/wełna)?"],
     },
     {
       id: "instalacje",
       name: "Instalacje: elektryka i hydraulika",
       keywords: ["instalacje", "elektryka", "hydraulika", "woda", "kanalizacja", "rozdzielnia"],
       description:
-        "Wykonujemy i modernizujemy instalacje elektryczne oraz wod-kan: rozprowadzenia, punkty, zabezpieczenia, biały montaż — zgodnie z projektem i dobrymi praktykami.",
+        "Instalacje elektryczne oraz wod-kan: rozprowadzenia, punkty, zabezpieczenia, biały montaż — zgodnie z projektem.",
       includes: ["rozprowadzenia", "punkty i osprzęt", "zabezpieczenia", "testy i odbiór"],
-      nextQuestions: ["Nowa instalacja czy modernizacja?", "Metraż i lokalizacja?", "Czy masz projekt/plan punktów?"],
     },
-  ],
-
-  serviceStages: [
-    { stage: "Konstrukcja / budowa", ids: ["domy"] },
-    { stage: "Wykończenia / remonty", ids: ["remont"] },
-    { stage: "Organizacja inwestycji", ids: ["gen"] },
-    { stage: "Energooszczędność / elewacje", ids: ["fasada"] },
-    { stage: "Instalacje", ids: ["instalacje"] },
   ],
 
   policy: {
     pricing:
-      "Dokładną wycenę przygotowujemy po ustaleniu zakresu prac i materiałów. Po krótkim opisie mogę podpowiedzieć, jakie informacje są potrzebne do kosztorysu.",
+      "Dokładną wycenę przygotowujemy po ustaleniu zakresu prac i materiałów. Po krótkim opisie podpowiem, jakie informacje są potrzebne do kosztorysu.",
     timing:
-      "Termin realizacji zależy od zakresu i złożoności prac. Harmonogram ustalamy indywidualnie po doprecyzowaniu potrzeb.",
+      "Termin realizacji zależy od zakresu i złożoności. Harmonogram ustalamy indywidualnie po doprecyzowaniu potrzeb.",
   },
 };
 
 const UI = {
-  proactiveDelayMs: 2500,
+  proactiveDelayMs: 2000,
   proactiveText: "W czym mogę pomóc?",
-  typingMinMs: 450,
-  typingMaxMs: 950,
+  typingMinMs: 350,
+  typingMaxMs: 900,
 };
 
 /* -------------------- Utils -------------------- */
 function norm(s = "") {
   return s.toLowerCase().replace(/\s+/g, " ").trim();
 }
-
 function clamp(n, a, b) {
   return Math.max(a, Math.min(b, n));
 }
-
 function randomTypingDelay(text) {
-  const base = clamp(text.length * 12, UI.typingMinMs, UI.typingMaxMs);
-  return base;
+  return clamp(text.length * 10, UI.typingMinMs, UI.typingMaxMs);
 }
-
+function validateEmail(s) {
+  const t = String(s || "").trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
+}
+function validatePhone(s) {
+  const t = String(s || "").trim();
+  return /^[+()\-\s0-9]{7,20}$/.test(t);
+}
 function isAskingForServicesList(q) {
   const t = norm(q);
   return (
     t.includes("jakie usługi") ||
     t.includes("jakie uslugi") ||
-    t.includes("co robicie") ||
-    t.includes("co oferujecie") ||
     t.includes("oferta") ||
-    t.includes("zakres")
+    t.includes("zakres") ||
+    t.includes("co robicie") ||
+    t.includes("co oferujecie")
   );
 }
-
-function isAskingIfYouHaveService(q) {
-  const t = norm(q);
-  return (
-    t.startsWith("czy macie") ||
-    t.includes("czy macie ") ||
-    t.includes("czy wykonujecie") ||
-    t.includes("czy robicie") ||
-    t.includes("czy zajmujecie się") ||
-    t.includes("czy zajmujecie sie")
-  );
-}
-
-function isAskingToDescribeService(q) {
-  const t = norm(q);
-  return (
-    t.startsWith("opisz") ||
-    t.includes("na czym polega") ||
-    t.includes("co obejmuje") ||
-    t.includes("szczegóły") ||
-    t.includes("szczegoly")
-  );
-}
-
 function isContactIntent(q) {
   const t = norm(q);
   return (
     t.includes("kontakt") ||
-    t.includes("zadzwoń") ||
-    t.includes("zadzwon") ||
-    t.includes("telefon") ||
-    t.includes("email") ||
-    t.includes("mail") ||
-    t.includes("formularz") ||
     t.includes("wycena") ||
+    t.includes("formularz") ||
     t.includes("zapytanie") ||
-    t.includes("oferta dla mnie")
+    t.includes("telefon") ||
+    t.includes("mail") ||
+    t.includes("email")
   );
 }
-
 function scoreService(query, service) {
   const q = norm(query);
   let score = 0;
-
   if (q.includes(norm(service.name))) score += 10;
-
   for (const k of service.keywords || []) {
     const kk = norm(k);
-    if (!kk) continue;
-    if (q.includes(kk)) score += 6;
+    if (kk && q.includes(kk)) score += 6;
   }
-
   const words = q.split(" ").filter((w) => w.length >= 4);
   for (const w of words) {
     if (norm(service.name).includes(w)) score += 2;
   }
-
   return score;
 }
-
 function bestService(query) {
   const scored = COMPANY.services
     .map((s) => ({ s, score: scoreService(query, s) }))
     .sort((a, b) => b.score - a.score);
-
   return scored[0]?.score >= 6 ? scored[0].s : null;
 }
-
-function renderServicesByStages() {
-  const lines = ["Poniżej nasza oferta — w logicznych obszarach:"];
-
-  COMPANY.serviceStages.forEach((g) => {
-    lines.push("", `**${g.stage}**`);
-    g.ids.forEach((id) => {
-      const s = COMPANY.services.find((x) => x.id === id);
-      if (s) lines.push(`• ${s.name}`);
-    });
-  });
-
-  lines.push("", "Możesz napisać np.: „Czy robicie elewacje?”, „Opisz remont łazienki”, „Jakie usługi macie?”");
-  return lines.join("\n");
-}
-
 function renderServiceCard(service) {
   const lines = [`**${service.name}**`, service.description];
-
   if (service.includes?.length) {
     lines.push("", "W zakresie najczęściej:");
     service.includes.forEach((x) => lines.push(`• ${x}`));
   }
-
+  return lines.join("\n");
+}
+function renderServicesList() {
+  const lines = ["Poniżej zakres usług:", ""];
+  COMPANY.services.forEach((s) => lines.push(`• ${s.name}`));
+  lines.push("", "Możesz napisać np.: „Czy robicie elewacje?” albo „Opisz remont mieszkania”.");
   return lines.join("\n");
 }
 
-function validateEmail(s) {
-  const t = String(s || "").trim();
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
-}
-
-function validatePhone(s) {
-  const t = String(s || "").trim();
-  return /^[+()\-\s0-9]{7,20}$/.test(t);
-}
-
+/* markdown-lite dla **bold** */
 function MessageText({ text }) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return (
@@ -238,7 +173,7 @@ function MessageText({ text }) {
   );
 }
 
-/* -------------------- Lead capture (kontakt) -------------------- */
+/* -------------------- Lead flow -------------------- */
 const LEAD_STEPS = [
   { key: "fullName", label: "Imię i nazwisko", placeholder: "Np. Jan Kowalski", required: true },
   { key: "phone", label: "Telefon", placeholder: "Np. +48 123 456 789", required: true },
@@ -246,29 +181,20 @@ const LEAD_STEPS = [
   { key: "city", label: "Miasto / lokalizacja", placeholder: "Np. Kraków", required: true },
   { key: "topic", label: "Czego dotyczy zapytanie?", placeholder: "Np. remont mieszkania, elewacja…", required: true },
   { key: "details", label: "Krótki opis", placeholder: "Metraż, stan, zakres prac…", required: true },
-  {
-    key: "consentContact",
-    label: "Zgoda na kontakt",
-    placeholder: "Wybierz: TAK lub NIE",
-    required: true,
-    type: "consent",
-  },
-  {
-    key: "consentPersonalData",
-    label: "Zgoda RODO (przetwarzanie danych osobowych)",
-    placeholder: "Wybierz: TAK lub NIE",
-    required: true,
-    type: "consent",
-  },
+  { key: "consentContact", label: "Zgoda na kontakt", placeholder: "Wybierz: TAK / NIE", required: true, type: "consent" },
+  { key: "consentPersonalData", label: "Zgoda RODO", placeholder: "Wybierz: TAK / NIE", required: true, type: "consent" },
 ];
 
+/* -------------------- Component -------------------- */
 function AiAssistant() {
   const [open, setOpen] = useState(false);
   const [proactiveVisible, setProactiveVisible] = useState(false);
 
+  // view: "home" (screen 1) | "chat" (screen 2)
+  const [view, setView] = useState("home");
+
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
-
   const [messages, setMessages] = useState([{ from: "bot", text: COMPANY.intro }]);
 
   const [context, setContext] = useState({
@@ -276,6 +202,7 @@ function AiAssistant() {
     lastIntent: null,
   });
 
+  // lead mode
   const [leadMode, setLeadMode] = useState(false);
   const [leadStep, setLeadStep] = useState(0);
   const [leadData, setLeadData] = useState({});
@@ -283,8 +210,19 @@ function AiAssistant() {
   const listRef = useRef(null);
   const inputRef = useRef(null);
 
-  const suggestions = useMemo(
-    () => ["Jakie usługi macie?", "Czy robicie elewacje?", "Opisz remont mieszkania", "Jak wygląda współpraca?", "Chcę kontakt / wycenę"],
+  const homeTopics = useMemo(
+    () => [
+      { icon: "🏗️", text: "Jakie usługi realizujecie?" },
+      { icon: "🧱", text: "Budowa domu pod klucz" },
+      { icon: "🛠️", text: "Remont mieszkania / domu" },
+      { icon: "🧩", text: "Generalne wykonawstwo / koordynacja" },
+    ],
+    []
+  );
+
+  // chips (hash-like) na ekranie czatu, jak na screenie 2
+  const chatChips = useMemo(
+    () => ["#Usługi", "#Etapy współpracy", "#Realizacje", "#Kontakt / wycena", "#Elewacje", "#Instalacje"],
     []
   );
 
@@ -293,33 +231,39 @@ function AiAssistant() {
     requestAnimationFrame(() => inputRef.current?.focus());
   };
 
+  // blokada scrolla strony (mobile app feel)
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     }
-
     return () => {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const t = window.setTimeout(() => inputRef.current?.focus(), 0);
-    return () => window.clearTimeout(t);
-  }, [open, messages.length, leadMode, leadStep, thinking]);
-
+  // proactive bubble
   useEffect(() => {
     const t = window.setTimeout(() => setProactiveVisible(true), UI.proactiveDelayMs);
     return () => window.clearTimeout(t);
   }, []);
 
+  // scroll chat
   useEffect(() => {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, open, thinking]);
+  }, [messages, open, thinking, view]);
+
+  // keep focus
+  useEffect(() => {
+    if (!open) return;
+    const t = window.setTimeout(() => inputRef.current?.focus(), 0);
+    return () => window.clearTimeout(t);
+  }, [open, messages.length, leadMode, leadStep, thinking, view]);
 
   const pushUser = (text) => setMessages((p) => [...p, { from: "user", text }]);
 
@@ -335,20 +279,31 @@ function AiAssistant() {
   const openChat = () => {
     setProactiveVisible(false);
     setOpen(true);
+    setView("home");
   };
 
-  const toggleChat = () => {
-    setProactiveVisible(false);
-    setOpen((p) => !p);
+  const closeChat = () => {
+    setOpen(false);
+    setLeadMode(false);
+    setLeadStep(0);
+    setLeadData({});
+    setView("home");
+  };
+
+  const startChatView = async () => {
+    setView("chat");
+    // lekkie “hello” jeśli user od razu wszedł bez tematu
+    focusInput();
   };
 
   const startLeadFlow = async (prefill = {}) => {
+    setView("chat");
     setLeadMode(true);
     setLeadStep(0);
     setLeadData(prefill);
 
     await pushBot(
-      "Jasne — przygotuję zgłoszenie do kontaktu. Zadamy kilka krótkich pytań. Na końcu poproszę o 2 zgody (kontakt + RODO) i wyślę zgłoszenie bezpiecznie do biura."
+      "Jasne — przygotuję zgłoszenie do kontaktu. Zadamy kilka pytań. Na końcu poproszę o 2 zgody (kontakt + RODO) i wyślę zgłoszenie do biura."
     );
     await pushBot(`1/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[0].label}**.`);
   };
@@ -381,6 +336,7 @@ function AiAssistant() {
       transcript: Array.isArray(data.transcript) ? data.transcript : [],
     };
 
+    // client-side sanity
     if (!payload.fullName) throw new Error("missing_fullName");
     if (!payload.phone) throw new Error("missing_phone");
     if (!payload.city) throw new Error("missing_city");
@@ -423,7 +379,7 @@ function AiAssistant() {
       return;
     }
     if (step.key === "email" && value && !validateEmail(value)) {
-      await pushBot("Email wygląda niepoprawnie. Podaj proszę poprawny adres lub wpisz „pomiń”.");
+      await pushBot("Email wygląda niepoprawnie. Podaj poprawny adres lub wpisz „pomiń”.");
       return;
     }
     if (step.key === "email" && norm(value) === "pomiń") {
@@ -433,13 +389,18 @@ function AiAssistant() {
       return;
     }
 
-    // consent handled by quick buttons OR typing "TAK/NIE"
+    // consent by typing (buttons handled separately)
     if (step.type === "consent") {
       const v = norm(value);
-      const yn = v === "tak" || v === "t" || v === "yes" || v === "y" ? true : v === "nie" || v === "n" || v === "no" ? false : null;
+      const yn =
+        v === "tak" || v === "t" || v === "yes" || v === "y"
+          ? true
+          : v === "nie" || v === "n" || v === "no"
+          ? false
+          : null;
 
       if (yn === null) {
-        await pushBot("Proszę wybierz: **TAK** albo **NIE**.");
+        await pushBot("Wybierz proszę: **TAK** albo **NIE**.");
         return;
       }
 
@@ -459,18 +420,16 @@ function AiAssistant() {
 
       if (nextStep >= LEAD_STEPS.length) {
         await pushBot("Dziękuję. Wysyłam zgłoszenie do biura…");
-
         try {
           await submitLead({ ...nextData, lastServiceId: context.lastServiceId });
-          await pushBot(" Gotowe. Dziękuję! Wkrótce się odezwiemy.");
+          await pushBot("✅ Gotowe. Dziękuję! Wkrótce się odezwiemy.");
         } catch (e) {
           await pushBot(
-            "Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę albo skontaktuj się bezpośrednio:\n" +
-            `• Telefon: ${COMPANY.contacts.phone}\n` +
-            `• Email: ${COMPANY.contacts.email}`
+            "❌ Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę albo skontaktuj się bezpośrednio:\n" +
+              `• Telefon: ${COMPANY.contacts.phone}\n` +
+              `• Email: ${COMPANY.contacts.email}`
           );
         }
-
         setLeadMode(false);
         setLeadStep(0);
         setLeadData({});
@@ -480,7 +439,7 @@ function AiAssistant() {
       setLeadStep(nextStep);
       await pushBot(
         `${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.\n` +
-        `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
+          `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
       );
       return;
     }
@@ -491,18 +450,15 @@ function AiAssistant() {
     const nextStep = leadStep + 1;
     setLeadStep(nextStep);
 
-    // jeśli następny krok to zgoda, bot powinien jasno o tym powiedzieć
+    // if next is consent -> bot instruction (buttons will appear)
     if (LEAD_STEPS[nextStep]?.type === "consent") {
-      await pushBot(
-        `${nextStep + 1}/${LEAD_STEPS.length}: **${LEAD_STEPS[nextStep].label}**.\n` +
-        "Kliknij TAK/NIE lub wpisz odpowiedź."
-      );
+      await pushBot(`${nextStep + 1}/${LEAD_STEPS.length}: **${LEAD_STEPS[nextStep].label}**.\nKliknij TAK/NIE.`);
       return;
     }
 
     await pushBot(
       `${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.\n` +
-      `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
+        `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
     );
   };
 
@@ -519,86 +475,32 @@ function AiAssistant() {
 
     if (isAskingForServicesList(userText)) {
       setContext((c) => ({ ...c, lastIntent: "services" }));
-      await pushBot(renderServicesByStages());
+      await pushBot(renderServicesList());
       return;
     }
 
     if (t.includes("ile koszt") || t.includes("cena") || t.includes("wycena")) {
       setContext((c) => ({ ...c, lastIntent: "pricing" }));
-      const lastService = COMPANY.services.find((s) => s.id === context.lastServiceId);
-      await pushBot(
-        `${COMPANY.policy.pricing}\n\n` +
-        (lastService
-          ? `Jeśli chodzi o **${lastService.name}**, najczęściej potrzebujemy: lokalizacji, metrażu i zakresu.\n`
-          : "") +
-        "Chcesz, żebym zebrał dane do kontaktu i przekazał je do biura? Napisz: **kontakt**."
-      );
+      await pushBot(`${COMPANY.policy.pricing}\n\nChcesz, żebym zebrał dane do kontaktu? Napisz: **kontakt**.`);
       return;
     }
 
     if (t.includes("termin") || t.includes("kiedy") || t.includes("ile trwa")) {
       setContext((c) => ({ ...c, lastIntent: "timing" }));
-      await pushBot(`${COMPANY.policy.timing}\n\nJeśli chcesz, napisz jaki zakres i lokalizacja — podpowiem, co najbardziej wpływa na termin.`);
+      await pushBot(`${COMPANY.policy.timing}\n\nJeśli chcesz, napisz jaki zakres i lokalizacja — podpowiem kolejne kroki.`);
       return;
     }
 
-    if (isAskingIfYouHaveService(userText)) {
-      const s = bestService(userText);
-      if (s) {
-        setContext({ lastServiceId: s.id, lastIntent: "service_detail" });
-        await pushBot(`Tak — mamy to w ofercie.\n\n${renderServiceCard(s)}\n\nChcesz kontakt/wycenę? Napisz: **kontakt**.`);
-      } else {
-        setContext((c) => ({ ...c, lastIntent: "clarify" }));
-        await pushBot("Nie mam pewności, o jaką usługę chodzi. Doprecyzuj proszę jednym zdaniem (np. „remont łazienki”, „ocieplenie elewacji”, „instalacja elektryczna”).");
-      }
-      return;
-    }
-
-    if (isAskingToDescribeService(userText)) {
-      const s = bestService(userText) || COMPANY.services.find((x) => x.id === context.lastServiceId);
-      if (s) {
-        setContext({ lastServiceId: s.id, lastIntent: "service_detail" });
-        await pushBot(`${renderServiceCard(s)}\n\nJeśli chcesz, mogę zebrać dane do kontaktu. Napisz: **kontakt**.`);
-      } else {
-        await pushBot("Podaj nazwę usługi (np. „elewacja”, „remont”, „hydraulika”), a przygotuję konkretny opis.");
-      }
-      return;
-    }
-
-    if (t.includes("jak pracujecie") || t.includes("etapy") || t.includes("współpraca") || t.includes("wspolpraca")) {
-      setContext((c) => ({ ...c, lastIntent: "process" }));
-      await pushBot(
-        "W skrócie działamy etapowo:\n" +
-        "1) Ustalenie zakresu i oczekiwań\n" +
-        "2) Doprecyzowanie rozwiązań i materiałów\n" +
-        "3) Umowa i harmonogram\n" +
-        "4) Realizacja z kontrolą jakości\n" +
-        "5) Odbiór i zamknięcie prac\n\n" +
-        "Jeśli napiszesz, czy chodzi o dom/remont/instalacje — dopasuję etapy do Twojego przypadku."
-      );
-      return;
-    }
-
-    if (t === "kontakt") {
-      await pushBot(
-        `Kontakt:\n• Telefon: ${COMPANY.contacts.phone}\n• Email: ${COMPANY.contacts.email}\n• Strona: ${COMPANY.contacts.website}\n\nJeśli chcesz, zbiorę dane i wyślę zgłoszenie do biura — napisz: **wycena**.`
-      );
-      return;
-    }
-
+    // service match
     const s = bestService(userText);
     if (s) {
       setContext({ lastServiceId: s.id, lastIntent: "service_detail" });
-      await pushBot(
-        `Wygląda na to, że chodzi o:\n\n${renderServiceCard(s)}\n\n` +
-        "Jeśli chcesz, podaj metraż i lokalizację — doradzę kolejne kroki. Albo napisz **kontakt**, a zbiorę dane do zgłoszenia."
-      );
+      await pushBot(`${renderServiceCard(s)}\n\nJeśli chcesz kontakt/wycenę, napisz: **kontakt**.`);
       return;
     }
 
-    setContext((c) => ({ ...c, lastIntent: "clarify" }));
     await pushBot(
-      "Doprecyzuj proszę, czego dotyczy temat:\n• budowa domu\n• remont/wykończenie\n• elewacja/docieplenie\n• instalacje\n• generalne wykonawstwo\n\nMożesz też napisać: **jakie usługi macie?**"
+      "Doprecyzuj proszę temat:\n• budowa domu\n• remont/wykończenie\n• elewacja/docieplenie\n• instalacje\n• generalne wykonawstwo\n\nMożesz też napisać: **jakie usługi macie?**"
     );
   };
 
@@ -606,7 +508,7 @@ function AiAssistant() {
     e.preventDefault();
     const text = input.trim();
 
-    // ✅ w leadMode pozwalamy wysyłać nawet gdy bot “pisze”
+    // w leadMode nie blokujemy wpisywania gdy bot “pisze”
     if (!text || (!leadMode && thinking)) return;
 
     setInput("");
@@ -617,18 +519,34 @@ function AiAssistant() {
     else await respondSmart(text);
   };
 
-  const sendQuick = async (value) => {
+  const sendQuickConsent = async (value) => {
     setInput("");
-    setProactiveVisible(false);
     pushUser(value);
     await handleLeadInput(value);
     focusInput();
   };
 
-  const onSuggestion = async (text) => {
+  const onTopicFromHome = async (text) => {
+    // kliknięcie tematu na ekranie 1
+    await startChatView();
+    pushUser(text);
+    await respondSmart(text);
+  };
+
+  const onChip = async (chip) => {
     if (!leadMode && thinking) return;
-    setProactiveVisible(false);
-    if (!open) setOpen(true);
+    const text =
+      chip === "#Usługi"
+        ? "Jakie usługi macie?"
+        : chip === "#Etapy współpracy"
+        ? "Jak wygląda współpraca i etapy?"
+        : chip === "#Kontakt / wycena"
+        ? "Kontakt / wycena"
+        : chip === "#Elewacje"
+        ? "Czy robicie elewacje?"
+        : chip === "#Instalacje"
+        ? "Czy robicie instalacje elektryczne i hydraulikę?"
+        : "Realizacje";
     pushUser(text);
     if (leadMode) await handleLeadInput(text);
     else await respondSmart(text);
@@ -636,6 +554,7 @@ function AiAssistant() {
 
   return (
     <div className="assistant">
+      {/* proactive mini bubble */}
       {proactiveVisible && !open && (
         <button className="assistant__proactive" onClick={openChat} type="button">
           {UI.proactiveText}
@@ -643,94 +562,174 @@ function AiAssistant() {
         </button>
       )}
 
-      <button className={`assistant__fab ${open ? "is-open" : ""}`} onClick={toggleChat} aria-label={open ? "Zamknij" : "Otwórz"}>
-        {open ? <span className="assistant__fabIcon">×</span> : <img className="assistant__fabImage" src={botAvatar} alt="AI" />}
-      </button>
+      {/* FAB */}
+      {!open && (
+        <button className="assistant__fab" onClick={openChat} aria-label="Otwórz asystenta">
+          <img className="assistant__fabImage" src={botAvatar} alt="AI" />
+        </button>
+      )}
 
+      {/* Fullscreen modal */}
       {open && (
-        <div className="assistant__panel is-open" role="dialog" aria-modal="false">
-          <header className="assistant__header">
-            <div className="assistant__brand">
-              <div className="assistant__avatar">
-                <img src={botAvatar} alt="Asystent AI" />
-              </div>
-              <div className="assistant__brandText">
-                <h3 className="assistant__title">Asystent {COMPANY.name}</h3>
-                <p className="assistant__subtitle">
-                  {leadMode ? `Tryb kontaktu: ${leadStep + 1}/${LEAD_STEPS.length} — ${LEAD_STEPS[leadStep]?.label}` : "Pytaj o usługi, opisy prac, etapy współpracy i kontakt."}
-                </p>
-              </div>
-
-              {leadMode && (
-                <button className="assistant__ghost" type="button" onClick={cancelLeadFlow}>
-                  Anuluj
-                </button>
-              )}
-            </div>
-
-            {!leadMode && (
-              <div className="assistant__chips">
-                {suggestions.map((s) => (
-                  <button key={s} type="button" className="assistant__chip" onClick={() => onSuggestion(s)}>
-                    {s}
+        <div className="assistant__modal" role="dialog" aria-modal="true">
+          {/* Screen 1: HOME */}
+          {view === "home" && (
+            <div className="assistant__home">
+              <div className="assistant__homeTop">
+                <div className="assistant__homeBar">
+                  <div className="assistant__homeLogo">
+                    <img src={botAvatar} alt="AI" />
+                  </div>
+                  <button className="assistant__homeClose" type="button" onClick={closeChat} aria-label="Zamknij">
+                    ×
                   </button>
-                ))}
-              </div>
-            )}
-          </header>
+                </div>
 
-          <div className="assistant__messages" ref={listRef}>
-            {messages.map((m, i) => (
-              <div key={i} className={`assistant__message assistant__message--${m.from}`}>
-                <div className="assistant__bubble">
-                  {m.text.split("\n").map((line, idx) => (
-                    <p key={idx} className="assistant__line">
-                      <MessageText text={line} />
-                    </p>
+                <div className="assistant__homeHero">
+                  <div className="assistant__homeHello">Cześć 👋</div>
+                  <div className="assistant__homeTitle">Jestem Twoim asystentem AI</div>
+                </div>
+              </div>
+
+              <div className="assistant__homeCard">
+                <div className="assistant__homeCardTitle">Zadaj mi pytanie lub wybierz temat rozmowy</div>
+
+                <div className="assistant__topicList">
+                  {homeTopics.map((t) => (
+                    <button
+                      key={t.text}
+                      type="button"
+                      className="assistant__topic"
+                      onClick={() => onTopicFromHome(t.text)}
+                    >
+                      <span className="assistant__topicIcon">{t.icon}</span>
+                      <span className="assistant__topicText">{t.text}</span>
+                    </button>
                   ))}
                 </div>
-              </div>
-            ))}
 
-            {thinking && (
-              <div className="assistant__message assistant__message--bot">
-                <div className="assistant__bubble assistant__bubble--thinking">
-                  <span className="assistant__dots" aria-hidden="true">
-                    <i />
-                    <i />
-                    <i />
-                  </span>
-                  Asystent pisze…
+                <button className="assistant__continue" type="button" onClick={startChatView}>
+                  Kontynuuj rozmowę
+                </button>
+              </div>
+
+              <div className="assistant__homeFooter">
+                Kontynuując rozmowę z wirtualnym agentem zgadzasz się na{" "}
+                <a className="assistant__link" href="#" onClick={(e) => e.preventDefault()}>
+                  warunki korzystania
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Screen 2: CHAT */}
+          {view === "chat" && (
+            <div className="assistant__chat">
+              <div className="assistant__chatTopSafe" />
+
+              <header className="assistant__chatHeader">
+                <button className="assistant__navBtn" type="button" onClick={() => setView("home")} aria-label="Wstecz">
+                  ‹
+                </button>
+
+                <div className="assistant__chatBrand">
+                  <img className="assistant__chatBrandIcon" src={botAvatar} alt="AI" />
+                  <div className="assistant__chatBrandText">
+                    <div className="assistant__chatName">{COMPANY.name}</div>
+                    <div className="assistant__chatSub">
+                      {leadMode
+                        ? `Tryb kontaktu: ${leadStep + 1}/${LEAD_STEPS.length} — ${LEAD_STEPS[leadStep]?.label}`
+                        : "Wirtualny asystent"}
+                    </div>
+                  </div>
                 </div>
+
+                <button className="assistant__navBtn" type="button" onClick={closeChat} aria-label="Zamknij">
+                  ×
+                </button>
+              </header>
+
+              <div className="assistant__messages" ref={listRef}>
+                {messages.map((m, i) => (
+                  <div key={i} className={`assistant__message assistant__message--${m.from}`}>
+                    <div className="assistant__bubble">
+                      {m.text.split("\n").map((line, idx) => (
+                        <p key={idx} className="assistant__line">
+                          <MessageText text={line} />
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {thinking && (
+                  <div className="assistant__message assistant__message--bot">
+                    <div className="assistant__bubble assistant__bubble--thinking">
+                      <span className="assistant__dots" aria-hidden="true">
+                        <i />
+                        <i />
+                        <i />
+                      </span>
+                      Asystent pisze…
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <form className="assistant__form" onSubmit={onSubmit}>
-            <input
-              ref={inputRef}
-              className="assistant__input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={
-                leadMode ? LEAD_STEPS[leadStep]?.placeholder || "Wpisz odpowiedź…" : 'Np. "Czy robicie elewacje?" / "Opisz remont" / "Kontakt"'
-              }
-              type="text"
-              disabled={!leadMode && thinking}
-            />
-            <button className="assistant__send" type="submit" disabled={!leadMode && thinking}>
-              Wyślij
-            </button>
-          </form>
+              {/* Chips / hashes row */}
+              {!leadMode && (
+                <div className="assistant__chipRow" aria-label="Szybkie tematy">
+                  {chatChips.map((c) => (
+                    <button key={c} type="button" className="assistant__chip" onClick={() => onChip(c)}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-          {leadMode && LEAD_STEPS[leadStep]?.type === "consent" && (
-            <div className="assistant__quick">
-              <button type="button" className="assistant__quickBtn" onClick={() => sendQuick("TAK")}>
-                TAK
-              </button>
-              <button type="button" className="assistant__quickBtn assistant__quickBtn--danger" onClick={() => sendQuick("NIE")}>
-                NIE
-              </button>
+              <form className="assistant__form" onSubmit={onSubmit}>
+                <input
+                  ref={inputRef}
+                  className="assistant__input"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={
+                    leadMode
+                      ? LEAD_STEPS[leadStep]?.placeholder || "Wpisz odpowiedź…"
+                      : "Wpisz wiadomość"
+                  }
+                  type="text"
+                  // iOS zoom fix: font-size >= 16px jest w CSS
+                  disabled={!leadMode && thinking}
+                  inputMode="text"
+                />
+                <button className="assistant__send" type="submit" disabled={!leadMode && thinking}>
+                  ➤
+                </button>
+              </form>
+
+              {/* Consent buttons (TAK/NIE) */}
+              {leadMode && LEAD_STEPS[leadStep]?.type === "consent" && (
+                <div className="assistant__quick">
+                  <button type="button" className="assistant__quickBtn" onClick={() => sendQuickConsent("TAK")}>
+                    TAK
+                  </button>
+                  <button
+                    type="button"
+                    className="assistant__quickBtn assistant__quickBtn--danger"
+                    onClick={() => sendQuickConsent("NIE")}
+                  >
+                    NIE
+                  </button>
+                </div>
+              )}
+
+              <div className="assistant__terms">
+                Kontynuując rozmowę z wirtualnym agentem zgadzasz się na{" "}
+                <a className="assistant__link" href="#" onClick={(e) => e.preventDefault()}>
+                  warunki korzystania
+                </a>
+              </div>
             </div>
           )}
         </div>
