@@ -294,6 +294,18 @@ function AiAssistant() {
   };
 
   useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  useEffect(() => {
     if (!open) return;
     const t = window.setTimeout(() => inputRef.current?.focus(), 0);
     return () => window.clearTimeout(t);
@@ -450,12 +462,12 @@ function AiAssistant() {
 
         try {
           await submitLead({ ...nextData, lastServiceId: context.lastServiceId });
-          await pushBot("✅ Gotowe. Dziękuję! Wkrótce się odezwiemy.");
+          await pushBot(" Gotowe. Dziękuję! Wkrótce się odezwiemy.");
         } catch (e) {
           await pushBot(
-            "❌ Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę albo skontaktuj się bezpośrednio:\n" +
-              `• Telefon: ${COMPANY.contacts.phone}\n` +
-              `• Email: ${COMPANY.contacts.email}`
+            "Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę albo skontaktuj się bezpośrednio:\n" +
+            `• Telefon: ${COMPANY.contacts.phone}\n` +
+            `• Email: ${COMPANY.contacts.email}`
           );
         }
 
@@ -468,7 +480,7 @@ function AiAssistant() {
       setLeadStep(nextStep);
       await pushBot(
         `${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.\n` +
-          `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
+        `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
       );
       return;
     }
@@ -483,14 +495,14 @@ function AiAssistant() {
     if (LEAD_STEPS[nextStep]?.type === "consent") {
       await pushBot(
         `${nextStep + 1}/${LEAD_STEPS.length}: **${LEAD_STEPS[nextStep].label}**.\n` +
-          "Kliknij TAK/NIE lub wpisz odpowiedź."
+        "Kliknij TAK/NIE lub wpisz odpowiedź."
       );
       return;
     }
 
     await pushBot(
       `${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.\n` +
-        `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
+      `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
     );
   };
 
@@ -516,10 +528,10 @@ function AiAssistant() {
       const lastService = COMPANY.services.find((s) => s.id === context.lastServiceId);
       await pushBot(
         `${COMPANY.policy.pricing}\n\n` +
-          (lastService
-            ? `Jeśli chodzi o **${lastService.name}**, najczęściej potrzebujemy: lokalizacji, metrażu i zakresu.\n`
-            : "") +
-          "Chcesz, żebym zebrał dane do kontaktu i przekazał je do biura? Napisz: **kontakt**."
+        (lastService
+          ? `Jeśli chodzi o **${lastService.name}**, najczęściej potrzebujemy: lokalizacji, metrażu i zakresu.\n`
+          : "") +
+        "Chcesz, żebym zebrał dane do kontaktu i przekazał je do biura? Napisz: **kontakt**."
       );
       return;
     }
@@ -557,12 +569,12 @@ function AiAssistant() {
       setContext((c) => ({ ...c, lastIntent: "process" }));
       await pushBot(
         "W skrócie działamy etapowo:\n" +
-          "1) Ustalenie zakresu i oczekiwań\n" +
-          "2) Doprecyzowanie rozwiązań i materiałów\n" +
-          "3) Umowa i harmonogram\n" +
-          "4) Realizacja z kontrolą jakości\n" +
-          "5) Odbiór i zamknięcie prac\n\n" +
-          "Jeśli napiszesz, czy chodzi o dom/remont/instalacje — dopasuję etapy do Twojego przypadku."
+        "1) Ustalenie zakresu i oczekiwań\n" +
+        "2) Doprecyzowanie rozwiązań i materiałów\n" +
+        "3) Umowa i harmonogram\n" +
+        "4) Realizacja z kontrolą jakości\n" +
+        "5) Odbiór i zamknięcie prac\n\n" +
+        "Jeśli napiszesz, czy chodzi o dom/remont/instalacje — dopasuję etapy do Twojego przypadku."
       );
       return;
     }
@@ -579,7 +591,7 @@ function AiAssistant() {
       setContext({ lastServiceId: s.id, lastIntent: "service_detail" });
       await pushBot(
         `Wygląda na to, że chodzi o:\n\n${renderServiceCard(s)}\n\n` +
-          "Jeśli chcesz, podaj metraż i lokalizację — doradzę kolejne kroki. Albo napisz **kontakt**, a zbiorę dane do zgłoszenia."
+        "Jeśli chcesz, podaj metraż i lokalizację — doradzę kolejne kroki. Albo napisz **kontakt**, a zbiorę dane do zgłoszenia."
       );
       return;
     }
