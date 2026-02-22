@@ -106,7 +106,6 @@ function clamp(n, a, b) {
 }
 
 function randomTypingDelay(text) {
-  // “AI-like”: zależne od długości
   const base = clamp(text.length * 12, UI.typingMinMs, UI.typingMaxMs);
   return base;
 }
@@ -201,11 +200,7 @@ function renderServicesByStages() {
     });
   });
 
-  lines.push(
-    "",
-    "Możesz napisać np.: „Czy robicie elewacje?”, „Opisz remont łazienki”, „Jakie usługi macie?”"
-  );
-
+  lines.push("", "Możesz napisać np.: „Czy robicie elewacje?”, „Opisz remont łazienki”, „Jakie usługi macie?”");
   return lines.join("\n");
 }
 
@@ -227,11 +222,9 @@ function validateEmail(s) {
 
 function validatePhone(s) {
   const t = String(s || "").trim();
-  // prosta walidacja: cyfry + + spacje
   return /^[+()\-\s0-9]{7,20}$/.test(t);
 }
 
-/* “markdown-lite” dla **bold** */
 function MessageText({ text }) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return (
@@ -256,14 +249,14 @@ const LEAD_STEPS = [
   {
     key: "consentContact",
     label: "Zgoda na kontakt",
-    placeholder: "Wpisz: TAK lub NIE",
+    placeholder: "Wybierz: TAK lub NIE",
     required: true,
     type: "consent",
   },
   {
     key: "consentPersonalData",
     label: "Zgoda RODO (przetwarzanie danych osobowych)",
-    placeholder: "Wpisz: TAK lub NIE",
+    placeholder: "Wybierz: TAK lub NIE",
     required: true,
     type: "consent",
   },
@@ -278,13 +271,11 @@ function AiAssistant() {
 
   const [messages, setMessages] = useState([{ from: "bot", text: COMPANY.intro }]);
 
-  // pamięć kontekstu
   const [context, setContext] = useState({
     lastServiceId: null,
-    lastIntent: null, // "services" | "service_detail" | "contact" ...
+    lastIntent: null,
   });
 
-  // lead mode
   const [leadMode, setLeadMode] = useState(false);
   const [leadStep, setLeadStep] = useState(0);
   const [leadData, setLeadData] = useState({});
@@ -293,15 +284,20 @@ function AiAssistant() {
   const inputRef = useRef(null);
 
   const suggestions = useMemo(
-    () => [
-      "Jakie usługi macie?",
-      "Czy robicie elewacje?",
-      "Opisz remont mieszkania",
-      "Jak wygląda współpraca?",
-      "Chcę kontakt / wycenę",
-    ],
+    () => ["Jakie usługi macie?", "Czy robicie elewacje?", "Opisz remont mieszkania", "Jak wygląda współpraca?", "Chcę kontakt / wycenę"],
     []
   );
+
+  const focusInput = () => {
+    if (!open) return;
+    requestAnimationFrame(() => inputRef.current?.focus());
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const t = window.setTimeout(() => inputRef.current?.focus(), 0);
+    return () => window.clearTimeout(t);
+  }, [open, messages.length, leadMode, leadStep, thinking]);
 
   useEffect(() => {
     const t = window.setTimeout(() => setProactiveVisible(true), UI.proactiveDelayMs);
@@ -313,12 +309,6 @@ function AiAssistant() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, open, thinking]);
 
-  useEffect(() => {
-    if (!open) return;
-    const t = window.setTimeout(() => inputRef.current?.focus(), 200);
-    return () => window.clearTimeout(t);
-  }, [open]);
-
   const pushUser = (text) => setMessages((p) => [...p, { from: "user", text }]);
 
   const pushBot = async (text) => {
@@ -327,6 +317,7 @@ function AiAssistant() {
     await new Promise((r) => window.setTimeout(r, delay));
     setMessages((p) => [...p, { from: "bot", text }]);
     setThinking(false);
+    focusInput();
   };
 
   const openChat = () => {
@@ -345,7 +336,7 @@ function AiAssistant() {
     setLeadData(prefill);
 
     await pushBot(
-      "Jasne — przygotuję zgłoszenie do kontaktu. Zadamy kilka krótkich pytań, a na końcu wyślę je bezpiecznie do biura."
+      "Jasne — przygotuję zgłoszenie do kontaktu. Zadamy kilka krótkich pytań. Na końcu poproszę o 2 zgody (kontakt + RODO) i wyślę zgłoszenie bezpiecznie do biura."
     );
     await pushBot(`1/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[0].label}**.`);
   };
@@ -359,12 +350,12 @@ function AiAssistant() {
 
   const submitLead = async (data) => {
     const payload = {
-      fullName: (data.fullName || data.name || data.lead?.fullName || "").trim(),
+      fullName: (data.fullName || "").trim(),
       phone: (data.phone || "").trim(),
       email: (data.email || "").trim(),
       city: (data.city || "").trim(),
-      topic: (data.topic || data.service || "Zapytanie z czatu").trim(),
-      details: (data.details || data.message || "").trim(),
+      topic: (data.topic || "Zapytanie z czatu").trim(),
+      details: (data.details || "").trim(),
 
       source: "chat_assistant",
       lastServiceId: data.lastServiceId || "",
@@ -378,7 +369,13 @@ function AiAssistant() {
       transcript: Array.isArray(data.transcript) ? data.transcript : [],
     };
 
-    console.log("CHAT payload =>", payload);
+    if (!payload.fullName) throw new Error("missing_fullName");
+    if (!payload.phone) throw new Error("missing_phone");
+    if (!payload.city) throw new Error("missing_city");
+    if (!payload.topic || payload.topic.length < 3) throw new Error("missing_topic");
+    if (!payload.details || payload.details.length < 5) throw new Error("missing_details");
+    if (!payload.consentContact) throw new Error("missing_consentContact");
+    if (!payload.consentPersonalData) throw new Error("missing_consentPersonalData");
 
     const res = await fetch("/api/chat-lead", {
       method: "POST",
@@ -387,35 +384,28 @@ function AiAssistant() {
     });
 
     const text = await res.text().catch(() => "");
-    console.log("CHAT response <=", res.status, text);
-
     let j = null;
-    try { j = JSON.parse(text); } catch { }
-
-    if (!payload.fullName) throw new Error("missing_fullName");
+    try {
+      j = JSON.parse(text);
+    } catch {
+      // ignore
+    }
 
     if (!res.ok || !j?.ok) {
+      console.error("CHAT submit error", res.status, text);
       throw new Error(`Chat lead submit failed: ${res.status}`);
     }
-  };
-  const parseYesNo = (value) => {
-    const v = String(value || "").trim().toLowerCase();
-    if (["tak", "t", "yes", "y"].includes(v)) return true;
-    if (["nie", "n", "no"].includes(v)) return false;
-    return null;
   };
 
   const handleLeadInput = async (text) => {
     const step = LEAD_STEPS[leadStep];
     const value = text.trim();
 
-    // komendy w lead mode
     if (norm(value) === "anuluj" || norm(value) === "cancel") {
       await cancelLeadFlow();
       return;
     }
 
-    // walidacje per pole
     if (step.key === "phone" && !validatePhone(value)) {
       await pushBot("Telefon wygląda niepoprawnie. Podaj proszę numer w formacie np. **+48 600 000 000**.");
       return;
@@ -425,160 +415,121 @@ function AiAssistant() {
       return;
     }
     if (step.key === "email" && norm(value) === "pomiń") {
-      // pomijamy
       const nextStep = leadStep + 1;
       setLeadStep(nextStep);
       await pushBot(`OK — pomijam email.\n\n${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.`);
       return;
     }
 
+    // consent handled by quick buttons OR typing "TAK/NIE"
     if (step.type === "consent") {
-      const yn = parseYesNo(text);
+      const v = norm(value);
+      const yn = v === "tak" || v === "t" || v === "yes" || v === "y" ? true : v === "nie" || v === "n" || v === "no" ? false : null;
 
       if (yn === null) {
-        await pushBot('Proszę wpisz dokładnie: **TAK** albo **NIE**.');
+        await pushBot("Proszę wybierz: **TAK** albo **NIE**.");
         return;
       }
 
-      // jeśli NIE -> kończymy i nie wysyłamy
       if (yn === false) {
-        const label =
-          step.key === "consentContact" ? "zgody na kontakt" : "zgody RODO";
-        await pushBot(
-          `Rozumiem. Bez ${label} nie mogę wysłać zgłoszenia.\n\nJeśli zmienisz zdanie, napisz „kontakt”.`
-        );
+        const label = step.key === "consentContact" ? "zgody na kontakt" : "zgody RODO";
+        await pushBot(`Rozumiem. Bez ${label} nie mogę wysłać zgłoszenia.\n\nJeśli zmienisz zdanie, napisz „kontakt”.`);
         setLeadMode(false);
         setLeadStep(0);
         setLeadData({});
         return;
       }
 
-      // TAK -> zapisujemy i idziemy dalej
       const nextData = { ...leadData, [step.key]: true };
       setLeadData(nextData);
 
       const nextStep = leadStep + 1;
 
-      // jeśli to była ostatnia zgoda, kończymy i wysyłamy
       if (nextStep >= LEAD_STEPS.length) {
         await pushBot("Dziękuję. Wysyłam zgłoszenie do biura…");
 
-        await submitLead(nextData);
+        try {
+          await submitLead({ ...nextData, lastServiceId: context.lastServiceId });
+          await pushBot("✅ Gotowe. Dziękuję! Wkrótce się odezwiemy.");
+        } catch (e) {
+          await pushBot(
+            "❌ Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę albo skontaktuj się bezpośrednio:\n" +
+              `• Telefon: ${COMPANY.contacts.phone}\n` +
+              `• Email: ${COMPANY.contacts.email}`
+          );
+        }
 
-        await pushBot("✅ Gotowe. Dziękuję! Wkrótce się odezwiemy.");
         setLeadMode(false);
         setLeadStep(0);
         setLeadData({});
         return;
       }
 
-      // kolejny krok
       setLeadStep(nextStep);
       await pushBot(
         `${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.\n` +
-        `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
+          `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
       );
       return;
     }
 
-    // zapis
     const nextData = { ...leadData, [step.key]: value };
     setLeadData(nextData);
 
     const nextStep = leadStep + 1;
+    setLeadStep(nextStep);
 
-    // koniec
-    if (nextStep >= LEAD_STEPS.length) {
-      // podsumowanie
-      const summary =
-        `Świetnie — mam komplet danych:\n` +
-        `• Imię: ${nextData.name}\n` +
-        `• Telefon: ${nextData.phone}\n` +
-        `• Email: ${nextData.email || "-"}\n` +
-        `• Lokalizacja: ${nextData.city}\n` +
-        `• Temat: ${nextData.topic}\n` +
-        `• Opis: ${nextData.details}\n\n` +
-        `Wysyłam zgłoszenie do biura.`;
-
-      await pushBot(summary);
-
-      try {
-        await submitLead({
-          ...nextData,
-          // meta
-          source: "chat_assistant",
-          lastServiceId: context.lastServiceId,
-          userAgent: navigator.userAgent,
-          pageUrl: window.location.href,
-          createdAt: new Date().toISOString(),
-        });
-
-        await pushBot("✅ Gotowe. Dziękuję! Zespół odezwie się, gdy tylko zweryfikuje zgłoszenie.");
-        setLeadMode(false);
-        setLeadStep(0);
-        setLeadData({});
-      } catch (e) {
-        await pushBot(
-          "❌ Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę albo skontaktuj się bezpośrednio:\n" +
-          `• Telefon: ${COMPANY.contacts.phone}\n` +
-          `• Email: ${COMPANY.contacts.email}`
-        );
-      }
+    // jeśli następny krok to zgoda, bot powinien jasno o tym powiedzieć
+    if (LEAD_STEPS[nextStep]?.type === "consent") {
+      await pushBot(
+        `${nextStep + 1}/${LEAD_STEPS.length}: **${LEAD_STEPS[nextStep].label}**.\n` +
+          "Kliknij TAK/NIE lub wpisz odpowiedź."
+      );
       return;
     }
 
-    // idziemy dalej
-    setLeadStep(nextStep);
     await pushBot(
       `${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.\n` +
-      `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
+        `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
     );
   };
 
   const respondSmart = async (userText) => {
     const t = norm(userText);
 
-    // kontakt/wycena -> lead flow
     if (isContactIntent(userText)) {
       setContext((c) => ({ ...c, lastIntent: "contact" }));
-
-      // jeżeli ostatnio rozpoznaliśmy usługę, prefill “topic”
       const lastService = COMPANY.services.find((s) => s.id === context.lastServiceId);
       const prefill = lastService ? { topic: lastService.name } : {};
       await startLeadFlow(prefill);
       return;
     }
 
-    // lista usług “po obszarach”
     if (isAskingForServicesList(userText)) {
       setContext((c) => ({ ...c, lastIntent: "services" }));
       await pushBot(renderServicesByStages());
       return;
     }
 
-    // ceny/terminy (bez konkretów)
     if (t.includes("ile koszt") || t.includes("cena") || t.includes("wycena")) {
       setContext((c) => ({ ...c, lastIntent: "pricing" }));
       const lastService = COMPANY.services.find((s) => s.id === context.lastServiceId);
       await pushBot(
         `${COMPANY.policy.pricing}\n\n` +
-        (lastService
-          ? `Jeśli chodzi o **${lastService.name}**, najczęściej potrzebujemy: lokalizacji, metrażu i zakresu.\n`
-          : "") +
-        "Chcesz, żebym zebrał dane do kontaktu i przekazał je do biura? Napisz: **kontakt**."
+          (lastService
+            ? `Jeśli chodzi o **${lastService.name}**, najczęściej potrzebujemy: lokalizacji, metrażu i zakresu.\n`
+            : "") +
+          "Chcesz, żebym zebrał dane do kontaktu i przekazał je do biura? Napisz: **kontakt**."
       );
       return;
     }
 
     if (t.includes("termin") || t.includes("kiedy") || t.includes("ile trwa")) {
       setContext((c) => ({ ...c, lastIntent: "timing" }));
-      await pushBot(
-        `${COMPANY.policy.timing}\n\nJeśli chcesz, napisz jaki zakres i lokalizacja — podpowiem, co najbardziej wpływa na termin.`
-      );
+      await pushBot(`${COMPANY.policy.timing}\n\nJeśli chcesz, napisz jaki zakres i lokalizacja — podpowiem, co najbardziej wpływa na termin.`);
       return;
     }
 
-    // “czy macie X?”
     if (isAskingIfYouHaveService(userText)) {
       const s = bestService(userText);
       if (s) {
@@ -586,9 +537,7 @@ function AiAssistant() {
         await pushBot(`Tak — mamy to w ofercie.\n\n${renderServiceCard(s)}\n\nChcesz kontakt/wycenę? Napisz: **kontakt**.`);
       } else {
         setContext((c) => ({ ...c, lastIntent: "clarify" }));
-        await pushBot(
-          "Nie mam pewności, o jaką usługę chodzi. Doprecyzuj proszę jednym zdaniem (np. „remont łazienki”, „ocieplenie elewacji”, „instalacja elektryczna”)."
-        );
+        await pushBot("Nie mam pewności, o jaką usługę chodzi. Doprecyzuj proszę jednym zdaniem (np. „remont łazienki”, „ocieplenie elewacji”, „instalacja elektryczna”).");
       }
       return;
     }
@@ -597,7 +546,7 @@ function AiAssistant() {
       const s = bestService(userText) || COMPANY.services.find((x) => x.id === context.lastServiceId);
       if (s) {
         setContext({ lastServiceId: s.id, lastIntent: "service_detail" });
-        await pushBot(`${renderServiceCard(s)}\n\nJeśli chcesz, mogę zadać 2–3 pytania i przygotować zgłoszenie. Napisz: **kontakt**.`);
+        await pushBot(`${renderServiceCard(s)}\n\nJeśli chcesz, mogę zebrać dane do kontaktu. Napisz: **kontakt**.`);
       } else {
         await pushBot("Podaj nazwę usługi (np. „elewacja”, „remont”, „hydraulika”), a przygotuję konkretny opis.");
       }
@@ -608,12 +557,12 @@ function AiAssistant() {
       setContext((c) => ({ ...c, lastIntent: "process" }));
       await pushBot(
         "W skrócie działamy etapowo:\n" +
-        "1) Ustalenie zakresu i oczekiwań\n" +
-        "2) Doprecyzowanie rozwiązań i materiałów\n" +
-        "3) Umowa i harmonogram\n" +
-        "4) Realizacja z kontrolą jakości\n" +
-        "5) Odbiór i zamknięcie prac\n\n" +
-        "Jeśli napiszesz, czy chodzi o dom/remont/instalacje — dopasuję etapy do Twojego przypadku."
+          "1) Ustalenie zakresu i oczekiwań\n" +
+          "2) Doprecyzowanie rozwiązań i materiałów\n" +
+          "3) Umowa i harmonogram\n" +
+          "4) Realizacja z kontrolą jakości\n" +
+          "5) Odbiór i zamknięcie prac\n\n" +
+          "Jeśli napiszesz, czy chodzi o dom/remont/instalacje — dopasuję etapy do Twojego przypadku."
       );
       return;
     }
@@ -630,7 +579,7 @@ function AiAssistant() {
       setContext({ lastServiceId: s.id, lastIntent: "service_detail" });
       await pushBot(
         `Wygląda na to, że chodzi o:\n\n${renderServiceCard(s)}\n\n` +
-        "Jeśli chcesz, podaj metraż i lokalizację — doradzę kolejne kroki. Albo napisz **kontakt**, a zbiorę dane do zgłoszenia."
+          "Jeśli chcesz, podaj metraż i lokalizację — doradzę kolejne kroki. Albo napisz **kontakt**, a zbiorę dane do zgłoszenia."
       );
       return;
     }
@@ -644,21 +593,28 @@ function AiAssistant() {
   const onSubmit = async (e) => {
     e.preventDefault();
     const text = input.trim();
-    if (!text || thinking) return;
+
+    // ✅ w leadMode pozwalamy wysyłać nawet gdy bot “pisze”
+    if (!text || (!leadMode && thinking)) return;
 
     setInput("");
     setProactiveVisible(false);
     pushUser(text);
 
-    if (leadMode) {
-      await handleLeadInput(text);
-    } else {
-      await respondSmart(text);
-    }
+    if (leadMode) await handleLeadInput(text);
+    else await respondSmart(text);
+  };
+
+  const sendQuick = async (value) => {
+    setInput("");
+    setProactiveVisible(false);
+    pushUser(value);
+    await handleLeadInput(value);
+    focusInput();
   };
 
   const onSuggestion = async (text) => {
-    if (thinking) return;
+    if (!leadMode && thinking) return;
     setProactiveVisible(false);
     if (!open) setOpen(true);
     pushUser(text);
@@ -676,11 +632,7 @@ function AiAssistant() {
       )}
 
       <button className={`assistant__fab ${open ? "is-open" : ""}`} onClick={toggleChat} aria-label={open ? "Zamknij" : "Otwórz"}>
-        {open ? (
-          <span className="assistant__fabIcon">×</span>
-        ) : (
-          <img className="assistant__fabImage" src={botAvatar} alt="AI" />
-        )}
+        {open ? <span className="assistant__fabIcon">×</span> : <img className="assistant__fabImage" src={botAvatar} alt="AI" />}
       </button>
 
       {open && (
@@ -693,14 +645,12 @@ function AiAssistant() {
               <div className="assistant__brandText">
                 <h3 className="assistant__title">Asystent {COMPANY.name}</h3>
                 <p className="assistant__subtitle">
-                  {leadMode
-                    ? `Tryb kontaktu: ${leadStep + 1}/${LEAD_STEPS.length} — ${LEAD_STEPS[leadStep]?.label}`
-                    : "Pytaj o usługi, opisy prac, etapy współpracy i kontakt."}
+                  {leadMode ? `Tryb kontaktu: ${leadStep + 1}/${LEAD_STEPS.length} — ${LEAD_STEPS[leadStep]?.label}` : "Pytaj o usługi, opisy prac, etapy współpracy i kontakt."}
                 </p>
               </div>
 
               {leadMode && (
-                <button className="assistant__ghost" type="button" onClick={() => onSuggestion("anuluj")}>
+                <button className="assistant__ghost" type="button" onClick={cancelLeadFlow}>
                   Anuluj
                 </button>
               )}
@@ -751,17 +701,26 @@ function AiAssistant() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={
-                leadMode
-                  ? LEAD_STEPS[leadStep]?.placeholder || "Wpisz odpowiedź…"
-                  : 'Np. "Czy robicie elewacje?" / "Opisz remont" / "Kontakt"'
+                leadMode ? LEAD_STEPS[leadStep]?.placeholder || "Wpisz odpowiedź…" : 'Np. "Czy robicie elewacje?" / "Opisz remont" / "Kontakt"'
               }
               type="text"
-              disabled={thinking}
+              disabled={!leadMode && thinking}
             />
-            <button className="assistant__send" type="submit" disabled={thinking}>
+            <button className="assistant__send" type="submit" disabled={!leadMode && thinking}>
               Wyślij
             </button>
           </form>
+
+          {leadMode && LEAD_STEPS[leadStep]?.type === "consent" && (
+            <div className="assistant__quick">
+              <button type="button" className="assistant__quickBtn" onClick={() => sendQuick("TAK")}>
+                TAK
+              </button>
+              <button type="button" className="assistant__quickBtn assistant__quickBtn--danger" onClick={() => sendQuick("NIE")}>
+                NIE
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
