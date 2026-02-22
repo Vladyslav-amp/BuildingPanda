@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./AiAssistant.scss";
 
-/** ✅ TU WYPEŁNIASZ SWOJE DANE */
+import botAvatar from "../../assets/ai-panda.png";
+
 const COMPANY = {
   name: "Building Panda",
   intro:
@@ -247,11 +248,25 @@ function MessageText({ text }) {
 /* -------------------- Lead capture (kontakt) -------------------- */
 const LEAD_STEPS = [
   { key: "name", label: "Imię i nazwisko", placeholder: "Np. Jan Kowalski", required: true },
-  { key: "phone", label: "Telefon", placeholder: "Np. +48 600 000 000", required: true },
+  { key: "phone", label: "Telefon", placeholder: "Np. +48 123 456 789", required: true },
   { key: "email", label: "Email (opcjonalnie)", placeholder: "Np. jan@domena.pl", required: false },
   { key: "city", label: "Miasto / lokalizacja", placeholder: "Np. Kraków", required: true },
   { key: "topic", label: "Czego dotyczy zapytanie?", placeholder: "Np. remont mieszkania, elewacja…", required: true },
   { key: "details", label: "Krótki opis", placeholder: "Metraż, stan, zakres prac…", required: true },
+  {
+    key: "consentContact",
+    label: "Zgoda na kontakt",
+    placeholder: "Wpisz: TAK lub NIE",
+    required: true,
+    type: "consent",
+  },
+  {
+    key: "consentPersonalData",
+    label: "Zgoda RODO (przetwarzanie danych osobowych)",
+    placeholder: "Wpisz: TAK lub NIE",
+    required: true,
+    type: "consent",
+  },
 ];
 
 function AiAssistant() {
@@ -344,25 +359,23 @@ function AiAssistant() {
 
   const submitLead = async (data) => {
     const payload = {
-      fullName: data.fullName || data.name || "",
-      phone: data.phone || "",
-      email: (data.email ?? "").trim(),
-      city: data.city || "",
-      topic: data.topic || data.service || "Zapytanie z czatu",
-      details:
-        (data.details || data.message || "").trim() ||
-        "Brak opisu — proszę o kontakt w celu doprecyzowania zakresu.",
+      fullName: data.fullName,
+      phone: data.phone,
+      email: data.email || "",
+      city: data.city,
+      topic: data.topic,
+      details: data.details,
 
       source: "chat_assistant",
       lastServiceId: data.lastServiceId || "",
 
-      consentContact: true,
-      consentPersonalData: true,
+      consentContact: data.consentContact === true,
+      consentPersonalData: data.consentPersonalData === true,
 
       website: "",
       pageUrl: window.location.href,
       userAgent: navigator.userAgent,
-      transcript: Array.isArray(data.transcript) ? data.transcript : [],
+      transcript: data.transcript || [],
     };
 
     const res = await fetch("/api/chat-lead", {
@@ -373,6 +386,13 @@ function AiAssistant() {
 
     const j = await res.json().catch(() => null);
     if (!res.ok || !j?.ok) throw new Error("Chat lead submit failed");
+  };
+
+  const parseYesNo = (value) => {
+    const v = String(value || "").trim().toLowerCase();
+    if (["tak", "t", "yes", "y"].includes(v)) return true;
+    if (["nie", "n", "no"].includes(v)) return false;
+    return null;
   };
 
   const handleLeadInput = async (text) => {
@@ -399,6 +419,55 @@ function AiAssistant() {
       const nextStep = leadStep + 1;
       setLeadStep(nextStep);
       await pushBot(`OK — pomijam email.\n\n${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.`);
+      return;
+    }
+
+    if (step.type === "consent") {
+      const yn = parseYesNo(text);
+
+      if (yn === null) {
+        await pushBot('Proszę wpisz dokładnie: **TAK** albo **NIE**.');
+        return;
+      }
+
+      // jeśli NIE -> kończymy i nie wysyłamy
+      if (yn === false) {
+        const label =
+          step.key === "consentContact" ? "zgody na kontakt" : "zgody RODO";
+        await pushBot(
+          `Rozumiem. Bez ${label} nie mogę wysłać zgłoszenia.\n\nJeśli zmienisz zdanie, napisz „kontakt”.`
+        );
+        setLeadMode(false);
+        setLeadStep(0);
+        setLeadData({});
+        return;
+      }
+
+      // TAK -> zapisujemy i idziemy dalej
+      const nextData = { ...leadData, [step.key]: true };
+      setLeadData(nextData);
+
+      const nextStep = leadStep + 1;
+
+      // jeśli to była ostatnia zgoda, kończymy i wysyłamy
+      if (nextStep >= LEAD_STEPS.length) {
+        await pushBot("Dziękuję. Wysyłam zgłoszenie do biura…");
+
+        await submitLead(nextData);
+
+        await pushBot("✅ Gotowe. Dziękuję! Wkrótce się odezwiemy.");
+        setLeadMode(false);
+        setLeadStep(0);
+        setLeadData({});
+        return;
+      }
+
+      // kolejny krok
+      setLeadStep(nextStep);
+      await pushBot(
+        `${nextStep + 1}/${LEAD_STEPS.length}: Podaj **${LEAD_STEPS[nextStep].label}**.\n` +
+        `Wskazówka: ${LEAD_STEPS[nextStep].placeholder}\n\n(aby przerwać wpisz „anuluj”)`
+      );
       return;
     }
 
@@ -597,14 +666,20 @@ function AiAssistant() {
       )}
 
       <button className={`assistant__fab ${open ? "is-open" : ""}`} onClick={toggleChat} aria-label={open ? "Zamknij" : "Otwórz"}>
-        <span className="assistant__fabIcon">{open ? "×" : "✦"}</span>
+        {open ? (
+          <span className="assistant__fabIcon">×</span>
+        ) : (
+          <img className="assistant__fabImage" src={botAvatar} alt="AI" />
+        )}
       </button>
 
       {open && (
         <div className="assistant__panel is-open" role="dialog" aria-modal="false">
           <header className="assistant__header">
             <div className="assistant__brand">
-              <div className="assistant__avatar" aria-hidden="true">🐼</div>
+              <div className="assistant__avatar">
+                <img src={botAvatar} alt="Asystent AI" />
+              </div>
               <div className="assistant__brandText">
                 <h3 className="assistant__title">Asystent {COMPANY.name}</h3>
                 <p className="assistant__subtitle">
