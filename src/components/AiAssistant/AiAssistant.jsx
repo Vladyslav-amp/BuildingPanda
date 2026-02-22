@@ -375,8 +375,10 @@ function AiAssistant() {
       website: "",
       pageUrl: window.location.href,
       userAgent: navigator.userAgent,
-      transcript: data.transcript || [],
+      transcript: Array.isArray(data.transcript) ? data.transcript : [],
     };
+
+    console.log("CHAT payload =>", payload);
 
     const res = await fetch("/api/chat-lead", {
       method: "POST",
@@ -384,15 +386,15 @@ function AiAssistant() {
       body: JSON.stringify(payload),
     });
 
-    const j = await res.json().catch(() => null);
-    if (!res.ok || !j?.ok) throw new Error("Chat lead submit failed");
-  };
+    const text = await res.text().catch(() => "");
+    console.log("CHAT response <=", res.status, text);
 
-  const parseYesNo = (value) => {
-    const v = String(value || "").trim().toLowerCase();
-    if (["tak", "t", "yes", "y"].includes(v)) return true;
-    if (["nie", "n", "no"].includes(v)) return false;
-    return null;
+    let j = null;
+    try { j = JSON.parse(text); } catch { }
+
+    if (!res.ok || !j?.ok) {
+      throw new Error(`Chat lead submit failed: ${res.status}`);
+    }
   };
 
   const handleLeadInput = async (text) => {
