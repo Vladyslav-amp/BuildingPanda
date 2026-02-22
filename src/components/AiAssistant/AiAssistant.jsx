@@ -343,11 +343,10 @@ function AiAssistant() {
   };
 
   const submitLead = async (data) => {
-    // Mapowanie do tego, co wymaga ChatLeadSchema
     const payload = {
       fullName: data.fullName || data.name || "",
       phone: data.phone || "",
-      email: (data.email ?? "").trim(), // "" albo poprawny email
+      email: (data.email ?? "").trim(),
       city: data.city || "",
       topic: data.topic || data.service || "Zapytanie z czatu",
       details: data.details || data.message || "",
@@ -359,12 +358,12 @@ function AiAssistant() {
       consentPersonalData: true,
 
       website: "",
-
       pageUrl: window.location.href,
       userAgent: navigator.userAgent,
-
       transcript: Array.isArray(data.transcript) ? data.transcript : [],
     };
+
+    console.log("CHAT payload", payload);
 
     const res = await fetch("/api/chat-lead", {
       method: "POST",
@@ -372,10 +371,13 @@ function AiAssistant() {
       body: JSON.stringify(payload),
     });
 
-    const j = await res.json().catch(() => null);
+    const text = await res.text().catch(() => "");
+    console.log("CHAT status", res.status, text);
+
+    let j = null;
+    try { j = JSON.parse(text); } catch { }
 
     if (!res.ok || !j?.ok) {
-      console.error("chat-lead error", res.status, j);
       throw new Error("Chat lead submit failed");
     }
   };
