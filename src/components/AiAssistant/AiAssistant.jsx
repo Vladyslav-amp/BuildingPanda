@@ -396,6 +396,12 @@ function AiAssistant() {
       throw new Error(`Chat lead submit failed: ${res.status}`);
     }
   };
+  const parseYesNo = (value) => {
+    const v = String(value || "").trim().toLowerCase();
+    if (["tak", "t", "yes", "y"].includes(v)) return true;
+    if (["nie", "n", "no"].includes(v)) return false;
+    return null;
+  };
 
   const handleLeadInput = async (text) => {
     const step = LEAD_STEPS[leadStep];
