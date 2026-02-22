@@ -349,7 +349,9 @@ function AiAssistant() {
       email: (data.email ?? "").trim(),
       city: data.city || "",
       topic: data.topic || data.service || "Zapytanie z czatu",
-      details: data.details || data.message || "",
+      details:
+        (data.details || data.message || "").trim() ||
+        "Brak opisu — proszę o kontakt w celu doprecyzowania zakresu.",
 
       source: "chat_assistant",
       lastServiceId: data.lastServiceId || "",
@@ -363,23 +365,14 @@ function AiAssistant() {
       transcript: Array.isArray(data.transcript) ? data.transcript : [],
     };
 
-    console.log("CHAT payload", payload);
-
     const res = await fetch("/api/chat-lead", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    const text = await res.text().catch(() => "");
-    console.log("CHAT status", res.status, text);
-
-    let j = null;
-    try { j = JSON.parse(text); } catch { }
-
-    if (!res.ok || !j?.ok) {
-      throw new Error("Chat lead submit failed");
-    }
+    const j = await res.json().catch(() => null);
+    if (!res.ok || !j?.ok) throw new Error("Chat lead submit failed");
   };
 
   const handleLeadInput = async (text) => {

@@ -290,10 +290,7 @@ Consents:
 
 app.post("/api/chat-lead", chatLimiter, async (req, res) => {
   const parsed = ChatLeadSchema.safeParse(req.body);
-  if (!parsed.success) {
-  console.log("CHAT_LEAD_ZOD_ERROR:", parsed.error.flatten());
-  return res.status(400).json({ ok: false, error: parsed.error.flatten() });
-}
+  if (!parsed.success) return res.status(400).json({ ok: false });
 
   if (parsed.data.website && parsed.data.website.length > 0) {
     return res.json({ ok: true });
