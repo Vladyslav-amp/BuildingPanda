@@ -247,7 +247,7 @@ function MessageText({ text }) {
 
 /* -------------------- Lead capture (kontakt) -------------------- */
 const LEAD_STEPS = [
-  { key: "name", label: "Imię i nazwisko", placeholder: "Np. Jan Kowalski", required: true },
+  { key: "fullName", label: "Imię i nazwisko", placeholder: "Np. Jan Kowalski", required: true },
   { key: "phone", label: "Telefon", placeholder: "Np. +48 123 456 789", required: true },
   { key: "email", label: "Email (opcjonalnie)", placeholder: "Np. jan@domena.pl", required: false },
   { key: "city", label: "Miasto / lokalizacja", placeholder: "Np. Kraków", required: true },
@@ -359,12 +359,12 @@ function AiAssistant() {
 
   const submitLead = async (data) => {
     const payload = {
-      fullName: data.fullName,
-      phone: data.phone,
-      email: data.email || "",
-      city: data.city,
-      topic: data.topic,
-      details: data.details,
+      fullName: (data.fullName || data.name || data.lead?.fullName || "").trim(),
+      phone: (data.phone || "").trim(),
+      email: (data.email || "").trim(),
+      city: (data.city || "").trim(),
+      topic: (data.topic || data.service || "Zapytanie z czatu").trim(),
+      details: (data.details || data.message || "").trim(),
 
       source: "chat_assistant",
       lastServiceId: data.lastServiceId || "",
@@ -391,6 +391,8 @@ function AiAssistant() {
 
     let j = null;
     try { j = JSON.parse(text); } catch { }
+
+    if (!payload.fullName) throw new Error("missing_fullName");
 
     if (!res.ok || !j?.ok) {
       throw new Error(`Chat lead submit failed: ${res.status}`);
