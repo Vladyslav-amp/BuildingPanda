@@ -7,9 +7,9 @@ const COMPANY = {
   intro:
     "Dzień dobry. Jestem asystentem firmy budowlanej. Mogę opisać usługi, etapy współpracy, realizacje oraz pomóc w kontakcie.",
   contacts: {
-    phone: "+48 XXX XXX XXX",
-    email: "biuro@twojafirma.pl",
-    website: "twojafirma.pl",
+    phone: "+48 576 530 094",
+    email: "buildingpanda.pl@gmail.com",
+    website: "https://buildingpanda.pl",
   },
 
   services: [
@@ -343,13 +343,14 @@ function AiAssistant() {
   };
 
   const submitLead = async (data) => {
+    // Mapowanie do tego, co wymaga ChatLeadSchema
     const payload = {
-      fullName: data.fullName,
-      phone: data.phone,
-      email: data.email || "",
-      city: data.city,
-      topic: data.topic,
-      details: data.details,
+      fullName: data.fullName || data.name || "",
+      phone: data.phone || "",
+      email: (data.email ?? "").trim(), // "" albo poprawny email
+      city: data.city || "",
+      topic: data.topic || data.service || "Zapytanie z czatu",
+      details: data.details || data.message || "",
 
       source: "chat_assistant",
       lastServiceId: data.lastServiceId || "",
@@ -362,24 +363,20 @@ function AiAssistant() {
       pageUrl: window.location.href,
       userAgent: navigator.userAgent,
 
-      transcript: data.transcript || [],
+      transcript: Array.isArray(data.transcript) ? data.transcript : [],
     };
 
     const res = await fetch("/api/chat-lead", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      const msg = await res.text().catch(() => "");
-      throw new Error(msg || "Chat lead submit failed");
-    }
+    const j = await res.json().catch(() => null);
 
-    const json = await res.json().catch(() => null);
-    if (!json?.ok) {
-      throw new Error("Chat lead API returned error");
+    if (!res.ok || !j?.ok) {
+      console.error("chat-lead error", res.status, j);
+      throw new Error("Chat lead submit failed");
     }
   };
 
@@ -522,7 +519,6 @@ function AiAssistant() {
       return;
     }
 
-    // “opisz usługę X”
     if (isAskingToDescribeService(userText)) {
       const s = bestService(userText) || COMPANY.services.find((x) => x.id === context.lastServiceId);
       if (s) {
@@ -534,7 +530,6 @@ function AiAssistant() {
       return;
     }
 
-    // “jak pracujecie” / etapy współpracy
     if (t.includes("jak pracujecie") || t.includes("etapy") || t.includes("współpraca") || t.includes("wspolpraca")) {
       setContext((c) => ({ ...c, lastIntent: "process" }));
       await pushBot(
@@ -549,7 +544,6 @@ function AiAssistant() {
       return;
     }
 
-    // “kontakt” bez lead flow (krótkie info)
     if (t === "kontakt") {
       await pushBot(
         `Kontakt:\n• Telefon: ${COMPANY.contacts.phone}\n• Email: ${COMPANY.contacts.email}\n• Strona: ${COMPANY.contacts.website}\n\nJeśli chcesz, zbiorę dane i wyślę zgłoszenie do biura — napisz: **wycena**.`
@@ -557,7 +551,6 @@ function AiAssistant() {
       return;
     }
 
-    // fallback: spróbuj rozpoznać usługę po słowach
     const s = bestService(userText);
     if (s) {
       setContext({ lastServiceId: s.id, lastIntent: "service_detail" });
@@ -568,7 +561,6 @@ function AiAssistant() {
       return;
     }
 
-    // dopytanie “AI-like”
     setContext((c) => ({ ...c, lastIntent: "clarify" }));
     await pushBot(
       "Doprecyzuj proszę, czego dotyczy temat:\n• budowa domu\n• remont/wykończenie\n• elewacja/docieplenie\n• instalacje\n• generalne wykonawstwo\n\nMożesz też napisać: **jakie usługi macie?**"
