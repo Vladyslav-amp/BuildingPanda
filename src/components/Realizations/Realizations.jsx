@@ -1,12 +1,21 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  useMemo,
+  useState,
+  useRef,
+  useLayoutEffect,
+  useCallback,
+} from "react";
 import "./Realizations.scss";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
-
 import "swiper/css";
-import "swiper/css/pagination";
 
+import realizations1 from "../../assets/realizations/real1.webp";
+import realizations2 from "../../assets/realizations/real2.webp";
+import realizations3 from "../../assets/realizations/real3.webp";
+import realizations4 from "../../assets/realizations/real4.webp";
+import realizations5 from "../../assets/realizations/real5.webp";
+import realizations6 from "../../assets/realizations/real6.webp";
 
 const SERVICES_PL = [
   {
@@ -14,14 +23,18 @@ const SERVICES_PL = [
     tag: "Budownictwo",
     title: "Domy jednorodzinne",
     subtitle: "Realizacja od fundamentów po odbiór",
-    imageUrl:
-      "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80",
+    imageUrl: realizations1,
     summary:
       "Budowa etapowa z harmonogramem, kontrolą jakości i jasnym raportowaniem postępu. Minimalizujemy ryzyka i poprawki na końcu.",
     moreLead:
       "Jak pracujemy: proces jest podzielony na etapy z odbiorami częściowymi. Masz kontrolę kosztu, terminu i jakości.",
-    highlights: ["Harmonogram i raporty", "Kontrola jakości", "Nadzór i BHP"],
-    meta: { time: "12–24 mies.", warranty: "Gwarancja", docs: "Dokumentacja" },
+    highlights: [
+      "Kontrola jakości",
+      "Nadzór i BHP",
+      "Kosztorys i budżet",
+      "Odbiory etapowe",
+      "Harmonogram i raporty",
+    ],
     steps: [
       { h: "1) Analiza", p: "Zakres, budżet, działka, ryzyka." },
       { h: "2) Projekt", p: "Adaptacja, uzgodnienia, formalności." },
@@ -34,14 +47,18 @@ const SERVICES_PL = [
     tag: "Inwestycje",
     title: "Budynki wielorodzinne",
     subtitle: "Koordynacja, jakość i terminowość",
-    imageUrl:
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80",
+    imageUrl: realizations2,
     summary:
       "Planowanie, logistyka i koordynacja ekip. Transparentna dokumentacja i odbiory etapowe.",
     moreLead:
       "Dla deweloperów: raportowanie, kontrola jakości oraz minimalizacja ryzyka opóźnień dzięki planowaniu i koordynacji.",
-    highlights: ["Koordynacja ekip", "Odbiory częściowe", "Raportowanie postępu"],
-    meta: { time: "Zależnie od skali", warranty: "Serwis", docs: "Teczka inwestycji" },
+    highlights: [
+      "Koordynacja ekip",
+      "Odbiory częściowe",
+      "Logistyka dostaw",
+      "Kontrola terminów",
+      "Raportowanie postępu",
+    ],
     steps: [
       { h: "1) Plan", p: "Harmonogram, BHP, logistyka." },
       { h: "2) Konstrukcja", p: "Realizacja + kontrola jakości." },
@@ -54,14 +71,18 @@ const SERVICES_PL = [
     tag: "Wykończenia",
     title: "Wnętrza pod klucz",
     subtitle: "Standard premium bez niespodzianek",
-    imageUrl:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80",
+    imageUrl: realizations3,
     summary:
       "Wykończenia na checklistach jakości: detale, standard i jasny zakres. Ustalony koszt, termin i odbiór.",
     moreLead:
       "Jak wygląda proces: od inwentaryzacji i kosztorysu po montaż, kontrolę jakości i przekazanie gotowego wnętrza.",
-    highlights: ["Checklisty jakości", "Materiały i logistyka", "Odbiór końcowy"],
-    meta: { time: "6–12 tyg.", warranty: "Gwarancja", docs: "Specyfikacje" },
+    highlights: [
+      "Checklisty jakości",
+      "Materiały i logistyka",
+      "Odbiór końcowy",
+      "Ustalony zakres prac",
+      "Stały nadzór wykonawczy",
+    ],
     steps: [
       { h: "1) Kosztorys", p: "Pomiary, zakres, standard." },
       { h: "2) Przygotowanie", p: "GK, wyrównania, bazy." },
@@ -74,14 +95,18 @@ const SERVICES_PL = [
     tag: "Modernizacja",
     title: "Remonty i przebudowy",
     subtitle: "Zmiana układu, wzmocnienia, odświeżenia",
-    imageUrl:
-      "https://images.unsplash.com/photo-1581579184683-0f0b8a9c3b2f?auto=format&fit=crop&w=1600&q=80",
+    imageUrl: realizations4,
     summary:
       "Prace etapowe z zabezpieczeniem stref i minimalizacją przestojów. Kontrola jakości i szybkie odbiory.",
     moreLead:
       "W obiektach użytkowanych dzielimy prace na strefy, zapewniamy zabezpieczenia i stałą komunikację z inwestorem.",
-    highlights: ["Prace etapowe", "Zabezpieczenia", "Szybkie odbiory"],
-    meta: { time: "2–10 tyg.", warranty: "Gwarancja", docs: "Protokoły" },
+    highlights: [
+      "Prace etapowe",
+      "Zabezpieczenia",
+      "Szybkie odbiory",
+      "Koordynacja branż",
+      "Minimalizacja przestojów",
+    ],
     steps: [
       { h: "1) Audyt", p: "Diagnoza, warianty, koszt." },
       { h: "2) Demontaże", p: "Zabezpieczenie i przygot." },
@@ -94,14 +119,18 @@ const SERVICES_PL = [
     tag: "Energia",
     title: "Elewacje i termomodernizacja",
     subtitle: "Efektywność + estetyka budynku",
-    imageUrl:
-      "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=1600&q=80",
+    imageUrl: realizations5,
     summary:
       "Dobór systemu pod warunki, nacisk na detale i trwałość: obróbki, dylatacje, poprawne połączenia.",
     moreLead:
       "Skupiamy się na trwałości: przygotowanie podłoża, prawidłowe detale przy oknach i kontrola szczelności.",
-    highlights: ["Diagnostyka podłoża", "Detale i obróbki", "Kontrola szczelności"],
-    meta: { time: "2–6 tyg.", warranty: "Gwarancja", docs: "Karta materiałów" },
+    highlights: [
+      "Diagnostyka podłoża",
+      "Detale i obróbki",
+      "Kontrola szczelności",
+      "Trwałe wykończenie",
+      "Dobór systemu ociepleń",
+    ],
     steps: [
       { h: "1) Ocena", p: "Podłoże i dobór tech." },
       { h: "2) Przygot.", p: "Naprawy i zabezp." },
@@ -114,14 +143,18 @@ const SERVICES_PL = [
     tag: "Otoczenie",
     title: "Zagospodarowanie terenu",
     subtitle: "Podjazdy, tarasy, odwodnienia, ogrodzenia",
-    imageUrl:
-      "https://images.unsplash.com/photo-1598257008403-3d9c00f9e9b7?auto=format&fit=crop&w=1600&q=80",
+    imageUrl: realizations6,
     summary:
       "Spadki, odwodnienia, podbudowy i nawierzchnie. Etap, który często decyduje o komforcie i trwałości.",
     moreLead:
       "Robimy komplet „na zewnątrz”: prawidłowe spadki, odwodnienia i solidne podbudowy, żeby po zimie nie było niespodzianek.",
-    highlights: ["Spadki i odwodnienia", "Podbudowy", "Trwałe nawierzchnie"],
-    meta: { time: "1–4 tyg.", warranty: "Serwis", docs: "Dokumentacja" },
+    highlights: [
+      "Podbudowy",
+      "Trwałe nawierzchnie",
+      "Spadki i odwodnienia",
+      "Krawężniki i obrzeża",
+      "Przygotowanie pod ogrodzenie",
+    ],
     steps: [
       { h: "1) Układ", p: "Plan spadków." },
       { h: "2) Ziemne", p: "Stabilizacja." },
@@ -135,6 +168,20 @@ export default function ServicesCards() {
   const items = useMemo(() => SERVICES_PL, []);
   const [openId, setOpenId] = useState(null);
 
+  const scrollToContact = useCallback(() => {
+    const el = document.querySelector("#contact");
+    if (!el) return;
+
+    const headerOffset = 80;
+    const elementPosition = el.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth",
+    });
+  }, []);
+
   const toggle = (id) => setOpenId((prev) => (prev === id ? null : id));
 
   return (
@@ -144,10 +191,12 @@ export default function ServicesCards() {
           <p className="svc__eyebrow">Usługi</p>
           <h2 className="svc__title">Kompleksowe usługi budowlane klasy premium</h2>
           <p className="svc__lead">
-            Realizujemy inwestycje od koncepcji po odbiór końcowy. Zapewniamy pełną koordynację prac, kontrolę kosztów oraz najwyższe standardy wykonania.
+            Realizujemy inwestycje od koncepcji po odbiór końcowy. Zapewniamy pełną
+            koordynację prac, kontrolę kosztów oraz najwyższe standardy wykonania.
           </p>
         </header>
-        {/* Desktop version */}
+
+        {/* Desktop */}
         <div className="svc__grid" role="list">
           {items.map((item) => (
             <ServiceFlipCard
@@ -155,43 +204,68 @@ export default function ServicesCards() {
               item={item}
               open={openId === item.id}
               onToggle={() => toggle(item.id)}
+              onOrder={scrollToContact}
             />
           ))}
         </div>
-        {/* Mobile version */}
-        <div
-          className="svc__slider"
-          style={{ "--svc-progress": "#00E5FF" }}
-        >
-          <Swiper
-            modules={[Pagination]}
-            slidesPerView={1.1}
-            spaceBetween={12}
 
-          >
+        {/* Mobile */}
+        <div className="svc__slider" style={{ "--svc-progress": "#00E5FF" }}>
+          <Swiper slidesPerView={1.1} spaceBetween={12}>
             {items.map((item) => (
               <SwiperSlide key={item.id}>
                 <ServiceFlipCard
                   item={item}
                   open={openId === item.id}
                   onToggle={() => toggle(item.id)}
+                  onOrder={scrollToContact}
                 />
               </SwiperSlide>
             ))}
           </Swiper>
         </div>
-
       </div>
     </section>
   );
 }
 
-function ServiceFlipCard({ item, open, onToggle }) {
+function ServiceFlipCard({ item, open, onToggle, onOrder }) {
+  const frontRef = useRef(null);
+  const backRef = useRef(null);
+  const [cardHeight, setCardHeight] = useState(null);
+
+  const measure = useCallback(() => {
+    const frontEl = frontRef.current;
+    const backEl = backRef.current;
+    if (!frontEl || !backEl) return;
+
+    const frontH = frontEl.scrollHeight;
+    const backH = backEl.scrollHeight;
+
+    const next = Math.max(frontH, backH) + 2;
+    setCardHeight(next);
+  }, []);
+
+  useLayoutEffect(() => {
+    measure();
+  }, [measure, open, item]);
+
+  useLayoutEffect(() => {
+    const onResize = () => measure();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [measure]);
+
   return (
-    <article className="svc-card" role="listitem">
-      <div className="svc-card__flip" data-open={open ? "true" : "false"}>
+    <article
+      className="svc-card"
+      role="listitem"
+      style={cardHeight ? { height: cardHeight } : undefined}
+    >
+      <div className="svc-card__flip" style={cardHeight ? { height: cardHeight } : undefined}>
         <div className={`svc-card__flipInner ${open ? "svc-card__flipInner--flipped" : ""}`}>
-          <div className="svc-card__face svc-card__face--front">
+          {/* FRONT */}
+          <div ref={frontRef} className="svc-card__face svc-card__face--front">
             <div className="svc-card__media">
               <img className="svc-card__img" src={item.imageUrl} alt={item.title} />
               <div className="svc-card__tag">{item.tag}</div>
@@ -205,38 +279,36 @@ function ServiceFlipCard({ item, open, onToggle }) {
 
               <p className="svc-card__summary">{item.summary}</p>
 
-              <ul className="svc-card__highlights" aria-label="Najważniejsze punkty">
+              <ul className="svc-card__checks" aria-label="Najważniejsze punkty">
                 {item.highlights.map((h, i) => (
-                  <li key={i} className="svc-card__highlight">
+                  <li key={i} className="svc-card__check">
                     {h}
                   </li>
                 ))}
               </ul>
 
-              <div className="svc-card__meta" aria-label="Parametry usługi">
-                <div className="svc-card__metaItem">
-                  <span className="svc-card__metaLabel">Czas</span>
-                  <span className="svc-card__metaValue">{item.meta.time}</span>
-                </div>
-                <div className="svc-card__metaItem">
-                  <span className="svc-card__metaLabel">Wsparcie</span>
-                  <span className="svc-card__metaValue">{item.meta.warranty}</span>
-                </div>
-                <div className="svc-card__metaItem">
-                  <span className="svc-card__metaLabel">Dok.</span>
-                  <span className="svc-card__metaValue">{item.meta.docs}</span>
-                </div>
-              </div>
+              <div className="svc-card__actions svc-card__actions--row">
+                <button
+                  type="button"
+                  className="svc-card__order svc-card__order--primary"
+                  onClick={onOrder}
+                >
+                  Zamów usługę
+                </button>
 
-              <div className="svc-card__actions">
                 <button type="button" className="svc-card__toggle" onClick={onToggle}>
-                  {open ? "Pokaż mniej" : "Pokaż więcej"}
+                  {open ? "Zamknij" : "Szczegóły"}
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="svc-card__face svc-card__face--back" aria-label={`Szczegóły: ${item.title}`}>
+          {/* BACK */}
+          <div
+            ref={backRef}
+            className="svc-card__face svc-card__face--back"
+            aria-label={`Szczegóły: ${item.title}`}
+          >
             <div className="svc-card__backTop">
               <div className="svc-card__backKicker">Szczegóły usługi</div>
               <div className="svc-card__backTitle">{item.title}</div>
@@ -252,9 +324,17 @@ function ServiceFlipCard({ item, open, onToggle }) {
               ))}
             </ol>
 
-            <div className="svc-card__actions svc-card__actions--back">
+            <div className="svc-card__actions svc-card__actions--row">
+              <button
+                type="button"
+                className="svc-card__order svc-card__order--primary"
+                onClick={onOrder}
+              >
+                Zamów usługę
+              </button>
+
               <button type="button" className="svc-card__toggle" onClick={onToggle}>
-                {open ? "Pokaż mniej" : "Pokaż więcej"}
+                {open ? "Zamknij" : "Szczegóły"}
               </button>
             </div>
           </div>

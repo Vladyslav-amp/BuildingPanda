@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./Header.scss";
-import logo from '@/assets/logo.svg';
+import logo from '@/assets/logo.webp';
 
 function scrollToHashWithOffset(hash, headerEl) {
   if (!hash || hash[0] !== "#") return;
@@ -208,32 +208,36 @@ export default function Header() {
             ))}
           </nav>
 
-          <a className="mnav__cta" href="#contact" onClick={(e) => onNavClick(e, "#contact")}>
-            Umów spotkanie
-          </a>
-
-          <div className="mnav__contact" aria-label="Kontakt">
-            <a className="mnav__contactItem" href="tel:+48576530094" onClick={() => setOpen(false)}>
-              <span className="mnav__contactIcon" aria-hidden="true">
-                <Icon name="phone" />
-              </span>
-              <span className="mnav__contactText">+48 576 530 094</span>
+          <div className="mnav__link">
+            <a className="mnav__cta" href="#contact" onClick={(e) => onNavClick(e, "#contact")}>
+              Umów spotkanie
             </a>
 
-            <a className="mnav__contactItem" href="tel:+48798889787" onClick={() => setOpen(false)}>
-              <span className="mnav__contactIcon" aria-hidden="true">
-                <Icon name="phone" />
-              </span>
-              <span className="mnav__contactText">+48 798 889 787</span>
-            </a>
+            <div className="mnav__contact" aria-label="Kontakt">
+              <a className="mnav__contactItem" href="tel:+48576530094" onClick={() => setOpen(false)}>
+                <span className="mnav__contactIcon" aria-hidden="true">
+                  <Icon name="phone" />
+                </span>
+                <span className="mnav__contactText">+48 576 530 094</span>
+              </a>
 
-            <a className="mnav__contactItem" href="mailto:buildingpanda.pl@gmail.com" onClick={() => setOpen(false)}>
-              <span className="mnav__contactIcon" aria-hidden="true">
-                <Icon name="mail" />
-              </span>
-              <span className="mnav__contactText">buildingpanda.pl@gmail.com</span>
-            </a>
+              <a className="mnav__contactItem" href="tel:+48798889787" onClick={() => setOpen(false)}>
+                <span className="mnav__contactIcon" aria-hidden="true">
+                  <Icon name="phone" />
+                </span>
+                <span className="mnav__contactText">+48 798 889 787</span>
+              </a>
+
+              <a className="mnav__contactItem" href="mailto:buildingpanda.pl@gmail.com" onClick={() => setOpen(false)}>
+                <span className="mnav__contactIcon" aria-hidden="true">
+                  <Icon name="mail" />
+                </span>
+                <span className="mnav__contactText">buildingpanda.pl@gmail.com</span>
+              </a>
+            </div>
           </div>
+
+
 
           <div className="mnav__langWrap" aria-label="Wybór języka">
             {/* <div className="mnav__langLabel">

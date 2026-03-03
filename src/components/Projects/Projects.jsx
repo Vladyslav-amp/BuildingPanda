@@ -1,315 +1,190 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { motion, useMotionValue } from "framer-motion";
 import "./Projects.scss";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
-
+import { Pagination, FreeMode } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-
-import parkowa1 from "../../assets/projects/zakatek-1.webp";
-import parkowa2 from "../../assets/projects/zakatek-1.webp";
-import parkowa3 from "../../assets/projects/zakatek-1.webp";
-import parkowa4 from "../../assets/projects/zakatek-1.webp";
-import parkowa5 from "../../assets/projects/zakatek-1.webp";
-import parkowa6 from "../../assets/projects/zakatek-1.webp";
-import parkowa7 from "../../assets/projects/zakatek-1.webp";
-import parkowa8 from "../../assets/projects/zakatek-1.webp";
-import parkowa9 from "../../assets/projects/zakatek-1.webp";
-
-import nadmorska1 from "../../assets/projects/zakatek-1.webp";
-import nadmorska2 from "../../assets/projects/zakatek-1.webp";
-import nadmorska3 from "../../assets/projects/zakatek-1.webp";
-
-import zakatek1 from "../../assets/projects/zakatek-1.webp";
-import zakatek2 from "../../assets/projects/zakatek-2.webp";
-import zakatek3 from "../../assets/projects/zakatek-3.webp";
-
-import lesna1 from "../../assets/projects/zakatek-1.webp";
-import lesna2 from "../../assets/projects/zakatek-1.webp";
-import lesna3 from "../../assets/projects/zakatek-1.webp";
-
-import centrum1 from "../../assets/projects/zakatek-1.webp";
-import centrum2 from "../../assets/projects/zakatek-1.webp";
-import centrum3 from "../../assets/projects/zakatek-1.webp";
-
-const PROJECTS = [
-  {
-    id: "multi-1",
-    name: "Budynek wielorodzinny – Parkowa 12",
-    location: "Kraków, Polska",
-    type: "Budynki wielorodzinne",
-    summary:
-      "Nowoczesny budynek wielorodzinny z lokalami usługowymi w parterze, zaprojektowany w standardzie podwyższonym.",
-    description:
-      "Projekt zrealizowany w technologii żelbetowej z dbałością o detal i energooszczędność. Czysta geometria elewacji oraz wysokiej jakości wykończenia klatek schodowych nadają inwestycji charakteru premium. Budynek wyposażony w nowoczesne systemy wentylacyjne i instalacje inteligentnego zarządzania mediami.",
-    photographyBy: "Zespół VAL&ART",
-    year: 2021,
-    floors: 5,
-    usableArea: { value: 1850, unit: "m²" },
-    structure: "Żelbet + silikat",
-    plotArea: { value: 1200, unit: "m²" },
-    volume: { value: 6400, unit: "m³" },
-    client: "Parkowa Development",
-    status: "Zrealizowany",
-    images: [
-      { src: parkowa1, alt: "Elewacja frontowa – Parkowa 12" },
-      { src: parkowa2, alt: "Klatka schodowa – Parkowa 12" },
-      { src: parkowa3, alt: "Dziedziniec – Parkowa 12" },
-      { src: parkowa4, alt: "Dziedziniec – Parkowa 12" },
-      { src: parkowa5, alt: "Dziedziniec – Parkowa 12" },
-      { src: parkowa6, alt: "Dziedziniec – Parkowa 12" },
-      { src: parkowa7, alt: "Dziedziniec – Parkowa 12" },
-      { src: parkowa8, alt: "Dziedziniec – Parkowa 12" },
-      { src: parkowa9, alt: "Dziedziniec – Parkowa 12" }
-    ]
-  },
-  {
-    id: "multi-2",
-    name: "Apartamentowiec – Nadmorska 8",
-    location: "Gdańsk, Polska",
-    type: "Budynki wielorodzinne",
-    summary:
-      "Luksusowy apartamentowiec z widokiem na morze, z tarasami i dużymi przeszkleniami od strony linii brzegowej.",
-    description:
-      "Luksusowy obiekt z dużymi przeszkleniami i panoramicznymi tarasami zapewniającymi widok na linię brzegową. Zastosowano konstrukcję żelbetową, wysoką termoizolację oraz fasadę odporną na działanie soli morskiej. Apartamentowiec zaprojektowany z myślą o segmencie premium.",
-    photographyBy: "Holger Obenaus",
-    year: 2023,
-    floors: 7,
-    usableArea: { value: 3420, unit: "m²" },
-    structure: "Żelbet monolityczny",
-    plotArea: { value: 1900, unit: "m²" },
-    volume: { value: 11200, unit: "m³" },
-    client: "Nadmorska Estate",
-    status: "Zrealizowany",
-    images: [
-      { src: nadmorska1, alt: "Elewacja frontowa – Nadmorska 8" },
-      { src: nadmorska2, alt: "Taras widokowy – Nadmorska 8" },
-      { src: nadmorska3, alt: "Hol wejściowy – Nadmorska 8" }
-    ]
-  },
-  {
-    id: "single-1",
-    name: "Dom jednorodzinny – Zielony Zakątek",
-    location: "Rzeszów, Polska",
-    type: "Domy jednorodzinne",
-    summary:
-      "Dom wolnostojący z dużymi przeszkleniami od strony ogrodu, dopasowany do potrzeb nowoczesnej rodziny.",
-    description:
-      "Projekt indywidualny skupiony na harmonii z otoczeniem. Szerokie przeszklenia doświetlają wnętrza, a układ funkcjonalny wspiera komfort życia rodziny. Zastosowanie nowoczesnych instalacji oraz ekologicznych materiałów pozwoliło uzyskać ponadprzeciętną energooszczędność.",
-    photographyBy: "Newport 653",
-    year: 2022,
-    floors: 2,
-    usableArea: { value: 210, unit: "m²" },
-    structure: "Murowana + strop żelbetowy",
-    plotArea: { value: 860, unit: "m²" },
-    volume: { value: 740, unit: "m³" },
-    client: "Inwestor prywatny",
-    status: "Zrealizowany",
-    images: [
-      { src: zakatek1, alt: "Widok od ogrodu – Zielony Zakątek" },
-      { src: zakatek2, alt: "Salon z antresolą – Zielony Zakątek" },
-      { src: zakatek3, alt: "Detal elewacji – Zielony Zakątek" }
-    ]
-  },
-  {
-    id: "single-2",
-    name: "Dom bliźniaczy – Leśna 4",
-    location: "Tarnów, Polska",
-    type: "Domy jednorodzinne",
-    summary:
-      "Bliźniak w spokojnej, zielonej okolicy, zaprojektowany dla dwóch rodzin ceniących komfort i prywatność.",
-    description:
-      "Zespół dwóch budynków w zabudowie bliźniaczej charakteryzuje elegancki minimalizm elewacji oraz ergonomiczny podział przestrzeni. Realizacja obejmowała kompleksowe wykonawstwo wraz z zagospodarowaniem terenu. Projekt skierowany do rodzin poszukujących komfortu i prywatności.",
-    photographyBy: "Zespół SolidBud",
-    year: 2020,
-    floors: 2,
-    usableArea: { value: 310, unit: "m²" },
-    structure: "Murowana",
-    plotArea: { value: 1100, unit: "m²" },
-    volume: { value: 1180, unit: "m³" },
-    client: "Leśna Investments",
-    status: "Zrealizowany",
-    images: [
-      { src: lesna1, alt: "Elewacja – Leśna 4" },
-      { src: lesna2, alt: "Salon – Leśna 4" },
-      { src: lesna3, alt: "Taras – Leśna 4" }
-    ]
-  },
-  {
-    id: "service-1",
-    name: "Budynek usługowo–mieszkalny – Centrum 7",
-    location: "Lublin, Polska",
-    type: "Usługowe / komercyjne",
-    summary:
-      "Funkcjonalny obiekt w ścisłym centrum miasta, łączący lokale usługowe z częścią mieszkalną.",
-    description:
-      "Inwestycja łącząca funkcje komercyjne i mieszkalne, zlokalizowana w ścisłym centrum miasta. Dolne kondygnacje przeznaczono na lokale usługowe, natomiast wyższe piętra umożliwiają elastyczną aranżację przestrzeni mieszkalnej. Projekt wyróżnia się nowoczesną fasadą oraz dużymi witrynami.",
-    photographyBy: "SolidBud",
-    year: 2019,
-    floors: 6,
-    usableArea: { value: 2850, unit: "m²" },
-    structure: "Żelbet + fasada przeszklona",
-    plotArea: { value: 1450, unit: "m²" },
-    volume: { value: 9300, unit: "m³" },
-    client: "Centrum Group",
-    status: "Zrealizowany",
-    images: [
-      { src: centrum1, alt: "Elewacja frontowa – Centrum 7" },
-      { src: centrum2, alt: "Lokale usługowe – Centrum 7" },
-      { src: centrum3, alt: "Wejście główne – Centrum 7" }
-    ]
-  }
-];
+import PROJECTS_RAW from "../../data/project.json";
+import { buildProjectImages } from "../../lib/buildProjectImages";
 
 function formatNumber(value) {
   if (typeof value !== "number") return value;
   return value.toLocaleString("pl-PL");
 }
 
+function SpecList({ project, variant = "projects" }) {
+  if (!project) return null;
+
+  const rows = [
+    ["Rok realizacji", project.year],
+    ["Kondygnacje", project.floors],
+    ["Pow. użytkowa", `${formatNumber(project.usableArea?.value)} ${project.usableArea?.unit || ""}`.trim()],
+    ["Pow. działki", `${formatNumber(project.plotArea?.value)} ${project.plotArea?.unit || ""}`.trim()],
+    ["Kubatura", `${formatNumber(project.volume?.value)} ${project.volume?.unit || ""}`.trim()],
+    ["Konstrukcja", project.structure],
+    ["Inwestor", project.client],
+    ["Status", project.status],
+  ].filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== "");
+
+  return (
+    <ul className={`${variant}__spec-list`}>
+      {rows.map(([label, value]) => (
+        <li key={label} className={`${variant}__spec-row`}>
+          <span className={`${variant}__spec-label`}>{label}</span>
+          <span className={`${variant}__spec-value`}>{value}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function Projects() {
+  const PROJECTS = useMemo(() => {
+    return (PROJECTS_RAW || []).map((p) => ({
+      ...p,
+      images: buildProjectImages(p, [400, 1200]),
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [PROJECTS_RAW]);
+
+  const COMPACT_BP = 1100;
+
   const [activeProjectId, setActiveProjectId] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState("description");
+
   const [isMobile, setIsMobile] = useState(false);
-  const [specCounters, setSpecCounters] = useState({
-    year: 0,
-    floors: 0,
-    usableArea: 0,
-    plotArea: 0,
-    volume: 0
-  });
+  const [isCompactDesktop, setIsCompactDesktop] = useState(false);
+
+  const [isSpecOpen, setIsSpecOpen] = useState(false);
+
+  // Lightbox
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const lightboxThumbsSwiperRef = useRef(null);
+
+  const heroThumbsSwiperRef = useRef(null);
+
+  const [lbSrc, setLbSrc] = useState(null);
+  const [lbIsFading, setLbIsFading] = useState(false);
+  const [lbPanelWidth, setLbPanelWidth] = useState(null);
 
   const touchStartXRef = useRef(null);
-  const filmstripRef = useRef(null);
   const mobileSwiperRef = useRef(null);
   const activeMobileItemRef = useRef(null);
   const scrollBeforeOpenRef = useRef(0);
 
-
-  const tiltY = useMotionValue(0);
+  const sidebarRef = useRef(null);
 
   const imageX = useMotionValue(0);
   const imageY = useMotionValue(0);
 
-  const imageScale = useTransform(tiltY, [-0.5, 0.5], [1.03, 1.06]);
-
   useEffect(() => {
-    const checkIsMobile = () => {
-      if (typeof window !== "undefined") {
-        setIsMobile(window.innerWidth <= 768);
-      }
+    const onResize = () => {
+      if (typeof window === "undefined") return;
+      const w = window.innerWidth;
+
+      const mobile = w <= 768;
+      setIsMobile(mobile);
+      setIsCompactDesktop(!mobile && w < COMPACT_BP);
     };
 
-    checkIsMobile();
-    window.addEventListener("resize", checkIsMobile);
-    return () => window.removeEventListener("resize", checkIsMobile);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  let activeProject;
+  let activeProject = null;
+
   if (isMobile) {
     activeProject =
       PROJECTS.find((project) => project.id === activeProjectId) || null;
   } else {
-    const idToUse = activeProjectId || PROJECTS[0].id;
+    const idToUse = activeProjectId || PROJECTS[0]?.id;
     activeProject =
-      PROJECTS.find((project) => project.id === idToUse) || PROJECTS[0];
+      PROJECTS.find((project) => project.id === idToUse) || PROJECTS[0] || null;
   }
 
+  const effectiveActiveId = activeProjectId || PROJECTS[0]?.id;
+
+  const currentImage =
+    activeProject && activeProject.images?.[activeImageIndex]
+      ? activeProject.images[activeImageIndex]
+      : null;
+
   useEffect(() => {
-    setActiveTab("description");
     setActiveImageIndex(0);
-    tiltY.set(0);
-  }, [activeProjectId, isMobile, tiltY]);
+    imageX.set(0);
+    imageY.set(0);
 
-  useEffect(() => {
-    if (!activeProject || isMobile) return;
-
-    const targets = {
-      year: activeProject.year,
-      floors: activeProject.floors,
-      usableArea: activeProject.usableArea?.value || 0,
-      plotArea: activeProject.plotArea?.value || 0,
-      volume: activeProject.volume?.value || 0
-    };
-
-    const animations = Object.entries(targets).map(([key, target]) =>
-      animate(0, target, {
-        duration: 0.8,
-        ease: "easeOut",
-        onUpdate: (value) => {
-          setSpecCounters((prev) => ({
-            ...prev,
-            [key]: Math.round(value)
-          }));
-        }
-      })
-    );
-
-    return () => {
-      animations.forEach((control) => control.stop && control.stop());
-    };
-  }, [activeProject, isMobile]);
+    setIsSpecOpen(false);
+  }, [activeProjectId, isMobile, isCompactDesktop, imageX, imageY]);
 
   useEffect(() => {
     const s = mobileSwiperRef.current;
     if (!s) return;
 
     const locked = !!activeProjectId;
-
     s.allowTouchMove = !locked;
+
     if (locked) {
-      try { s.slideTo(s.activeIndex, 0); } catch {""}
+      try {
+        s.slideTo(s.activeIndex, 0);
+      } catch {
+        "";
+      }
     }
   }, [activeProjectId]);
 
+  const scrollActiveCardIntoView = () => {
+    const el = activeMobileItemRef.current;
+    if (!el) return;
+
+    const HEADER_OFFSET = 80;
+    const rect = el.getBoundingClientRect();
+    const top = window.pageYOffset + rect.top - HEADER_OFFSET;
+
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
   useEffect(() => {
-  if (!isMobile) return;
-  if (!activeProjectId) return;
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      scrollActiveCardIntoView();
-    });
-  });
-}, [activeProjectId, isMobile]);
-
-
-
-  const handleSelectProject = (id) => {
-  if (isMobile && activeProjectId === id) {
-    setActiveProjectId(null);
+    if (!isMobile) return;
+    if (!activeProjectId) return;
 
     requestAnimationFrame(() => {
-      window.scrollTo({
-        top: scrollBeforeOpenRef.current,
-        behavior: "auto",
+      requestAnimationFrame(() => {
+        scrollActiveCardIntoView();
+        setTimeout(scrollActiveCardIntoView, 150);
       });
     });
+  }, [activeProjectId, isMobile]);
 
-    return;
-  }
+  const handleSelectProject = (id) => {
+    if (isMobile && activeProjectId === id) {
+      setActiveProjectId(null);
 
-  if (isMobile) {
-    scrollBeforeOpenRef.current = window.pageYOffset;
-  }
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: scrollBeforeOpenRef.current,
+          behavior: "auto",
+        });
+      });
 
-  setActiveProjectId(id);
+      return;
+    }
 
-  if (!isMobile && filmstripRef.current) {
-    const card = filmstripRef.current.querySelector(
-      `[data-project-id="${id}"]`
-    );
-    card?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
-  }
-};
+    if (isMobile) {
+      scrollBeforeOpenRef.current = window.pageYOffset;
+    }
 
+    setActiveProjectId(id);
+
+    if (!isMobile && !isCompactDesktop && sidebarRef.current) {
+      const item = sidebarRef.current.querySelector(`[data-project-id="${id}"]`);
+      item?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  };
 
   const handlePrevImage = () => {
     if (!activeProject) return;
@@ -340,22 +215,18 @@ export default function Projects() {
     const diff = endX - touchStartXRef.current;
 
     if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        handlePrevImage();
-      } else {
-        handleNextImage();
-      }
+      if (diff > 0) handlePrevImage();
+      else handleNextImage();
     }
 
     touchStartXRef.current = null;
   };
 
   const handleHeroMouseMove = (e) => {
-    if (isMobile) return;
+    if (isMobile || isCompactDesktop) return;
     const rect = e.currentTarget.getBoundingClientRect();
-
-    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
-    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 14;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 14;
 
     imageX.set(x);
     imageY.set(y);
@@ -366,60 +237,126 @@ export default function Projects() {
     imageY.set(0);
   };
 
+  const closeLightbox = () => setIsLightboxOpen(false);
 
-  const currentImage =
-    activeProject && activeProject.images[activeImageIndex]
-      ? activeProject.images[activeImageIndex]
-      : null;
+  useEffect(() => {
+    if (!isLightboxOpen || !currentImage) return;
 
-      const scrollActiveCardIntoView = () => {
-  const el = activeMobileItemRef.current;
-  if (!el) return;
+    setLbSrc(currentImage.mainUrl);
+    setLbIsFading(false);
+  }, [isLightboxOpen, currentImage?.mainUrl]);
 
-  const HEADER_OFFSET = 80;
-  const rect = el.getBoundingClientRect();
-  const top = window.pageYOffset + rect.top - HEADER_OFFSET;
+  useEffect(() => {
+    if (!isLightboxOpen) return;
 
-  window.scrollTo({ top, behavior: "smooth" });
-};
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") handlePrevImage();
+      if (e.key === "ArrowRight") handleNextImage();
+    };
 
-useEffect(() => {
-  if (!isMobile) return;
-  if (!activeProjectId) return;
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLightboxOpen, activeProject, activeImageIndex]);
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      scrollActiveCardIntoView();
-      setTimeout(scrollActiveCardIntoView, 150);
+  useEffect(() => {
+    if (!isLightboxOpen || !activeProject?.images?.length) return;
+
+    const n = activeProject.images.length;
+    const prev = (activeImageIndex - 1 + n) % n;
+    const next = (activeImageIndex + 1) % n;
+
+    [prev, next].forEach((i) => {
+      const src = activeProject.images[i]?.mainUrl;
+      if (!src) return;
+      const im = new Image();
+      im.src = src;
     });
-  });
-}, [activeProjectId, isMobile]);
+  }, [isLightboxOpen, activeProject, activeImageIndex]);
 
+  const computePanelWidth = (naturalWidth) => {
+    if (typeof window === "undefined") return null;
+    const cap = Math.floor(window.innerWidth * 0.96);
+    const desired = Math.floor(naturalWidth + 200);
+    return Math.min(desired, cap);
+  };
 
+  useEffect(() => {
+    if (!isLightboxOpen || !currentImage) return;
+
+    const nextSrc = currentImage.mainUrl;
+    if (!nextSrc) return;
+
+    let cancelled = false;
+    const img = new Image();
+    img.src = nextSrc;
+
+    img.onload = () => {
+      if (cancelled) return;
+
+      const w = computePanelWidth(img.naturalWidth || 0);
+      if (w) setLbPanelWidth(w);
+      if (lbSrc === nextSrc) return;
+      setLbIsFading(true);
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        setLbSrc(nextSrc);
+        requestAnimationFrame(() => setLbIsFading(false));
+      });
+    };
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLightboxOpen, currentImage?.mainUrl]);
+
+  useEffect(() => {
+    if (isMobile) return;
+    if (isCompactDesktop) return;
+    const s = heroThumbsSwiperRef.current;
+    if (!s) return;
+
+    try {
+      const total = activeProject?.images?.length || 0;
+      if (!total) return;
+
+      const target = Math.max(0, Math.min(activeImageIndex - 2, total - 1));
+      s.slideTo(target, 250);
+    } catch {
+      "";
+    }
+  }, [activeImageIndex, isMobile, isCompactDesktop, activeProject?.id]);
+
+  useEffect(() => {
+    if (!isLightboxOpen) return;
+    const s = lightboxThumbsSwiperRef.current;
+    if (!s) return;
+
+    try {
+      s.slideTo(activeImageIndex);
+    } catch {
+      "";
+    }
+  }, [activeImageIndex, isLightboxOpen]);
 
   return (
-    <section
-      id="realizations"
-      className="section section--light projects-accordion"
-    >
+    <section id="realizations" className="section section--light projects-accordion">
       <div className="section__inner projects-accordion__inner">
         <header className="projects-accordion__header">
           <p className="projects-accordion__kicker">Projekty</p>
-          <h2 className="projects-accordion__heading">
-            Realizacje wykonawcze
-          </h2>
+          <h2 className="projects-accordion__heading">Realizacje wykonawcze</h2>
           <p className="projects-accordion__intro">
             Wybrane inwestycje wielorodzinne, usługowe i jednorodzinne
-            zrealizowane w standardzie generalnego wykonawcy. Wybierz
-            projekt, aby zobaczyć szczegóły i galerię zdjęć.
+            zrealizowane w standardzie generalnego wykonawcy. Wybierz projekt,
+            aby zobaczyć szczegóły i galerię zdjęć.
           </p>
         </header>
 
+        {/* MOBILE */}
         {isMobile && (
-          <div
-            className="projects-accordion__slider"
-            style={{ "--projects-progress": "#00E5FF" }}
-          >
+          <div className="projects-accordion__slider" style={{ "--projects-progress": "#00E5FF" }}>
             <Swiper
               onSwiper={(s) => (mobileSwiperRef.current = s)}
               nested
@@ -430,13 +367,16 @@ useEffect(() => {
               pagination={{ type: "progressbar" }}
             >
               {PROJECTS.map((project) => {
-                const cover = project.images[0];
+                const cover = project.images?.[0];
                 const isActive = project.id === activeProjectId;
 
                 return (
                   <SwiperSlide key={project.id}>
                     {isActive && activeProject ? (
-                      <div ref={isActive ? activeMobileItemRef : null} className="projects-accordion__item projects-accordion__item--expanded-mobile">
+                      <div
+                        ref={isActive ? activeMobileItemRef : null}
+                        className="projects-accordion__item projects-accordion__item--expanded-mobile"
+                      >
                         <div
                           className="projects-accordion__card-mobile-header"
                           onClick={() => handleSelectProject(project.id)}
@@ -452,14 +392,19 @@ useEffect(() => {
                             <p className="projects-accordion__description projects-accordion__description--secondary">
                               {project.description}
                             </p>
-                            <p className="projects-accordion__photography">
-                              <span className="projects-accordion__photography-label">
-                                Photography by:
-                              </span>{" "}
-                              <span className="projects-accordion__photography-name">
-                                {project.photographyBy}
-                              </span>
-                            </p>
+
+                            <button
+                              type="button"
+                              className="projects-accordion__spec-toggle"
+                              aria-expanded={isSpecOpen}
+                              onClick={() => setIsSpecOpen((v) => !v)}
+                            >
+                              Specyfikacja {isSpecOpen ? "—" : "+"}
+                            </button>
+
+                            <div className={"projects-accordion__spec" + (isSpecOpen ? " is-open" : "")}>
+                              <SpecList project={project} variant="projects-accordion" />
+                            </div>
                           </div>
 
                           <div className="projects-accordion__gallery">
@@ -470,11 +415,13 @@ useEffect(() => {
                             >
                               {currentImage && (
                                 <img
-                                  key={`${activeProject.id}-${activeImageIndex}`}
-                                  src={currentImage.src}
+                                  src={currentImage.mainUrl}
                                   alt={currentImage.alt}
                                   className="projects-accordion__image"
                                   loading="lazy"
+                                  decoding="async"
+                                  width={currentImage.width}
+                                  height={currentImage.height}
                                 />
                               )}
                             </div>
@@ -491,10 +438,11 @@ useEffect(() => {
                                   onClick={() => handleThumbClick(index)}
                                 >
                                   <img
-                                    src={image.src}
+                                    src={image.thumbUrl}
                                     alt={image.alt}
                                     className="projects-accordion__thumb-image"
                                     loading="lazy"
+                                    decoding="async"
                                   />
                                 </button>
                               ))}
@@ -510,12 +458,15 @@ useEffect(() => {
                           onClick={() => handleSelectProject(project.id)}
                         >
                           <div className="projects-accordion__card-image-wrap">
-                            <img
-                              src={cover.src}
-                              alt={cover.alt}
-                              className="projects-accordion__card-image"
-                              loading="lazy"
-                            />
+                            {cover?.thumbUrl && (
+                              <img
+                                src={cover.thumbUrl}
+                                alt={cover.alt}
+                                className="projects-accordion__card-image"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            )}
                           </div>
                           <div className="projects-accordion__card-body">
                             <span className="projects-accordion__card-type">{project.type}</span>
@@ -532,170 +483,146 @@ useEffect(() => {
           </div>
         )}
 
+        {/* COMPACT DESKTOP / TABLET */}
+        {!isMobile && isCompactDesktop && activeProject && (
+          <motion.div
+            className="projects-compact"
+            initial={{ opacity: 0, y: 12, scale: 0.995 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.38, ease: "easeOut" }}
+          >
+            <div className="projects-compact__top">
+              <div className="projects-hero__eyebrow">
+                Realizacja {activeProject.year} · {activeProject.type}
+              </div>
 
-        {!isMobile && activeProject && (
-          <>
+              <h3 className="projects-hero__title">{activeProject.name}</h3>
+              <p className="projects-hero__location">{activeProject.location}</p>
+
+              <div className="projects-compact__copy">
+                <p className="projects-hero__description">{activeProject.summary}</p>
+                <p className="projects-hero__description projects-hero__description--secondary">
+                  {activeProject.description}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="projects-compact__spec-toggle"
+                aria-expanded={isSpecOpen}
+                onClick={() => setIsSpecOpen((v) => !v)}
+              >
+                Specyfikacja {isSpecOpen ? "—" : "+"}
+              </button>
+
+              <div className={"projects-compact__spec" + (isSpecOpen ? " is-open" : "")}>
+                <SpecList project={activeProject} variant="projects-compact" />
+              </div>
+            </div>
+
+            <div className="projects-compact__carousel">
+              <Swiper
+                modules={[Pagination]}
+                slidesPerView={1}
+                spaceBetween={12}
+                pagination={{ type: "fraction" }}
+                onSlideChange={(s) => setActiveImageIndex(s.activeIndex)}
+              >
+                {activeProject.images.map((img, idx) => (
+                  <SwiperSlide key={`${activeProject.id}-c-${idx}`}>
+                    <div className="projects-compact__slide">
+                      <img
+                        src={img.mainUrl}
+                        alt={img.alt}
+                        loading={idx === 0 ? "eager" : "lazy"}
+                        decoding="async"
+                        width={img.width}
+                        height={img.height}
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          </motion.div>
+        )}
+
+        {/* WIDE DESKTOP */}
+        {!isMobile && !isCompactDesktop && activeProject && (
+          <div className="projects-desktop">
+            <aside className="projects-sidebar" ref={sidebarRef}>
+              <div className="projects-sidebar__title">Wybierz realizację</div>
+
+              <div className="projects-sidebar__list">
+                {PROJECTS.map((project) => {
+                  const cover = project.images?.[0];
+                  const isActive = project.id === effectiveActiveId;
+
+                  return (
+                    <button
+                      key={project.id}
+                      type="button"
+                      data-project-id={project.id}
+                      className={"projects-sidebar__item" + (isActive ? " projects-sidebar__item--active" : "")}
+                      onClick={() => handleSelectProject(project.id)}
+                    >
+                      <div className="projects-sidebar__thumb">
+                        {cover?.thumbUrl && (
+                          <img src={cover.thumbUrl} alt={cover.alt} loading="lazy" decoding="async" />
+                        )}
+                      </div>
+
+                      <div className="projects-sidebar__meta">
+                        <div className="projects-sidebar__type">{project.type}</div>
+                        <div className="projects-sidebar__name">{project.name}</div>
+                        <div className="projects-sidebar__location">{project.location}</div>
+                        <div className="projects-sidebar__facts">
+                          {project.year} · {project.floors} kond.
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+
             <motion.div
               className="projects-hero"
-              initial={{ opacity: 0, y: 16, scale: 0.99 }}
+              initial={{ opacity: 0, y: 12, scale: 0.995 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
+              transition={{ duration: 0.38, ease: "easeOut" }}
             >
               <div className="projects-hero__text">
                 <div className="projects-hero__eyebrow">
                   Realizacja {activeProject.year} · {activeProject.type}
                 </div>
 
-                <h3 className="projects-hero__title">
-                  {activeProject.name}
-                </h3>
+                <h3 className="projects-hero__title">{activeProject.name}</h3>
+                <p className="projects-hero__location">{activeProject.location}</p>
 
-                <p className="projects-hero__location">
-                  {activeProject.location}
-                </p>
+                <div className="projects-hero__editorial">
+                  <div className="projects-hero__copy">
+                    <p className="projects-hero__description">{activeProject.summary}</p>
+                    <p className="projects-hero__description projects-hero__description--secondary">
+                      {activeProject.description}
+                    </p>
+                  </div>
 
-                <div className="projects-hero__tabs">
-                  <button
-                    type="button"
-                    className={
-                      "projects-hero__tab" +
-                      (activeTab === "description"
-                        ? " projects-hero__tab--active"
-                        : "")
-                    }
-                    onClick={() => setActiveTab("description")}
-                  >
-                    Opis
-                  </button>
-                  <button
-                    type="button"
-                    className={
-                      "projects-hero__tab" +
-                      (activeTab === "spec"
-                        ? " projects-hero__tab--active"
-                        : "")
-                    }
-                    onClick={() => setActiveTab("spec")}
-                  >
-                    Specyfikacja
-                  </button>
-                </div>
+                  <div className="projects-hero__specAccordion">
+                    <button
+                      type="button"
+                      className="projects-hero__spec-toggle"
+                      aria-expanded={isSpecOpen}
+                      onClick={() => setIsSpecOpen((v) => !v)}
+                    >
+                      Specyfikacja {isSpecOpen ? "—" : "+"}
+                    </button>
 
-                <div className="projects-hero__tab-panel">
-                  {activeTab === "description" && (
-                    <div className="projects-hero__description-block">
-                      <p className="projects-hero__description">
-                        {activeProject.summary}
-                      </p>
-                      <p className="projects-hero__description projects-hero__description--secondary">
-                        {activeProject.description}
-                      </p>
-                      <p className="projects-hero__photography">
-                        <span className="projects-hero__photography-label">
-                          Photography by:
-                        </span>{" "}
-                        <span className="projects-hero__photography-name">
-                          {activeProject.photographyBy}
-                        </span>
-                      </p>
+                    <div className={"projects-hero__spec" + (isSpecOpen ? " is-open" : "")}>
+                      <SpecList project={activeProject} variant="projects-hero" />
                     </div>
-                  )}
-
-                  {activeTab === "spec" && (
-                    <div className="projects-hero__spec">
-                      <ul className="projects-hero__spec-list">
-                        <li className="projects-hero__spec-item">
-                          <span className="projects-hero__spec-icon" />
-                          <span className="projects-hero__spec-label">
-                            Rok realizacji
-                          </span>
-                          <span className="projects-hero__spec-value">
-                            {specCounters.year || activeProject.year}
-                          </span>
-                        </li>
-                        <li className="projects-hero__spec-item">
-                          <span className="projects-hero__spec-icon" />
-                          <span className="projects-hero__spec-label">
-                            Kondygnacje
-                          </span>
-                          <span className="projects-hero__spec-value">
-                            {specCounters.floors || activeProject.floors}
-                          </span>
-                        </li>
-                        <li className="projects-hero__spec-item">
-                          <span className="projects-hero__spec-icon" />
-                          <span className="projects-hero__spec-label">
-                            Pow. użytkowa
-                          </span>
-                          <span className="projects-hero__spec-value">
-                            {formatNumber(specCounters.usableArea) ||
-                              formatNumber(
-                                activeProject.usableArea?.value
-                              )}{" "}
-                            {activeProject.usableArea?.unit}
-                          </span>
-                        </li>
-                        <li className="projects-hero__spec-item">
-                          <span className="projects-hero__spec-icon" />
-                          <span className="projects-hero__spec-label">
-                            Pow. działki
-                          </span>
-                          <span className="projects-hero__spec-value">
-                            {formatNumber(specCounters.plotArea) ||
-                              formatNumber(
-                                activeProject.plotArea?.value
-                              )}{" "}
-                            {activeProject.plotArea?.unit}
-                          </span>
-                        </li>
-                        <li className="projects-hero__spec-item">
-                          <span className="projects-hero__spec-icon" />
-                          <span className="projects-hero__spec-label">
-                            Kubatura
-                          </span>
-                          <span className="projects-hero__spec-value">
-                            {formatNumber(specCounters.volume) ||
-                              formatNumber(
-                                activeProject.volume?.value
-                              )}{" "}
-                            {activeProject.volume?.unit}
-                          </span>
-                        </li>
-                        <li className="projects-hero__spec-item">
-                          <span className="projects-hero__spec-icon" />
-                          <span className="projects-hero__spec-label">
-                            Konstrukcja
-                          </span>
-                          <span className="projects-hero__spec-value">
-                            {activeProject.structure}
-                          </span>
-                        </li>
-                        <li className="projects-hero__spec-item">
-                          <span className="projects-hero__spec-icon" />
-                          <span className="projects-hero__spec-label">
-                            Inwestor
-                          </span>
-                          <span className="projects-hero__spec-value">
-                            {activeProject.client}
-                          </span>
-                        </li>
-                        <li className="projects-hero__spec-item">
-                          <span className="projects-hero__spec-icon" />
-                          <span className="projects-hero__spec-label">
-                            Status
-                          </span>
-                          <span className="projects-hero__spec-value">
-                            {activeProject.status}
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
+                  </div>
                 </div>
-
-                <button type="button" className="projects-hero__cta">
-                  Zobacz całą realizację
-                </button>
               </div>
 
               <div className="projects-hero__gallery">
@@ -703,168 +630,183 @@ useEffect(() => {
                   className="projects-hero__image-wrapper"
                   onMouseMove={handleHeroMouseMove}
                   onMouseLeave={handleHeroMouseLeave}
+                  onClick={() => setIsLightboxOpen(true)}
+                  role="button"
+                  tabIndex={0}
                 >
                   <button
                     type="button"
                     className="projects-hero__arrow projects-hero__arrow--left"
-                    onClick={handlePrevImage}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrevImage();
+                    }}
+                    aria-label="Poprzednie zdjęcie"
                   >
                     ‹
                   </button>
 
                   {currentImage && (
                     <motion.img
-                      key={`${activeProject.id}-${activeImageIndex}`}
-                      src={currentImage.src}
+                      src={currentImage.mainUrl}
                       alt={currentImage.alt}
                       className="projects-hero__image"
-                      style={{
-                        x: imageX,
-                        y: imageY,
-                        scale: 1.08
-                      }} loading="lazy"
-                      transition={{
-                        type: "spring",
-                        stiffness: 70,
-                        damping: 20
-                      }}
+                      decoding="async"
+                      fetchpriority="high"
+                      width={currentImage.width}
+                      height={currentImage.height}
+                      style={{ x: imageX, y: imageY, scale: 1.06 }}
+                      transition={{ type: "spring", stiffness: 70, damping: 22 }}
                     />
                   )}
 
                   <button
                     type="button"
                     className="projects-hero__arrow projects-hero__arrow--right"
-                    onClick={handleNextImage}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNextImage();
+                    }}
+                    aria-label="Następne zdjęcie"
                   >
                     ›
                   </button>
+
+                  <div className="projects-hero__counter">
+                    {activeImageIndex + 1} / {activeProject.images.length}
+                  </div>
                 </div>
 
-                <div className="projects-hero__thumbs">
-                  {activeProject.images.map((image, index) => (
-                    <button
-                      key={`${activeProject.id}-thumb-${index}`}
-
-                      type="button"
-                      className={
-                        "projects-hero__thumb" +
-                        (index === activeImageIndex
-                          ? " projects-hero__thumb--active"
-                          : "")
-                      }
-                      onClick={() => handleThumbClick(index)}
-                    >
-                      <img
-                        src={image.src}
-                        alt={image.alt}
-                        className="projects-hero__thumb-image"
-                        loading="lazy"
-                      />
-                    </button>
-                  ))}
+                <div className="projects-hero__thumbs-carousel">
+                  <Swiper
+                    onSwiper={(s) => (heroThumbsSwiperRef.current = s)}
+                    modules={[FreeMode]}
+                    freeMode
+                    slidesPerView="auto"
+                    spaceBetween={10}
+                    watchSlidesProgress
+                  >
+                    {activeProject.images.map((image, index) => (
+                      <SwiperSlide key={`${activeProject.id}-thumbslide-${index}`} style={{ width: "92px" }}>
+                        <button
+                          type="button"
+                          className={
+                            "projects-hero__thumb" + (index === activeImageIndex ? " projects-hero__thumb--active" : "")
+                          }
+                          onClick={() => handleThumbClick(index)}
+                          aria-label={`Wybierz zdjęcie ${index + 1}`}
+                        >
+                          <img
+                            src={image.thumbUrl}
+                            alt={image.alt}
+                            className="projects-hero__thumb-image"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </button>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
                 </div>
               </div>
             </motion.div>
+          </div>
+        )}
+      </div>
 
-            <div className="projects-filmstrip-wrapper">
+      {!isMobile && activeProject && currentImage && isLightboxOpen && (
+        <div className="projects-lightbox" role="dialog" aria-modal="true" onClick={closeLightbox}>
+          <div
+            className="projects-lightbox__panel"
+            style={lbPanelWidth ? { width: lbPanelWidth } : undefined}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="projects-lightbox__stage" style={{ "--lb-bg": `url("${lbSrc || currentImage.mainUrl}")` }}>
               <button
                 type="button"
-                className="projects-filmstrip__nav projects-filmstrip__nav--left"
-                onClick={() => {
-                  if (!activeProject) return;
+                className="projects-lightbox__close"
+                onClick={closeLightbox}
+                aria-label="Zamknij"
+              >
+                ✕
+              </button>
 
-                  const currentIndex = PROJECTS.findIndex(
-                    (p) => p.id === activeProject.id
-                  );
-                  const prevIndex =
-                    (currentIndex - 1 + PROJECTS.length) % PROJECTS.length;
-                  const prevProject = PROJECTS[prevIndex];
-
-                  handleSelectProject(prevProject.id);
+              <button
+                type="button"
+                className="projects-lightbox__nav projects-lightbox__nav--left"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrevImage();
                 }}
+                aria-label="Poprzednie zdjęcie"
               >
                 ‹
               </button>
 
-
-              <div
-                className="projects-filmstrip"
-                ref={filmstripRef}
-              >
-                {PROJECTS.map((project) => {
-                  const cover = project.images[0];
-                  const effectiveActiveId =
-                    activeProjectId || PROJECTS[0].id;
-                  const isActive = project.id === effectiveActiveId;
-
-                  return (
-                    <motion.button
-                      key={project.id}
-                      type="button"
-                      data-project-id={project.id}
-                      className={
-                        "projects-filmstrip__card" +
-                        (isActive
-                          ? " projects-filmstrip__card--active"
-                          : "")
-                      }
-                      onClick={() => handleSelectProject(project.id)}
-                      whileHover={!isActive ? { y: -1 } : {}}
-                      transition={{
-                        type: "spring",
-                        stiffness: 220,
-                        damping: 18
-                      }}
-                    >
-                      <div className="projects-filmstrip__image-wrap">
-                        <img
-                          src={cover.src}
-                          alt={cover.alt}
-                          className="projects-filmstrip__image"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="projects-filmstrip__body">
-                        <span className="projects-filmstrip__type">
-                          {project.type}
-                        </span>
-                        <span className="projects-filmstrip__name">
-                          {project.name}
-                        </span>
-                        <span className="projects-filmstrip__location">
-                          {project.location}
-                        </span>
-                        <span className="projects-filmstrip__meta">
-                          {project.year} · {project.floors} kond.
-                        </span>
-                      </div>
-                    </motion.button>
-                  );
-                })}
+              <div className="projects-lightbox__image-wrap">
+                <img
+                  src={lbSrc || currentImage.mainUrl}
+                  alt={currentImage.alt}
+                  className={"projects-lightbox__image" + (lbIsFading ? " is-fading" : "")}
+                  decoding="async"
+                />
               </div>
 
               <button
                 type="button"
-                className="projects-filmstrip__nav projects-filmstrip__nav--right"
-                onClick={() => {
-                  if (!activeProject) return;
-
-                  const currentIndex = PROJECTS.findIndex(
-                    (p) => p.id === activeProject.id
-                  );
-                  const nextIndex = (currentIndex + 1) % PROJECTS.length;
-                  const nextProject = PROJECTS[nextIndex];
-
-                  handleSelectProject(nextProject.id);
+                className="projects-lightbox__nav projects-lightbox__nav--right"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNextImage();
                 }}
+                aria-label="Następne zdjęcie"
               >
                 ›
               </button>
 
+              <div className="projects-lightbox__counter">
+                {activeImageIndex + 1} / {activeProject.images.length}
+              </div>
             </div>
-          </>
-        )}
-      </div>
+
+            <div className="projects-lightbox__thumbs">
+              <Swiper
+                onSwiper={(s) => (lightboxThumbsSwiperRef.current = s)}
+                modules={[FreeMode]}
+                freeMode
+                slidesPerView="auto"
+                spaceBetween={10}
+                watchSlidesProgress
+                onAfterInit={(s) => {
+                  try {
+                    s.slideTo(activeImageIndex, 0);
+                  } catch {
+                    "";
+                  }
+                }}
+              >
+                {activeProject.images.map((img, idx) => (
+                  <SwiperSlide key={`${activeProject.id}-lb-thumb-${idx}`} style={{ width: "92px" }}>
+                    <button
+                      type="button"
+                      className={
+                        "projects-lightbox__thumb" + (idx === activeImageIndex ? " projects-lightbox__thumb--active" : "")
+                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveImageIndex(idx);
+                      }}
+                      aria-label={`Wybierz zdjęcie ${idx + 1}`}
+                    >
+                      <img src={img.thumbUrl} alt={img.alt} decoding="async" loading="lazy" />
+                    </button>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

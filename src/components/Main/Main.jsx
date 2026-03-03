@@ -1,41 +1,40 @@
+import { useCallback } from "react";
 import "./Main.scss";
 
 export default function Main() {
-  const scrollToSection = (id) => {
+  const scrollToSection = useCallback((id) => {
     const el = document.getElementById(id);
     if (!el) return;
 
-    const headerEl = document.querySelector(".header");
-    const headerHeight = headerEl ? headerEl.offsetHeight : 0;
-
-    const elementTop = el.getBoundingClientRect().top + window.scrollY;
-    const target = elementTop - headerHeight;
-
-    window.scrollTo({
-      top: target,
+    el.scrollIntoView({
       behavior: "smooth",
+      block: "start",
     });
-  };
+  }, []);
 
   return (
     <section id="main" className="main">
       <div className="main-container">
         <div className="main-body">
           <h1 className="main-body__logo">Building Panda</h1>
-          <h2 className="main-body__slogan">
+          <span className="main-body__accent" aria-hidden="true" />
+          <p className="main-body__slogan">
             Nowoczesne budowanie — bez kompromisów.
-          </h2>
+            Projekty mieszkaniowe i komercyjne pod klucz.
+          </p>
+
           <div className="main-body__buttons">
             <button
               type="button"
-              className="main-body__button"
+              className="main-body__button main-body__button--primary"
               onClick={() => scrollToSection("contact")}
             >
               Umów się
             </button>
+
             <button
               type="button"
-              className="main-body__button"
+              className="main-body__button main-body__button--ghost"
               onClick={() => scrollToSection("realizations")}
             >
               Nasze projekty

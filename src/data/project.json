@@ -1,0 +1,86 @@
+[
+  {
+    "id": "multi-1",
+    "name": "Sala Gimnastyczna",
+    "location": "Bytoń, Polska",
+    "type": "Obiekty publiczne",
+    "summary": "Nowoczesna sala gimnastyczna zaprojektowana z myślą o funkcjonalności, bezpieczeństwie i komforcie użytkowników.",
+    "description": "Obiekt sportowy dostosowany do potrzeb szkoły i lokalnej społeczności. Przestronna hala z odpowiednią akustyką oraz naturalnym doświetleniem zapewnia komfort podczas zajęć i wydarzeń sportowych. Zastosowanie trwałych materiałów wykończeniowych oraz energooszczędnych instalacji gwarantuje długą żywotność budynku i niskie koszty eksploatacji.",
+    "year": 2024,
+    "floors": 2,
+    "usableArea": {
+      "value": "...",
+      "unit": "m²"
+    },
+    "structure": "…",
+    "plotArea": {
+      "value": "...",
+      "unit": "m²"
+    },
+    "volume": {
+      "value": "...",
+      "unit": "m³"
+    },
+    "client": "…",
+    "status": "Zrealizowany",
+    "folder": "projekty/SALA_GIMNASTYCZNA_BYTON",
+    "start": 1,
+    "count": 16
+  },
+  {
+    "id": "multi-2",
+    "name": "Budynek Wielolokalowy",
+    "location": "Władysławowo, Polska",
+    "type": "Obiekty publiczne",
+    "summary": "Funkcjonalny budynek wielolokalowy zaprojektowany z myślą o efektywnej strukturze mieszkań i wysokim standardzie wykończenia.",
+    "description": "Inwestycja oparta na racjonalnym układzie komunikacji oraz optymalnym podziale powierzchni użytkowej. Każdy lokal został zaplanowany tak, aby maksymalnie wykorzystać dostępne metry, zapewniając jednocześnie komfort codziennego użytkowania. Prosta, ponadczasowa bryła oraz solidne rozwiązania techniczne gwarantują trwałość obiektu i stabilną wartość inwestycyjną.",
+    "year": 2024,
+    "floors": 3,
+    "usableArea": {
+      "value": "...",
+      "unit": "m²"
+    },
+    "structure": "…",
+    "plotArea": {
+      "value": "...",
+      "unit": "m²"
+    },
+    "volume": {
+      "value": "...",
+      "unit": "m³"
+    },
+    "client": "…",
+    "status": "Zrealizowany",
+    "folder": "projekty/BUDYNEK_WIELOLOKALOWY_WLADYSLAWOWO",
+    "start": 1,
+    "count": 27
+  },
+  {
+    "id": "multi-3",
+    "name": "CENTRUM HISTORYCZNO-EDUKACYJNY",
+    "location": "Kaliski, Polska",
+    "type": "Obiekty publiczne",
+    "summary": "Centrum historyczno-edukacyjne łączące funkcję ekspozycyjną z nowoczesną przestrzenią dydaktyczną.",
+    "description": "Obiekt zaprojektowany jako miejsce spotkań, nauki i popularyzacji dziedzictwa kulturowego. Przemyślany układ sal wystawowych oraz przestrzeni warsztatowych sprzyja organizacji wydarzeń, lekcji i konferencji. Zastosowanie współczesnych technologii multimedialnych oraz rozwiązań energooszczędnych pozwala stworzyć funkcjonalną i trwałą przestrzeń o ponadczasowym charakterze.",
+    "year": 2024,
+    "floors": 2,
+    "usableArea": {
+      "value": "...",
+      "unit": "m²"
+    },
+    "structure": "…",
+    "plotArea": {
+      "value": "...",
+      "unit": "m²"
+    },
+    "volume": {
+      "value": "...",
+      "unit": "m³"
+    },
+    "client": "…",
+    "status": "Zrealizowany",
+    "folder": "projekty/CENTRUM_HISTORYCZNO-EDUKACYJNE",
+    "start": 1,
+    "count": 23
+  }
+]

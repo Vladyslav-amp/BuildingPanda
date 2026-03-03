@@ -2,70 +2,170 @@
 @use "../../styles/mixins" as *;
 
 .main {
+  --header-h: 80px;
+
   @include section-padding;
-  background:
-    linear-gradient(rgba(15, 23, 42, 0.25),
-      rgba(15, 23, 42, 0.35)),
-    url("../../assets/main_bg.avif");
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 600px;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: 70%;
   background-size: cover;
-  height: 100vh;
+
+  background-image: url("../../assets/background/hero-3840.webp");
+
+  @include onTablet {
+    min-height: 70vh;
+    background-position: center;
+  }
 
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: 1;
-    background: rgba(0, 0, 0, 0.4);
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg,
+        rgba(17, 17, 17, 0.94) 0%,
+        rgba(17, 17, 17, 0.86) 34%,
+        rgba(17, 17, 17, 0.44) 55%,
+        rgba(17, 17, 17, 0) 78%);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(1200px 800px at 70% 50%,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.35) 70%,
+        rgba(0, 0, 0, 0.55) 100%);
   }
 
   &-container {
     @include max-width-page;
     @include pageGrid;
-    height: 100%;
-    place-items: center;
+
+    position: relative;
+    z-index: 1;
+
+    min-height: inherit;
+    align-items: center;
+    padding-block: clamp(18px, 3vw, 48px);
   }
 
   &-body {
     grid-column: 1 / -1;
-    justify-items: center;
-    z-index: 10;
+    max-width: 680px;
+
+    text-align: left;
+
+    background: rgba(17, 17, 17, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: clamp(18px, 3vw, 28px);
+
+    @supports (backdrop-filter: blur(10px)) {
+      backdrop-filter: blur(10px);
+    }
 
     &__logo {
       font-family: $main-title-font;
-      text-align: center;
-      font-size: 48px;
-      color: $akcent-color;
-      font-weight: 300;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      font-size: clamp(44px, 5vw, 72px);
+      line-height: 1.05;
+      color: $text-on-dark;
+      margin: 0 0 14px;
+    }
+
+    &__accent {
+      display: inline-block;
+      width: 64px;
+      height: 2px;
+      border-radius: 999px;
+      background: $akcent-color;
+      margin: 0 0 18px;
+      opacity: 0.9;
     }
 
     &__slogan {
       font-family: $main-text-font;
-      font-size: 20px;
       font-weight: 300;
-      color: $text-on-dark;
-      text-align: center;
+      font-size: clamp(16px, 1.6vw, 20px);
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.78);
+      margin: 0 0 22px;
     }
 
     &__buttons {
       display: flex;
-      padding-block-start: 20px;
-      gap: 10px;
-      width: 100%;
+      gap: 12px;
+      // flex-wrap: wrap;
     }
 
     &__button {
-      background: rgba($color: #676767, $alpha: .4);
       width: 100%;
-      padding: 10px 20px;
-      border-radius: 12px;
-      border: 1px solid $akcent-color;
-      color: $text-on-dark;
+      appearance: none;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      padding: 12px 18px;
       font-family: $main-text-font;
-      font-weight: 300;
+      font-weight: 500;
       font-size: 16px;
       cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+
+      &:active {
+        transform: translateY(1px);
+      }
+
+      &:focus-visible {
+        outline: 2px solid rgba($akcent-color, 0.8);
+        outline-offset: 3px;
+      }
+
+      &--primary {
+        background: rgba($akcent-color, 0.16);
+        border-color: rgba($akcent-color, 0.55);
+        color: $text-on-dark;
+        box-shadow: 0 0 0 1px rgba($akcent-color, 0.08),
+          0 10px 30px rgba($akcent-color, 0.10);
+
+        &:hover {
+          background: rgba($akcent-color, 0.22);
+          border-color: rgba($akcent-color, 0.75);
+        }
+      }
+
+      &--ghost {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: $text-on-dark;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.10);
+          border-color: rgba(255, 255, 255, 0.28);
+        }
+      }
+    }
+  }
+
+  @media (max-width: 640px) {
+    &-body {
+      text-align: center;
+      margin-inline: auto;
+
+      &__buttons {
+        justify-content: center;
+      }
+
+      &__accent {
+        margin-inline: auto;
+      }
     }
   }
 }

@@ -283,7 +283,7 @@ export default function About() {
               <img
                 ref={imgRef}
                 className="about__mediaImg"
-                src="src/assets/main_bg.avif"
+                src="src/assets/about-us.webp"
                 alt=""
                 loading="lazy"
               />

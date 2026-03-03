@@ -1,6 +1,6 @@
 import React from "react";
 import "./Footer.scss";
-import logo from '@/assets/logo.svg';
+import logo from '@/assets/logo.webp';
 
 function Icon({ name }) {
   const p = {

@@ -37,4 +37,6 @@ server/.env
 # env
 .env
 .env.*
-
+.env.local
+.env.production
+.env.development

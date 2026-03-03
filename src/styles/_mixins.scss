@@ -49,6 +49,12 @@
   }
 }
 
+@mixin onWideDesktop {
+  @media (min-width:$wide-min-width) {
+    @content;
+  }
+}
+
 @mixin onDesktop {
   @media (min-width:$desktop-min-width) {
     @content;
