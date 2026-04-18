@@ -16,12 +16,14 @@
   overflow: hidden;
   min-height: 600px;
   background-repeat: no-repeat;
-  background-position: 30%;
+  background-position: 60%;
   background-size: cover;
 
   background-image: url("../../assets/background/hero-3840.webp");
 
   @include onDesktop {
+  background-position: 30%;
+
   &::before {
     background: linear-gradient(90deg,
       rgba(17, 17, 17, 0.98) 0%,
