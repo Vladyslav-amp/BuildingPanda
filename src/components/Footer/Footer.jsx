@@ -68,11 +68,11 @@ export default function Footer() {
   const company = {
     name: "Building Panda Sp. z o.o.",
     tagline: "Budowa • Wykończenia • Remonty • Inwestycje mieszkaniowe",
-    addressLine1: "ul. Przykładowa 12, 00-000 Gdańsk, Polska",
+    addressLine1: "Niedźwiednik 36E, 80-292 Gdańsk, Polska",
     email: "buildingpanda.pl@gmail.com",
     phone: "+48 576 530 094",
     phone2: "+48 798 889 787",
-    hours: "Pon–Pt: 8:00–18:00 | Sob: 9:00–14:00",
+    hours: "Pon–Pt: 8:00–16:00",
     nip: "584-284-99-22",
     regon: "528167375",
     krs: "0001096305",

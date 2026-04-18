@@ -1,6 +1,12 @@
 @use "../../styles/variables" as *;
 @use "../../styles/mixins" as *;
 
+@media (min-width: 1680px) {
+  .main {
+    min-height: 80vh !important;
+  }
+}
+
 .main {
   --header-h: 80px;
 
@@ -10,15 +16,22 @@
   overflow: hidden;
   min-height: 600px;
   background-repeat: no-repeat;
-  background-position: 70%;
+  background-position: 30%;
   background-size: cover;
 
   background-image: url("../../assets/background/hero-3840.webp");
 
-  @include onTablet {
-    min-height: 70vh;
-    background-position: center;
+  @include onDesktop {
+  &::before {
+    background: linear-gradient(90deg,
+      rgba(17, 17, 17, 0.98) 0%,
+      rgba(17, 17, 17, 0.9) 30%,
+      rgba(17, 17, 17, 0.6) 55%,
+      rgba(17, 17, 17, 0.25) 75%,
+      rgba(17, 17, 17, 0.08) 90%,
+      transparent 100%);
   }
+}
 
   &::before {
     content: "";
