@@ -7,6 +7,7 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
+import aboutImg from "../assets/about-us.webp";
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -283,7 +284,7 @@ export default function About() {
               <img
                 ref={imgRef}
                 className="about__mediaImg"
-                src="src/assets/about-us.webp"
+                src={aboutImg}
                 alt=""
                 loading="lazy"
               />
