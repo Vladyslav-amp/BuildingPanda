@@ -52,7 +52,7 @@ export default function Faq() {
     () => [
       {
         q: "Ile trwa wycena i kiedy dostanę kosztorys?",
-        a: "Wstępną wycenę przygotowujemy po rozmowie i podstawowych danych. Dokładny kosztorys powstaje po pomiarach i ustaleniu zakresu — najczęściej w ciągu 24–72 godzin.",
+        a: "Wstępną wycenę przygotowujemy po rozmowie i podstawowych danych. Dokładny kosztorys powstaje po pomiarach i ustaleniu zakresu. Najczęściej w ciągu 24–72 godzin.",
       },
       {
         q: "Czy podpisujemy umowę i jak wygląda rozliczenie?",
@@ -60,15 +60,15 @@ export default function Faq() {
       },
       {
         q: "Czy pomagacie w doborze materiałów i zakupach?",
-        a: "Tak. Doradzamy materiały w zależności od budżetu i standardu, organizujemy logistykę i dostawy. Możemy pracować na materiałach inwestora lub po naszej stronie — zgodnie z ustaleniami.",
+        a: "Tak. Doradzamy materiały w zależności od budżetu i standardu, organizujemy logistykę i dostawy. Możemy pracować na materiałach inwestora lub po naszej stronie, zgodnie z ustaleniami.",
       },
       {
         q: "Kto nadzoruje ekipę i jak wygląda komunikacja?",
-        a: "Każdy projekt ma osobę prowadzącą (kierownika/nadzór). Ustalamy stały kanał kontaktu, raporty postępu oraz terminy odbiorów częściowych — aby wszystko było przewidywalne.",
+        a: "Każdy projekt ma osobę prowadzącą (kierownika/nadzór). Ustalamy stały kanał kontaktu, raporty postępu oraz terminy odbiorów częściowych, aby wszystko było przewidywalne.",
       },
       {
         q: "Czy dajecie gwarancję na wykonane prace?",
-        a: "Tak. Gwarancja jest określona w umowie. Po zakończeniu prac robimy odbiór z checklistą jakości i protokołem — to podstawa do serwisu gwarancyjnego.",
+        a: "Tak. Gwarancja jest określona w umowie. Po zakończeniu prac robimy odbiór z checklistą jakości i protokołem. To podstawa do serwisu gwarancyjnego.",
       },
       {
         q: "Czy realizujecie remonty „pod klucz” i większe inwestycje?",
@@ -76,7 +76,7 @@ export default function Faq() {
       },
       {
         q: "Od czego zacząć, jeśli nie mam jeszcze projektu?",
-        a: "Najlepiej od krótkiej rozmowy. Zbieramy potrzeby, budżet, termin i standard. Następnie proponujemy optymalny zakres, pomiary i wycenę — krok po kroku.",
+        a: "Najlepiej od krótkiej rozmowy. Zbieramy potrzeby, budżet, termin i standard. Następnie proponujemy optymalny zakres, pomiary i wycenę krok po kroku.",
       },
     ],
     []

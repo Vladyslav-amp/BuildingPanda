@@ -254,7 +254,7 @@ export default function Contact() {
           <p className="contact__kicker">Kontakt</p>
           <h2 className="contact__heading">Porozmawiajmy o Twoim projekcie</h2>
           <p className="contact__lead">
-            Zostaw dane — wrócimy z odpowiedzią i propozycją dalszych kroków. Premium to szybka, konkretna komunikacja.
+            Zostaw dane, wrócimy z odpowiedzią i propozycją dalszych kroków. Premium to szybka, konkretna komunikacja.
           </p>
         </header>
 
@@ -303,7 +303,7 @@ export default function Contact() {
                 </div>
                 <div className="contact__infoBody">
                   <p className="contact__infoTitle">Godziny</p>
-                  <p className="contact__infoText">Pon–Pt: 8:00–17:00</p>
+                  <p className="contact__infoText">Pon–Pt: 8:00 - 17:00</p>
                 </div>
               </div>
             </div>

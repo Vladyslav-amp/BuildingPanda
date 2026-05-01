@@ -172,7 +172,7 @@ export default function Privileges() {
         label: "Umowa i kosztorys",
         value: 100,
         type: "percent",
-        note: "Zakres, harmonogram i rozliczenie etapami — bez niespodzianek.",
+        note: "Zakres, harmonogram i rozliczenie etapami bez niespodzianek.",
       },
       {
         icon: "shield",
@@ -200,7 +200,7 @@ export default function Privileges() {
         label: "Zrealizowane wnętrza",
         value: 180,
         type: "projects",
-        note: "Mieszkania, domy i lokale — kompleksowe wykończenia i remonty.",
+        note: "Mieszkania, domy i lokale kompleksowe wykończenia i remonty.",
       },
       {
         icon: "checklist",
@@ -222,7 +222,7 @@ export default function Privileges() {
           <p className="privileges__kicker">Dlaczego my</p>
           <h2 className="privileges__heading">Standard, który widać w detalach</h2>
           <p className="privileges__lead">
-            Remont to nie obietnice — tylko proces. Pracujemy w oparciu o jasną umowę, przewidywalny harmonogram i kontrolę jakości.
+            Remont to nie obietnice tylko proces. Pracujemy w oparciu o jasną umowę, przewidywalny harmonogram i kontrolę jakości.
             Poniższe liczby pokazują, jak wygląda to w praktyce.
           </p>
         </header>

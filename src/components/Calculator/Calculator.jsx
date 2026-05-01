@@ -544,7 +544,7 @@ export default function Calculator() {
           <p className="calculator__kicker">Kalkulator</p>
           <h2 className="calculator__heading">Szacunkowa wycena projektu</h2>
           <p className="calculator__lead">
-            Wybierz parametry — zobacz orientacyjny zakres kosztów i czynniki wpływu. Kalkulator jest poglądowy; finalną
+            Wybierz parametry i zobacz orientacyjny zakres kosztów i czynniki wpływu. Kalkulator jest poglądowy, finalną
             wycenę przygotowujemy po rozmowie i doprecyzowaniu zakresu.
           </p>
         </header>

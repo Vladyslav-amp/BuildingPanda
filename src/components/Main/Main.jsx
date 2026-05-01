@@ -19,7 +19,7 @@ export default function Main() {
           <h1 className="main-body__logo">Building Panda</h1>
           <span className="main-body__accent" aria-hidden="true" />
           <p className="main-body__slogan">
-            Nowoczesne budowanie — bez kompromisów.
+            Nowoczesne budowanie bez kompromisów.
             Projekty mieszkaniowe i komercyjne pod klucz.
           </p>
 

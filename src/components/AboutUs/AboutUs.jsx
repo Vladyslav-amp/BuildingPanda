@@ -120,7 +120,7 @@ export default function About() {
         title: "Standard jakości, który da się zweryfikować",
         text:
           "Premium to detale: równe płaszczyzny, poprawna technologia, czyste łączenia i estetyka montażu. " +
-          "Kontrolujemy kluczowe etapy i reagujemy w trakcie — nie dopiero na odbiorze.",
+          "Kontrolujemy kluczowe etapy i reagujemy w trakcie, nie dopiero na odbiorze.",
       },
       {
         icon: "shield",
@@ -228,7 +228,7 @@ export default function About() {
             <p className="about__kicker">O nas</p>
 
             <h2 className="about__heading">
-              Realizacje w standardzie premium — oparte na procesie, nie na obietnicach
+              Realizacje w standardzie premium oparte na procesie, nie na obietnicach
             </h2>
 
             <div className="about__copy">
@@ -250,7 +250,7 @@ export default function About() {
               </p>
 
               <p className="about__text about__text--strong">
-                Jeśli szukasz wykonawcy, który prowadzi inwestycję odpowiedzialnie — jesteś w dobrym miejscu.
+                Jeśli szukasz wykonawcy, który prowadzi inwestycję odpowiedzialnie, jesteś w dobrym miejscu.
               </p>
             </div>
 

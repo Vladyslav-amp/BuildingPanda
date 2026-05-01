@@ -269,12 +269,6 @@ export default function Header() {
         <div className="header__top">
           <div className="header__inner header__inner--top">
             <div className="header__left">
-              <a className="header__company" href="#top" onClick={(e) => onNavClick(e, "#top")}>
-                Building Panda
-              </a>
-            </div>
-
-            <div className="header__center">
               <a
                 className="header__logo"
                 href="#top"
@@ -288,7 +282,6 @@ export default function Header() {
                 />
               </a>
             </div>
-
 
             <div className="header__right">
               <div className="header__contact">
