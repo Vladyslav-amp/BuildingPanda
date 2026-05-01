@@ -14,11 +14,11 @@
   }
 
   &__kicker {
-    @include text-kicker
+    @include text-kicker;
   }
 
   &__heading {
-    @include text-heading
+    @include text-heading;
   }
 
   &__lead {

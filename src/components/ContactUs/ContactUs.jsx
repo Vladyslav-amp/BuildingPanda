@@ -303,7 +303,7 @@ export default function Contact() {
                 </div>
                 <div className="contact__infoBody">
                   <p className="contact__infoTitle">Godziny</p>
-                  <p className="contact__infoText">Pon–Pt: 8:00–16:00</p>
+                  <p className="contact__infoText">Pon–Pt: 8:00–17:00</p>
                 </div>
               </div>
             </div>

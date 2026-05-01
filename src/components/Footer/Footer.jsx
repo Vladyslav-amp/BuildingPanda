@@ -72,17 +72,17 @@ export default function Footer() {
     email: "buildingpanda.pl@gmail.com",
     phone: "+48 576 530 094",
     phone2: "+48 798 889 787",
-    hours: "Pon–Pt: 8:00–16:00",
+    hours: "Pon–Pt: 8:00–17:00",
     nip: "584-284-99-22",
     regon: "528167375",
     krs: "0001096305",
     shareCapital: "30 000 zł",
     // bank: "PL00 0000 0000 0000 0000 0000 0000",
     socials: {
-      instagram: "#",
-      facebook: "#",
-      linkedin: "#",
-      youtube: "#",
+      instagram: "https://www.instagram.com/buildingpanda/",
+      facebook: "https://www.facebook.com/profile.php?id=61577485641559",
+      // linkedin: "#",
+      // youtube: "#",
     },
   };
 
@@ -316,7 +316,7 @@ export default function Footer() {
             >
               <Icon name="facebook" />
             </a>
-            <a
+            {/* <a
               className="footer__socialBtn"
               href={company.socials.linkedin}
               aria-label="LinkedIn"
@@ -333,7 +333,7 @@ export default function Footer() {
               rel="noreferrer"
             >
               <Icon name="youtube" />
-            </a>
+            </a> */}
           </div>
         </div>
       </div>

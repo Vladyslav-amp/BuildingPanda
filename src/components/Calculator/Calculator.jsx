@@ -88,47 +88,15 @@ function SegButton({ active, onClick, icon, label }) {
 }
 
 const VOIVODESHIPS = [
-  "Dolnośląskie",
-  "Kujawsko-pomorskie",
-  "Lubelskie",
-  "Lubuskie",
-  "Łódzkie",
-  "Małopolskie",
-  "Mazowieckie",
-  "Opolskie",
-  "Podkarpackie",
-  "Podlaskie",
-  "Pomorskie",
-  "Śląskie",
-  "Świętokrzyskie",
-  "Warmińsko-mazurskie",
-  "Wielkopolskie",
-  "Zachodniopomorskie",
+  "Pomorskie"
 ];
 
 const CITIES_BY_VOIVODESHIP = {
-  "Dolnośląskie": ["Wrocław", "Wałbrzych", "Legnica", "Jelenia Góra", "Lubin", "Głogów", "Inne (Dolnośląskie)"],
-  "Kujawsko-pomorskie": ["Bydgoszcz", "Toruń", "Włocławek", "Grudziądz", "Inowrocław", "Inne (Kujawsko-pomorskie)"],
-  Lubelskie: ["Lublin", "Zamość", "Chełm", "Biała Podlaska", "Puławy", "Inne (Lubelskie)"],
-  Lubuskie: ["Zielona Góra", "Gorzów Wielkopolski", "Nowa Sól", "Żary", "Inne (Lubuskie)"],
-  "Łódzkie": ["Łódź", "Piotrków Trybunalski", "Pabianice", "Tomaszów Mazowiecki", "Zgierz", "Inne (Łódzkie)"],
-  "Małopolskie": ["Kraków", "Tarnów", "Nowy Sącz", "Oświęcim", "Chrzanów", "Inne (Małopolskie)"],
-  Mazowieckie: ["Warszawa", "Radom", "Płock", "Siedlce", "Pruszków", "Legionowo", "Inne (Mazowieckie)"],
-  Opolskie: ["Opole", "Kędzierzyn-Koźle", "Nysa", "Brzeg", "Inne (Opolskie)"],
-  Podkarpackie: ["Rzeszów", "Przemyśl", "Stalowa Wola", "Mielec", "Krosno", "Inne (Podkarpackie)"],
-  Podlaskie: ["Białystok", "Łomża", "Suwałki", "Inne (Podlaskie)"],
-  Pomorskie: ["Gdańsk", "Gdynia", "Sopot", "Słupsk", "Tczew", "Wejherowo", "Inne (Pomorskie)"],
-  "Śląskie": ["Katowice", "Gliwice", "Zabrze", "Bytom", "Chorzów", "Tychy", "Rybnik", "Częstochowa", "Bielsko-Biała", "Inne (Śląskie)"],
-  "Świętokrzyskie": ["Kielce", "Ostrowiec Świętokrzyski", "Starachowice", "Sandomierz", "Inne (Świętokrzyskie)"],
-  "Warmińsko-mazurskie": ["Olsztyn", "Elbląg", "Ełk", "Iława", "Inne (Warmińsko-mazurskie)"],
-  Wielkopolskie: ["Poznań", "Kalisz", "Konin", "Piła", "Leszno", "Gniezno", "Inne (Wielkopolskie)"],
-  Zachodniopomorskie: ["Szczecin", "Koszalin", "Świnoujście", "Stargard", "Kołobrzeg", "Inne (Zachodniopomorskie)"],
+  Pomorskie: ["Gdańsk", "Gdynia", "Sopot", "Słupsk", "Tczew", "Wejherowo", "Inne (Trójmiasto +100km)"]
 };
 
 const BIG_CITIES = new Set([
-  "Warszawa", "Kraków", "Wrocław", "Poznań", "Gdańsk", "Gdynia", "Sopot",
-  "Łódź", "Katowice", "Szczecin", "Lublin", "Białystok", "Rzeszów", "Bydgoszcz",
-  "Toruń", "Częstochowa", "Gliwice", "Zabrze", "Bielsko-Biała", "Olsztyn",
+  "Gdańsk", "Gdynia", "Sopot"
 ]);
 
 export default function Calculator() {

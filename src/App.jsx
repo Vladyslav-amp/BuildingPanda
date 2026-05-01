@@ -26,10 +26,10 @@ function App() {
       <Header />
       <main>
         <Main />
-        <TrustBar />
-        <Realizations />
         <Capabilities />
+        <Realizations />
         <Projects />
+        <TrustBar />
         <HowWeWork />
         <Calculator />
         <FAQ />
