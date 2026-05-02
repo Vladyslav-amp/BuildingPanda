@@ -4,7 +4,7 @@
 .projects-accordion {
   @include section-padding;
 
-  background: $light-section-down;
+  background: $light-section-up;
   scroll-margin-top: 60px;
 
   &__inner {

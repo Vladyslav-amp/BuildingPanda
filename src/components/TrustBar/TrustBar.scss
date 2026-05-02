@@ -5,7 +5,7 @@
   position: relative;
   overflow: hidden;
   @include section-padding;
-  background: $light-section-up;
+  background: $light-section-down;
 
   &__container {
     @include max-width-page;
