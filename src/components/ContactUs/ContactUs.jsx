@@ -321,7 +321,7 @@ export default function Contact() {
                 </li>
                 <li className="contact__trustItem">
                   <span className="contact__trustDot" />
-                  Odbiór na checklistach + gwarancja
+                  Odbiór na checklistach + gwarancja 5 lat
                 </li>
               </ul>
               <p className="contact__trustNote">
